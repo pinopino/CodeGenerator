@@ -1,0 +1,11 @@
+﻿	/// <summary>
+	/// {0}实体
+	/// </summary>
+	[Serializable]
+	public class {1}{2}{3}{4}
+	{{
+		public {5}()
+		{{}}
+{6}
+{7}
+	}}

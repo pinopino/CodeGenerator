@@ -1,0 +1,7 @@
+﻿		/// <summary>
+		/// 分页获取数据列表
+		/// </summary>
+		public static PageDataView<{0}> GetListByPage(string where = "", string orderBy = "", string columns = " * ", int pageSize = 20, int currentPage = 1)
+        {{
+            return Paged<{1}>("{2}", where, orderBy, columns, pageSize, currentPage);
+        }}

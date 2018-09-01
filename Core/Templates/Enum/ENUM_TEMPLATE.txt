@@ -1,0 +1,7 @@
+﻿	/// <summary>
+	/// {0}枚举
+	/// </summary>
+	public enum {1}
+	{{
+		{2}
+	}}

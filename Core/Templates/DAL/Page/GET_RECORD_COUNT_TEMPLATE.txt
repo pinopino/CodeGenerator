@@ -1,0 +1,28 @@
+﻿		/// <summary>
+		/// 获取记录总数
+		/// </summary>
+        protected static int GetRecordCount(string where = "")
+        {{
+            var sql = new StringBuilder();
+            sql.Append("SELECT COUNT(1) FROM {0} ");
+            if (!string.IsNullOrWhiteSpace(where))
+            {{
+                if (!where.Trim().StartsWith("where", StringComparison.CurrentCultureIgnoreCase))
+                {{
+                    sql.Append(" WHERE " + where);
+                }}
+                else
+                {{
+                    sql.Append(" ");
+                    sql.Append(where);
+                    sql.Append(" ");
+                }}
+            }}
+            var ret = -1;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.ExecuteScalar<int>(sql.ToString());
+            }}
+
+            return ret;
+        }}

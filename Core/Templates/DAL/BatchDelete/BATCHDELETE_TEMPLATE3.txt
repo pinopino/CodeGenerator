@@ -1,0 +1,18 @@
+﻿		/// <summary>
+        /// 批量删除指定的{0}
+        /// </summary>
+        /// <param name="ids">{1} 标识列表</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Delete(List<{2}> ids)
+        {{
+            var sql = new StringBuilder();
+            sql.Append("DELETE FROM {3} ");
+            sql.Append(" WHERE {4} IN @ids");
+            var ret = false;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.Execute(sql.ToString(), new {{ @ids = ids.ToArray() }}) > 0;
+            }}
+
+            return ret;
+        }}

@@ -1,0 +1,45 @@
+﻿		/// <summary>
+        /// 添加{0}
+        /// </summary>
+        /// <param name="model">{1}实体</param>
+        /// <returns>新插入数据的id</returns>
+        public static {2} Insert({3} model)
+        {{
+            var sql = new StringBuilder();
+            sql.Append("INSERT INTO {4}({5}) ");
+            sql.Append(" OUTPUT INSERTED.[{6}] ");
+            sql.Append(" VALUES({7}) ");
+            var ret = {8};
+            SqlConnection conn = null;
+            SqlTransaction tran = null;
+            try
+            {{
+                using (conn = GetOpenConnection())
+                {{
+                    using (tran = conn.BeginTransaction())
+                    {{
+                        // 插入{9}基本信息
+                        ret = conn.ExecuteScalar<{10}>(sql.ToString(), model, tran);
+                        
+{11}
+                        // 提交事务
+                        tran.Commit();
+                    }}
+                }}
+            }}
+            catch (Exception ex)
+            {{
+                // todo: 异常记录
+                ret = {12};
+            }}
+            finally
+            {{
+                if ({13})
+                {{
+                    // 回滚事务
+                    tran.Rollback();
+                }}
+            }}
+
+            return ret;
+        }}
