@@ -375,6 +375,7 @@ namespace Generator.Core
         private string _comment;
         private bool _isPrimaryKey;
         private bool _isIdentity;
+        private bool _nullable;
         private bool _hasDefaultValue;
 
         public ColumnMetaData()
@@ -427,6 +428,15 @@ namespace Generator.Core
         {
             set { this._isIdentity = value; }
             get { return this._isIdentity; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool Nullable
+        {
+            set { this._nullable = value; }
+            get { return this._nullable; }
         }
 
         public bool HasDefaultValue
