@@ -97,6 +97,7 @@ namespace Generator.Core
             meta_col.Comment = column.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();
             meta_col.IsPrimaryKey = column.InPrimaryKey;
             meta_col.IsIdentity = column.Identity;
+            meta_col.Nullable = column.Nullable;
             meta_col.HasDefaultValue = column.DefaultConstraint != null && !string.IsNullOrWhiteSpace(column.DefaultConstraint.Text);
             metaTable.Columns.Add(meta_col);
 
