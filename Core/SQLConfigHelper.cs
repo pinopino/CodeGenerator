@@ -395,7 +395,7 @@ namespace Generator.Core
                 {
                     if (!string.IsNullOrWhiteSpace(column.Comment))
                     {
-                        var match = regex.Match(column.Comment);
+                        var match = regex.Match(column.Comment.Replace('（', '(').Replace('）',')'));
                         if (match.Success)
                         {
                             var comment = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");

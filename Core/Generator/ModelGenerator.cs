@@ -17,14 +17,23 @@ namespace Generator.Core
             var table_config = _config[tableName];
 
             var sb1 = new StringBuilder();
-            table_config.Columns.ForEach(p => {
+            table_config.Columns.ForEach(p =>
+            {
                 if (_config.MongoSupport_Model && p.IsPrimaryKey)
                 {
                     sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', "ObjectId", p.Name.ToLower()));
                 }
                 else
                 {
-                    sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
+                    if (p.Nullable && p.DbType != "string")
+                    {
+                        sb1.AppendLine(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
+                    }
+                    else
+                    {
+                        sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
+                    }
+
                 }
             });
 
@@ -51,7 +60,7 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
                         sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
                         sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
-                        if (p.Nullable)
+                        if (p.Nullable && p.DbType != "string")
                         {
                             sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
                         }
@@ -69,7 +78,7 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
                         sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
                         sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
-                        if (p.Nullable)
+                        if (p.Nullable && p.DbType != "string")
                         {
                             sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
                         }
