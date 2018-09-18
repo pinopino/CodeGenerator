@@ -106,7 +106,7 @@ namespace Generator.Core
             config.DAL_ClassNameSuffix = dal_classSuffix;
             config.DAL_Methods = dal_methods.Replace('，', ',').Split(',').ToList();
         }
-       
+
         public static Type MapCommonType(string dbtype)
         {
             if (string.IsNullOrEmpty(dbtype)) return Type.Missing.GetType();
@@ -391,7 +391,7 @@ namespace Generator.Core
                     continue;
                 }
 
-                foreach(var column in table.Columns)
+                foreach (var column in table.Columns)
                 {
                     if (!string.IsNullOrWhiteSpace(column.Comment))
                     {
@@ -429,6 +429,10 @@ namespace Generator.Core
         public static void DoPartialCheck(SQLMetaData config)
         {
             var partial_path = Path.Combine(config.PartialCheck_DAL_Path, "partial");
+            if (string.IsNullOrEmpty(partial_path) || partial_path== "partial")
+            {
+                return;
+            }
             var partial_files = Directory.GetFiles(partial_path);
             var list = InnerCheckPartial(config, partial_files);
             if (list.Count > 0)

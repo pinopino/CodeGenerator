@@ -51,7 +51,14 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
                         sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
                         sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
-                        sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
+                        if (p.Nullable)
+                        {
+                            sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
+                        }
+                        else
+                        {
+                            sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
+                        }
                         sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
                         sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
                         sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
@@ -62,7 +69,14 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
                         sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
                         sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
-                        sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
+                        if (p.Nullable)
+                        {
+                            sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
+                        }
+                        else
+                        {
+                            sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
+                        }
                         sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
                         sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
                         sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
