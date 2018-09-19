@@ -1,33 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using Dapper;
+using Microsoft.Extensions.Options;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using Dapper;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace CPA.DataLayer
+namespace Poker.DataLayer
 {
     public abstract class BaseTableHelper
     {
-        public readonly static string ConnectionString;
+        public static string ConnectionString;
+
+        static BaseTableHelper()
+        {
+            ConnectionString = UnitWork.Configure<DbConnect>("DbConnect").ConnectString;
+        }
 
         private static SqlConnection _connection;
 
         private static SqlConnection connection => _connection ?? (_connection = GetOpenConnection());
 
-        static BaseTableHelper()
-        {
-            //添加 json 文件路径
-            var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json");
-            //创建配置根对象
-            var configurationRoot = builder.Build();
-
-            //取配置根下的 name 部分
-            ConnectionString = configurationRoot.GetSection("DBConn").Value;
-            redis = new RedisHelper(configurationRoot.GetSection("RedisConn").Value);
-        }
 
         protected static SqlConnection GetOpenConnection(bool mars = false)
         {
@@ -69,7 +62,7 @@ namespace CPA.DataLayer
             }
             var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged ", columns, orderBy, tableName, where);
             var pageStart = (currentPage - 1) * pageSize;
-            sql += string.Format(" WHERE Row >={0} AND Row <={1}", pageStart, pageStart + pageSize);
+            sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
             count_sql += where;
             using (var conn = GetOpenConnection())
             {
@@ -81,6 +74,27 @@ namespace CPA.DataLayer
             }
 
             return result;
+        }
+    }
+
+    public class DbConnect
+    {
+        public string ConnectString { get; set; }
+    }
+
+    public static class UnitWork
+    {
+        private static IServiceProvider serviceProvider { get; set; }
+
+        public static void SetServiceProvider(IServiceProvider _serviceProvider)
+        {
+            serviceProvider = _serviceProvider;
+        }
+
+        public static TEntity Configure<TEntity>(string section) where TEntity : class, new()
+        {
+            var option = serviceProvider.GetService<IOptions<TEntity>>();
+            return option.Value;
         }
     }
 }
