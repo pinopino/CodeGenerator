@@ -405,7 +405,7 @@ namespace Generator.Core
                             sb.Append(string.Join(Environment.NewLine, config.Model_Using));
                             sb.AppendLine();
                             sb.AppendLine();
-                            sb.AppendLine(string.Format("namespace {0}.{1}", _project, "Enum"));
+                            sb.AppendLine(string.Format("namespace {0}.{1}", _project, "GenEnum"));
                             sb.AppendLine("{");
                             sb.AppendLine(g.Get_Enum(enum_name, arrs));
                             sb.AppendLine("}");
