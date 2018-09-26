@@ -26,6 +26,7 @@ namespace Generator.Core
         private static readonly bool _skip_default = false;
         private static readonly bool _do_partial_check = false;
         private static readonly string _partial_check_dal_path = string.Empty;
+        private static readonly List<string> _exist_enum = new List<string>();
 
         private static Dictionary<Type, DbType> typeMap = new Dictionary<Type, DbType>
         {
@@ -399,7 +400,9 @@ namespace Generator.Core
                         if (match.Success)
                         {
                             var comment = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");
-                            var enum_name = string.Format("{0}_{1}_{2}", table.Name, column.Name, "Enum");
+                            var tempname = System.Text.RegularExpressions.Regex.Replace(table.Name, @"\d", "").Replace("_", "");
+                            var enum_name = string.Format("{0}_{1}_{2}", tempname, column.Name, "Enum");
+                            if (_exist_enum.Contains(enum_name)) continue;
                             var arrs = comment.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                             sb.Append(config.Model_HeaderNote);
                             sb.Append(string.Join(Environment.NewLine, config.Model_Using));
@@ -411,6 +414,7 @@ namespace Generator.Core
                             sb.AppendLine("}");
                             File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", enum_name)), sb.ToString());
                             sb.Clear();
+                            _exist_enum.Add(enum_name);
                         }
                     }
                 }
