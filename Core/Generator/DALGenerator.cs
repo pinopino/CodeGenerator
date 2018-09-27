@@ -372,7 +372,7 @@ namespace Generator.Core
                     } break;
                 case "long":
                     {
-                        return "0l";
+                        return "0L";
 
                     } break;
                 case "string":
