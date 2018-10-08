@@ -19,7 +19,7 @@ namespace Poker.DataLayer
 
         private static SqlConnection _connection;
 
-        private static SqlConnection connection => _connection ?? (_connection = GetOpenConnection());
+        protected static SqlConnection connection => _connection ?? (_connection = GetOpenConnection());
 
 
         protected static SqlConnection GetOpenConnection(bool mars = false)
