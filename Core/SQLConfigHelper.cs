@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Generator.Core
 {
-    public class SQLMetaDataHelper
+    public class SQLMetaDataHelper 
     {
         private static readonly string _project = ConfigurationManager.AppSettings["Project"] ?? "LuckyStar";
         private static readonly string _basePath = ConfigurationManager.AppSettings["OutputBasePath"] ?? "d:\\output";
