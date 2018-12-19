@@ -153,6 +153,9 @@
     <Content Include="Templates\DAL\GetModel\GET_MODEL_TEMPLATE1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Templates\DAL\Update\UPDATE_TEMPLATE3.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Templates\DAL\Update\UPDATE_TEMPLATE2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
