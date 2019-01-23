@@ -1,7 +1,7 @@
 ﻿		/// <summary>
         /// 批量获取{0}
         /// </summary>
-        /// <param name="where">查询条件</param>
+        /// <param name="where">查询条件（不需要带有where关键字）</param>
         /// <param name="top">取出前top数的数据</param>
         /// <returns>{1}列表</returns>
         public static List<{2}> GetList(string where = "", int top = 100)
@@ -11,9 +11,13 @@
             sql.Append(" TOP " + top.ToString());
             sql.Append(" {3} ");
             sql.Append(" FROM {4} ");
-            if (!string.IsNullOrWhiteSpace(where))
+			if (!string.IsNullOrWhiteSpace(where))
             {{
-                sql.Append(" WHERE " + where);
+                if (where.ToLower().Contains("where"))
+                {{
+                    throw new ArgumentException("where子句不需要带where关键字");
+                }}
+				sql.Append(" WHERE " + where);
             }}
             object ret = null;
             using (var conn = GetOpenConnection())

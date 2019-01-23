@@ -1,22 +1,18 @@
 ﻿		/// <summary>
 		/// 获取记录总数
 		/// </summary>
+		/// <param name="where">查询条件（不需要带有where关键字）</param>
         public static int GetCount(string where = "")
         {{
             var sql = new StringBuilder();
             sql.Append("SELECT COUNT(1) FROM {0} ");
             if (!string.IsNullOrWhiteSpace(where))
             {{
-                if (!where.Trim().StartsWith("where", StringComparison.CurrentCultureIgnoreCase))
+                if (where.ToLower().Contains("where"))
                 {{
-                    sql.Append(" WHERE " + where);
+                    throw new ArgumentException("where子句不需要带where关键字");
                 }}
-                else
-                {{
-                    sql.Append(" ");
-                    sql.Append(where);
-                    sql.Append(" ");
-                }}
+				sql.Append(" WHERE " + where);
             }}
             var ret = -1;
             using (var conn = GetOpenConnection())

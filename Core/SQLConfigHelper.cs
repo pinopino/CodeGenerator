@@ -384,7 +384,7 @@ namespace Generator.Core
                         if (match.Success)
                         {
                             var comment = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");
-                            var tempname = System.Text.RegularExpressions.Regex.Replace(table.Name, @"\d", "").Replace("_", "");
+                            var tempname = Regex.Replace(table.Name, @"\d", "").Replace("_", "");
                             var enum_name = string.Format("{0}_{1}_{2}", tempname, column.Name, "Enum");
                             if (_exist_enum.Contains(enum_name)) continue;
                             var arrs = comment.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
