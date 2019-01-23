@@ -18,16 +18,13 @@ namespace Generator.Core
         private string _model_classNamePrefix;
         private string _model_classNameSuffix;
         private string _model_baseClass;
-        private bool _skip_default;
+
         private bool _do_partial_check;
         private string _partial_check_dal_path;
 
         private List<TableMetaData> _tables;
         private List<string> _exceptTables;
 
-        /// <summary>
-        /// 
-        /// </summary>
         public SQLMetaData()
         {
             _dal_headerNote = string.Empty;
@@ -44,7 +41,6 @@ namespace Generator.Core
             _model_classNamePrefix = string.Empty;
             _model_classNameSuffix = string.Empty;
             _model_baseClass = string.Empty;
-            _skip_default = false;
 
             _tables = new List<TableMetaData>();
             _exceptTables = new List<string>();
@@ -189,12 +185,6 @@ namespace Generator.Core
         {
             set { this._exceptTables = value; }
             get { return this._exceptTables; }
-        }
-
-        public bool SkipDefault
-        {
-            set { this._skip_default = value; }
-            get { return this._skip_default; }
         }
 
         public bool DoPartialCheck

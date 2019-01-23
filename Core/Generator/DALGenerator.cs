@@ -85,17 +85,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb1.Append(string.Format("[{0}], ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb1.Append(string.Format("[{0}], ", p.Name));
-                    }
+                    sb1.Append(string.Format("[{0}], ", p.Name));
                 }
             });
 
@@ -104,17 +94,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb2.Append(string.Format("@{0}, ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb2.Append(string.Format("@{0}, ", p.Name));
-                    }
+                    sb2.Append(string.Format("@{0}, ", p.Name));
                 }
             });
 
@@ -144,17 +124,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb1.Append(string.Format("[{0}], ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb1.Append(string.Format("[{0}], ", p.Name));
-                    }
+                    sb1.Append(string.Format("[{0}], ", p.Name));
                 }
             });
 
@@ -163,17 +133,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb2.Append(string.Format("@{0}, ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb2.Append(string.Format("@{0}, ", p.Name));
-                    }
+                    sb2.Append(string.Format("@{0}, ", p.Name));
                 }
             });
 
@@ -221,17 +181,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb2.Append(string.Format("[{0}], ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb2.Append(string.Format("[{0}], ", p.Name));
-                    }
+                    sb2.Append(string.Format("[{0}], ", p.Name));
                 }
             });
 
@@ -243,17 +193,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb4.Append(string.Format("@{0}, ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb4.Append(string.Format("@{0}, ", p.Name));
-                    }
+                    sb4.Append(string.Format("@{0}, ", p.Name));
                 }
             });
 
@@ -293,17 +233,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb2.Append(string.Format("[{0}], ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb2.Append(string.Format("[{0}], ", p.Name));
-                    }
+                    sb2.Append(string.Format("[{0}], ", p.Name));
                 }
             });
 
@@ -315,17 +245,7 @@ namespace Generator.Core
             {
                 if (!p.IsIdentity)
                 {
-                    if (p.HasDefaultValue)
-                    {
-                        if (!_config.SkipDefault)
-                        {
-                            sb4.Append(string.Format("@{0}, ", p.Name));
-                        }
-                    }
-                    else
-                    {
-                        sb4.Append(string.Format("@{0}, ", p.Name));
-                    }
+                    sb4.Append(string.Format("@{0}, ", p.Name));
                 }
             });
 
@@ -368,21 +288,15 @@ namespace Generator.Core
                 case "int":
                     {
                         return "0";
-
                     }
-                    break;
                 case "long":
                     {
                         return "0L";
-
                     }
-                    break;
                 case "string":
                     {
                         return "string.Empty";
-
                     }
-                    break;
             }
 
             return string.Empty;

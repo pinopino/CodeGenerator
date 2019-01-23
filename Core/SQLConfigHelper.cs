@@ -88,7 +88,6 @@ namespace Generator.Core
 
             config.PartialCheck_DAL_Path = ConfigurationManager.AppSettings["PartialCheck_DAL_Path"] ?? _partial_check_dal_path;
             config.DoPartialCheck = string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["DoPartialCheck"]) ? _do_partial_check : bool.Parse(ConfigurationManager.AppSettings["DoPartialCheck"]);
-            config.SkipDefault = string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["SkipDefault"]) ? _skip_default : bool.Parse(ConfigurationManager.AppSettings["SkipDefault"]);
             config.ExceptTables = _exceptTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
