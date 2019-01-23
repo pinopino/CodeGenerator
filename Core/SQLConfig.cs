@@ -250,7 +250,7 @@ namespace Generator.Core
         /// <summary>
         /// 
         /// </summary>
-        public bool IsRefed
+        protected bool IsRefed
         {
             set { this._isRefed = value; }
             get { return this._isRefed; }
@@ -268,7 +268,7 @@ namespace Generator.Core
         /// <summary>
         /// 
         /// </summary>
-        public List<ForeignKeyMetaData> ForeignKey
+        protected List<ForeignKeyMetaData> ForeignKey
         {
             set { this._foreignKey = value; }
             get { return this._foreignKey; }
@@ -313,7 +313,7 @@ namespace Generator.Core
         /// <summary>
         /// 
         /// </summary>
-        public List<RefTableMetaData> ReferenceTable
+        protected List<RefTableMetaData> ReferenceTable
         {
             set { this._referenceTable = value; }
             get { return this._referenceTable; }

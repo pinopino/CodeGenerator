@@ -108,28 +108,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Templates\DAL\BatchDelete\BATCHDELETE_CHILD_TEMPLATE2.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\BatchDelete\BATCHDELETE_CHILD_TEMPLATE1.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\BatchDelete\BATCHDELETE_TEMPLATE4.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\BatchDelete\BATCHDELETE_TEMPLATE3.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Templates\DAL\BatchDelete\BATCHDELETE_TEMPLATE2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Templates\DAL\Delete\DELETE_CHILD_TEMPLATE1.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Templates\DAL\BatchDelete\BATCHDELETE_TEMPLATE1.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\Delete\DELETE_TEMPLATE2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\DAL\Delete\DELETE_TEMPLATE1.txt">
@@ -138,34 +120,16 @@
     <Content Include="Templates\DAL\Page\GET_LIST_BY_PAGE_TEMPLATE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Templates\DAL\Page\GET_RECORD_COUNT_TEMPLATE.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\GetModel\GET_LIST_TEMPLATE2.txt">
+    <Content Include="Templates\DAL\Page\GET_COUNT_TEMPLATE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\DAL\GetModel\GET_LIST_TEMPLATE1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Templates\DAL\GetModel\GET_MODEL_TEMPLATE2.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Templates\DAL\GetModel\GET_MODEL_TEMPLATE1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Templates\DAL\Update\UPDATE_TEMPLATE3.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\Update\UPDATE_TEMPLATE2.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Templates\DAL\Update\UPDATE_TEMPLATE1.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\Insert\INSERT_TEMPLATE4.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\Insert\INSERT_TEMPLATE3.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\DAL\Insert\INSERT_TEMPLATE2.txt">

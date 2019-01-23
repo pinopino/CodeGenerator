@@ -3,11 +3,26 @@
         /// </summary>
         /// <param name="model">{1}实体</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, SqlConnection conn = null, SqlTransaction transaction = null)
+        public static bool Update({2} model, IList<string> fields = null, SqlConnection conn = null, SqlTransaction transaction = null)
         {{
             var sql = new StringBuilder();
             sql.Append("UPDATE {3}");
-            sql.Append(" SET {4}");
+            if (fields == null || fields.Count == 0)
+            {{
+                 sql.Append(" SET {4}");
+            }}
+            else
+            {{
+                sql.Append(" SET ");
+                for (int i = 0; i < fields.Count; i++)
+                {{
+                    sql.Append("[" + fields[i] + "]=@" + fields[i] + "");
+                    if (i != fields.Count - 1)
+                    {{
+                        sql.Append(",");
+                    }}
+                }}
+            }}
             sql.Append(" WHERE {5}");
             var ret = false;
             if (conn != null)

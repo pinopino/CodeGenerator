@@ -263,19 +263,6 @@ namespace Generator.Core
                             {
                                 sb.AppendLine(g.Get_Delete(table.Name));
                                 sb.AppendLine(g.Get_BatchDelete(table.Name));
-                                // 如果表是从表
-                                if (table.IsRefed)
-                                {
-                                    g.Get_Delete_Child(table.Name).ForEach(p => sb.AppendLine(p));
-                                    if (table.PrimaryKey.Count == 1)
-                                    {
-                                        g.Get_BatchDeleteChild_SingleId(table.Name).ForEach(p => sb.AppendLine(p));
-                                    }
-                                    else
-                                    {
-                                        g.Get_BatchDeleteChild_MultipleId(table.Name).ForEach(p => sb.AppendLine(p));
-                                    }
-                                }
                             }
                             break;
                         case "update":
@@ -293,9 +280,9 @@ namespace Generator.Core
                                 sb.AppendLine(g.Get_GetList(table.Name));
                             }
                             break;
-                        case "getrecordcount":
+                        case "getcount":
                             {
-                                sb.AppendLine(g.Get_GetRecordCount(table.Name));
+                                sb.AppendLine(g.Get_Count(table.Name));
                             }
                             break;
                         case "getlistbypage":

@@ -1,7 +1,7 @@
 ﻿		/// <summary>
         /// 批量删除指定的{0}
         /// </summary>
-        /// <param name="ids">{1} id列表</param>
+        /// <param name="ids">{1} 标识列表</param>
         /// <returns>是否成功，true为成功</returns>
         public static bool Delete(List<{2}> ids)
         {{
@@ -9,35 +9,9 @@
             sql.Append("DELETE FROM {3} ");
             sql.Append(" WHERE {4} IN @ids");
             var ret = false;
-            SqlConnection conn = null;
-            SqlTransaction tran = null;
-            try
+            using (var conn = GetOpenConnection())
             {{
-                using (conn = GetOpenConnection())
-                {{
-                    using (tran = conn.BeginTransaction())
-                    {{
-                        // 删除{5}基本信息
-                        ret = conn.Execute(sql.ToString(), new {{ @ids = ids.ToArray() }}) > 0;
-
-{6}
-                        // 提交事务
-                        tran.Commit();
-                    }}
-                }}
-            }}
-            catch (Exception ex)
-            {{
-                // todo: 异常记录
-                ret = false;
-            }}
-            finally
-            {{
-                if (ret == false)
-                {{
-                    // 回滚事务
-                    tran.Rollback();
-                }}
+                ret = conn.Execute(sql.ToString(), new {{ @ids = ids.ToArray() }}) > 0;
             }}
 
             return ret;

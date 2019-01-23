@@ -1,7 +1,7 @@
 ﻿		/// <summary>
 		/// 获取记录总数
 		/// </summary>
-        protected static int GetRecordCount(string where = "")
+        public static int GetCount(string where = "")
         {{
             var sql = new StringBuilder();
             sql.Append("SELECT COUNT(1) FROM {0} ");

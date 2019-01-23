@@ -72,19 +72,6 @@ namespace Generator.Core
                 }
             }
 
-            foreach (var ref_table in table_config.ReferenceTable)
-            {
-                sb1.AppendLine(string.Format("{0}{0}private List<{1}> _{2}list;", '\t', ref_table.Name, ref_table.Name.ToLower()));
-                sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
-                sb2.AppendLine(string.Format("{0}{0}/// {1} 集合", '\t', ref_table.Name));
-                sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
-                sb2.AppendLine(string.Format("{0}{0}public List<{1}> {1}List", '\t', ref_table.Name));
-                sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1}list = value; }}", '\t', ref_table.Name.ToLower()));
-                sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}list; }}", '\t', ref_table.Name.ToLower()));
-                sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
-            }
-
             var str = string.Format(ModelTemplate.CLASS_TEMPLATE,
                                     table_config.Comment,
                                     _config.Model_ClassNamePrefix,

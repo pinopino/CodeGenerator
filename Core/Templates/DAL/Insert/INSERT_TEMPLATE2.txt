@@ -2,44 +2,29 @@
         /// 添加{0}
         /// </summary>
         /// <param name="model">{1}实体</param>
-        /// <returns>新插入数据的id</returns>
-        public static {2} Insert({3} model)
+        /// <returns>新插入数据的标识</returns>
+        public static {2} Insert({3} model, SqlConnection conn = null, SqlTransaction transaction = null)
         {{
             var sql = new StringBuilder();
-            sql.Append("INSERT INTO {4}({5}) ");
-            sql.Append(" OUTPUT INSERTED.[{6}] ");
-            sql.Append(" VALUES({7}) ");
-            var ret = {8};
-            SqlConnection conn = null;
-            SqlTransaction tran = null;
-            try
+            sql.Append("INSERT INTO {4}({5})");
+            sql.Append(" OUTPUT {6} ");
+            sql.Append(" VALUES({7})");
+            object ret = null;
+            if (conn != null)
             {{
-                using (conn = GetOpenConnection())
+                if (transaction == null)
                 {{
-                    using (tran = conn.BeginTransaction())
-                    {{
-                        // 插入{9}基本信息
-                        ret = conn.ExecuteScalar<{10}>(sql.ToString(), model, tran);
-                        
-{11}
-                        // 提交事务
-                        tran.Commit();
-                    }}
+                    throw new ArgumentNullException("transaction");
                 }}
+                ret = conn.QuerySingle<{8}>(sql.ToString(), model, transaction);
             }}
-            catch (Exception ex)
+            else
             {{
-                // todo: 异常记录
-                ret = {12};
-            }}
-            finally
-            {{
-                if ({13})
+                using (var conn1 = GetOpenConnection())
                 {{
-                    // 回滚事务
-                    tran.Rollback();
+                    ret = conn1.QuerySingle<{9}>(sql.ToString(), model);
                 }}
             }}
 
-            return ret;
+            return ({10})ret;
         }}
