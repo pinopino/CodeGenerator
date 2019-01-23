@@ -18,7 +18,6 @@ namespace Generator.Core
         private string _model_classNamePrefix;
         private string _model_classNameSuffix;
         private string _model_baseClass;
-        private bool _mongoSupport_model;
         private bool _skip_default;
         private bool _do_partial_check;
         private string _partial_check_dal_path;
@@ -45,7 +44,6 @@ namespace Generator.Core
             _model_classNamePrefix = string.Empty;
             _model_classNameSuffix = string.Empty;
             _model_baseClass = string.Empty;
-            _mongoSupport_model = false;
             _skip_default = false;
 
             _tables = new List<TableMetaData>();
@@ -191,12 +189,6 @@ namespace Generator.Core
         {
             set { this._exceptTables = value; }
             get { return this._exceptTables; }
-        }
-
-        public bool MongoSupport_Model
-        {
-            set { this._mongoSupport_model = value; }
-            get { return this._mongoSupport_model; }
         }
 
         public bool SkipDefault
