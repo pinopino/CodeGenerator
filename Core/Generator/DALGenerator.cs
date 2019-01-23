@@ -87,7 +87,7 @@ namespace Generator.Core
                 {
                     if (p.HasDefaultValue)
                     {
-                        if(!_config.SkipDefault)
+                        if (!_config.SkipDefault)
                         {
                             sb1.Append(string.Format("[{0}], ", p.Name));
                         }
@@ -178,7 +178,7 @@ namespace Generator.Core
             });
 
             var sb3 = new StringBuilder();
-            table_config.ReferenceTable.ForEach(p => 
+            table_config.ReferenceTable.ForEach(p =>
             {
                 sb3.AppendLine(string.Format("{0}{0}{0}{0}{0}{0}// 插入相关的{1}信息", '\t', p.Name));
                 sb3.AppendLine(string.Format("{0}{0}{0}{0}{0}{0}foreach (var {1} in model.{2}List) ", '\t', p.Name, p.Name));
@@ -237,7 +237,7 @@ namespace Generator.Core
 
             var sb3 = new StringBuilder();
             table_config.PrimaryKey.ForEach(p => sb3.Append(string.Format("INSERTED.[{0}], ", p.Name)));
-            
+
             var sb4 = new StringBuilder();
             table_config.Columns.ForEach(p =>
             {
@@ -369,17 +369,20 @@ namespace Generator.Core
                     {
                         return "0";
 
-                    } break;
+                    }
+                    break;
                 case "long":
                     {
                         return "0L";
 
-                    } break;
+                    }
+                    break;
                 case "string":
                     {
                         return "string.Empty";
 
-                    } break;
+                    }
+                    break;
             }
 
             return string.Empty;
@@ -621,7 +624,7 @@ namespace Generator.Core
             table_config.ReferenceTable.ForEach(p =>
             {
                 sb3.AppendLine(string.Format("{0}{0}{0}{0}{0}{0}// 删除相关的{1}信息", '\t', p.Name));
-                sb3.AppendLine(string.Format("{0}{0}{0}{0}{0}{0}{1}Helper.DeleteFor{2}({3}, conn, tran);",'\t', p.Name, tableName, "ids"));
+                sb3.AppendLine(string.Format("{0}{0}{0}{0}{0}{0}{1}Helper.DeleteFor{2}({3}, conn, tran);", '\t', p.Name, tableName, "ids"));
             });
 
             var str = string.Format(DALTemplate.BATCHDELETE_TEMPLATE4,
@@ -704,7 +707,9 @@ namespace Generator.Core
             var table_config = _config[tableName];
             if (table_config.ReferenceTable.Count == 0)
             {
-                return Get_Update1(tableName);
+                string update_str = Get_Update1(tableName);
+                update_str += Get_Update2(tableName);
+                return update_str;
             }
             else
             {
@@ -728,6 +733,32 @@ namespace Generator.Core
             table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE1,
+                                    table_config.Comment,
+                                    table_config.Comment,
+                                    tableName,
+                                    string.Format("[{0}]", tableName),
+                                    sb1.ToString().TrimEnd(", ".ToCharArray()),
+                                    sb2.ToString().TrimEnd(", ".ToCharArray()));
+
+            return str;
+        }
+
+        private string Get_Update2(string tableName)
+        {
+            var table_config = _config[tableName];
+            var primaryKey = table_config.PrimaryKey.Find(p => p.Name.ToLower() == "id");
+
+            var sb1 = new StringBuilder();
+            table_config.Columns.ForEach(p =>
+            {
+                if (!p.IsIdentity && p.Name.ToLower() != "createdtime" && p.Name.ToLower() != "creatorid")
+                    sb1.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name));
+            });
+
+            var sb2 = new StringBuilder();
+            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name)));
+
+            var str = string.Format(DALTemplate.UPDATE_TEMPLATE3,
                                     table_config.Comment,
                                     table_config.Comment,
                                     tableName,
