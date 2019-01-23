@@ -112,7 +112,7 @@ namespace DataLayer.Base
                 }
             }
 
-            var sql = string.Format("SELECT Paged.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {4} {3}) AS Paged ", columns, orderBy, tableName, where, JoinStr);
+            var sql = string.Format("SELECT Paged.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {4} {3}) AS Paged ", columns, orderBy, tableName, where, joinStr);
             var pageStart = (currentPage - 1) * pageSize;
             sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
             count_sql += where;
