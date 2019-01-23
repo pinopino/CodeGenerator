@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CPA.DataLayer
+namespace DataLayer.Base
 {
     public class PageDataView<T>
     {
         private int _totalRecords;
+        private IList<T> _Items;
+
         public PageDataView()
         {
-            this._Items = new List<T>();
         }
 
         public int TotalRecords
@@ -18,8 +19,7 @@ namespace CPA.DataLayer
             get { return _totalRecords; }
             set { _totalRecords = value; }
         }
-
-        private IList<T> _Items;
+        
         public IList<T> Items
         {
             get { return _Items; }

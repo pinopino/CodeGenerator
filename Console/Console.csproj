@@ -93,7 +93,7 @@
     <None Include="CopyFiles\DAL\BaseTableHelper.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CopyFiles\DAL\ViewModel\PageDataView.cs">
+    <None Include="CopyFiles\DAL\PageDataView.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="Program.cs" />
@@ -115,6 +115,7 @@
   <ItemGroup>
     <Content Include="CopyFiles\BLL\readme.txt" />
     <Content Include="CopyFiles\DAL\readme.txt" />
+    <Content Include="CopyFiles\DAL\ViewModel\readme.txt" />
     <Content Include="CopyFiles\Model\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
