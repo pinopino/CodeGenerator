@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace Console
 {
@@ -23,7 +24,7 @@ namespace Console
                 Environment.Exit(0);
             }
 
-            ReCreateDB(conn_str);
+            ReCreateDB(conn_str, Encoding.GetEncoding("gb2312"));
 
             System.Data.Common.DbConnectionStringBuilder s = new System.Data.Common.DbConnectionStringBuilder(false);
             s.ConnectionString = conn_str;
@@ -85,7 +86,7 @@ namespace Console
         }
 
         // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
-        static void ReCreateDB(string connStr)
+        static void ReCreateDB(string connStr, Encoding encoding)
         {
             var config_path = ConfigurationManager.AppSettings["DB_Design_Files"];
             if (string.IsNullOrWhiteSpace(config_path))
@@ -105,7 +106,7 @@ namespace Console
                 var svr = new Server(new ServerConnection(conn));
                 foreach (var file_path in files)
                 {
-                    var script = File.ReadAllText(file_path);
+                    var script = File.ReadAllText(file_path, encoding);
                     svr.ConnectionContext.ExecuteNonQuery(script);
                 }
             }
