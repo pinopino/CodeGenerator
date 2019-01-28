@@ -11,7 +11,7 @@
             {8} ret = null;
             using (var conn = GetOpenConnection())
             {{
-                ret = conn.QueryFirst<{9}>(sql.ToString(), new {{ {10} }});
+                ret = conn.QueryFirstOrDefault<{9}>(sql.ToString(), new {{ {10} }});
             }}
 
             return ret;

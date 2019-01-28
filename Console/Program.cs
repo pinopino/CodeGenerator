@@ -1,7 +1,13 @@
-﻿using Generator.Core;
+﻿using Dapper;
+using Generator.Core;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 using Newtonsoft.Json;
 using System;
 using System.Configuration;
+using System.Data.SqlClient;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Console
 {
@@ -16,6 +22,9 @@ namespace Console
                 System.Console.Read();
                 Environment.Exit(0);
             }
+
+            ReCreateDB(conn_str);
+
             System.Data.Common.DbConnectionStringBuilder s = new System.Data.Common.DbConnectionStringBuilder(false);
             s.ConnectionString = conn_str;
             string dbcode="cap_db";
@@ -29,7 +38,6 @@ namespace Console
             {
                 var config = new SQLMetaData();
                 SQLMetaDataHelper.InitConfig(config);
-                //var database = ConfigurationManager.AppSettings["GetDatabases"];
                 var data = manage.Databases[dbcode].Tables;
                 // 解析数据库元数据
                 var parser = new MetaDataParser(config);
@@ -74,6 +82,92 @@ namespace Console
             Print("结束！");
             System.Console.Read();
             Environment.Exit(0);
+        }
+
+        // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
+        static void ReCreateDB(string connStr)
+        {
+            var config_path = ConfigurationManager.AppSettings["DB_Design_Files"];
+            if (string.IsNullOrWhiteSpace(config_path))
+            {
+                return;
+            }
+
+            var db = FindDBName(connStr);
+            if (string.IsNullOrWhiteSpace(db))
+            {
+                return;
+            }
+
+            var files = Directory.GetFiles(config_path, "*.sql", SearchOption.AllDirectories);
+            using (var conn = new SqlConnection(connStr))
+            {
+                var svr = new Server(new ServerConnection(conn));
+                foreach (var file_path in files)
+                {
+                    var script = File.ReadAllText(file_path);
+                    svr.ConnectionContext.ExecuteNonQuery(script);
+                }
+            }
+            System.Console.WriteLine("重新生成数据库[" + db + "]成功");
+
+            var local_db = db + "_Local";
+            System.Console.WriteLine("尝试重新生成数据库[" + local_db + "]...");
+            System.Console.WriteLine("检测是否存在该数据库");
+            if (IsExist(connStr, local_db))
+            {
+                connStr = connStr.Replace(db, local_db);
+                using (var conn = new SqlConnection(connStr))
+                {
+                    var svr = new Server(new ServerConnection(conn));
+                    foreach (var file_path in files)
+                    {
+                        var script = File.ReadAllText(file_path);
+                        svr.ConnectionContext.ExecuteNonQuery(script);
+                    }
+                }
+                System.Console.WriteLine("存在，重新生成数据库[" + local_db + "]成功");
+            }
+            else
+            {
+                System.Console.WriteLine("不存在该数据库，结束");
+            }
+        }
+
+        static string FindDBName(string connStr)
+        {
+            var reg_str = "Initial Catalog.*?;";
+            var ok = Regex.Match(connStr, reg_str);
+            if (ok.Success)
+            {
+                return ok.Value.Split('=')[1].Trim().TrimEnd(';');
+            }
+
+            return string.Empty;
+        }
+
+        static bool IsExist(string connStr, string db)
+        {
+            using (var conn = GetOpenConnection(connStr))
+            {
+                return conn.ExecuteScalar<int>("select count(*) From master.dbo.sysdatabases where name='" + db + "'") > 0;
+            }
+        }
+
+        static SqlConnection GetOpenConnection(string connStr, bool mars = false)
+        {
+            var cs = connStr;
+            if (mars)
+            {
+                var scsb = new SqlConnectionStringBuilder(cs)
+                {
+                    MultipleActiveResultSets = true
+                };
+                cs = scsb.ConnectionString;
+            }
+            var connection = new SqlConnection(cs);
+            connection.Open();
+            return connection;
         }
 
         static void Print(string message)
