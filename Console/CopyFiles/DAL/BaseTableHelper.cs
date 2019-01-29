@@ -69,6 +69,7 @@ namespace DataLayer.Base
                 {
                     throw new ArgumentException("where子句不需要带where关键字");
                 }
+                where = " WHERE " + where;
             }
 
             var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged ", columns, orderBy, tableName, where);
@@ -110,6 +111,7 @@ namespace DataLayer.Base
                 {
                     throw new ArgumentException("where子句不需要带where关键字");
                 }
+                where = " WHERE " + where;
             }
 
             var sql = string.Format("SELECT Paged.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {4} {3}) AS Paged ", columns, orderBy, tableName, where, joinStr);
