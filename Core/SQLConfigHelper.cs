@@ -22,7 +22,6 @@ namespace Generator.Core
         private static readonly string _classSuffix_default = string.Empty;
         private static readonly string _methods_default = "Exists,Insert,Delete,Update,GetModel,GetList,GetRecordCount,GetListByPage";
         private static readonly string _exceptTables_default = ConfigurationManager.AppSettings["ExceptTables"] ?? string.Empty;
-        private static readonly bool _skip_default = false;
         private static readonly bool _do_partial_check = false;
         private static readonly string _partial_check_dal_path = string.Empty;
         private static readonly List<string> _exist_enum = new List<string>();
@@ -87,7 +86,6 @@ namespace Generator.Core
             var dal_methods = ConfigurationManager.AppSettings["DAL_Methods"] ?? _methods_default;
 
             config.PartialCheck_DAL_Path = ConfigurationManager.AppSettings["PartialCheck_DAL_Path"] ?? _partial_check_dal_path;
-            config.DoPartialCheck = string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["DoPartialCheck"]) ? _do_partial_check : bool.Parse(ConfigurationManager.AppSettings["DoPartialCheck"]);
             config.ExceptTables = _exceptTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
@@ -416,11 +414,11 @@ namespace Generator.Core
 
         public static void DoPartialCheck(SQLMetaData config)
         {
-            var partial_path = Path.Combine(config.PartialCheck_DAL_Path, "partial");
-            if (string.IsNullOrEmpty(partial_path) || partial_path== "partial")
+            if (string.IsNullOrWhiteSpace(config.PartialCheck_DAL_Path))
             {
                 return;
             }
+            var partial_path = Path.Combine(config.PartialCheck_DAL_Path, "partial");
             var partial_files = Directory.GetFiles(partial_path);
             var list = InnerCheckPartial(config, partial_files);
             if (list.Count > 0)

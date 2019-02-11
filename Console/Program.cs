@@ -89,7 +89,8 @@ namespace Console
         static void ReCreateDB(string connStr, Encoding encoding)
         {
             var config_path = ConfigurationManager.AppSettings["DB_Design_Files"];
-            if (string.IsNullOrWhiteSpace(config_path))
+            var db_names = ConfigurationManager.AppSettings["ReCreateDB_Names"];
+            if (string.IsNullOrWhiteSpace(config_path) || string.IsNullOrWhiteSpace(db_names))
             {
                 return;
             }

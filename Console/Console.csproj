@@ -94,10 +94,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="App.config.2">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="CopyFiles\DAL\BaseTableHelper.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

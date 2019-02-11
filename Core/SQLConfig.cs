@@ -19,9 +19,7 @@ namespace Generator.Core
         private string _model_classNameSuffix;
         private string _model_baseClass;
 
-        private bool _do_partial_check;
         private string _partial_check_dal_path;
-
         private List<TableMetaData> _tables;
         private List<string> _exceptTables;
 
@@ -185,12 +183,6 @@ namespace Generator.Core
         {
             set { this._exceptTables = value; }
             get { return this._exceptTables; }
-        }
-
-        public bool DoPartialCheck
-        {
-            set { this._do_partial_check = value; }
-            get { return this._do_partial_check; }
         }
 
         public string PartialCheck_DAL_Path
