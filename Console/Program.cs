@@ -88,9 +88,9 @@ namespace Console
         // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
         static void ReCreateDB(string connStr, Encoding encoding)
         {
-            var config_path = ConfigurationManager.AppSettings["DB_Design_Files"];
-            var db_names = ConfigurationManager.AppSettings["ReCreateDB_Names"];
-            if (string.IsNullOrWhiteSpace(config_path) || string.IsNullOrWhiteSpace(db_names))
+            var config_path = ConfigurationManager.AppSettings["ReCreateDB_SQLFile"];
+            var db_suffixs = ConfigurationManager.AppSettings["ReCreateDB_Suffix"];
+            if (string.IsNullOrWhiteSpace(config_path) || string.IsNullOrWhiteSpace(db_suffixs))
             {
                 return;
             }
@@ -113,26 +113,31 @@ namespace Console
             }
             System.Console.WriteLine("重新生成数据库[" + db + "]成功");
 
-            var local_db = db + "_Local";
-            System.Console.WriteLine("尝试重新生成数据库[" + local_db + "]...");
-            System.Console.WriteLine("检测是否存在该数据库");
-            if (IsExist(connStr, local_db))
+            var arrs = db_suffixs.Replace('，', ',').Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var suffix in arrs)
             {
-                connStr = connStr.Replace(db, local_db);
-                using (var conn = new SqlConnection(connStr))
+                var sub_db = db + "_" + suffix;
+                System.Console.WriteLine("尝试重新生成数据库[" + sub_db + "]...");
+                System.Console.WriteLine("检测是否存在该数据库");
+                if (IsExist(connStr, sub_db))
                 {
-                    var svr = new Server(new ServerConnection(conn));
-                    foreach (var file_path in files)
+                    connStr = connStr.Replace(db, sub_db);
+                    using (var conn = new SqlConnection(connStr))
                     {
-                        var script = File.ReadAllText(file_path);
-                        svr.ConnectionContext.ExecuteNonQuery(script);
+                        var svr = new Server(new ServerConnection(conn));
+                        foreach (var file_path in files)
+                        {
+                            var script = File.ReadAllText(file_path);
+                            svr.ConnectionContext.ExecuteNonQuery(script);
+                        }
                     }
+                    System.Console.WriteLine("存在，重新生成数据库[" + sub_db + "]成功");
                 }
-                System.Console.WriteLine("存在，重新生成数据库[" + local_db + "]成功");
-            }
-            else
-            {
-                System.Console.WriteLine("不存在该数据库，结束");
+                else
+                {
+                    System.Console.WriteLine("不存在该数据库，结束");
+                }
+                System.Console.WriteLine();
             }
         }
 
