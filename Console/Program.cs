@@ -5,6 +5,7 @@ using Microsoft.SqlServer.Management.Smo;
 using Newtonsoft.Json;
 using System;
 using System.Configuration;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
 using System.Text;
@@ -26,14 +27,7 @@ namespace Console
 
             ReCreateDB(conn_str, Encoding.GetEncoding("gb2312"));
 
-            System.Data.Common.DbConnectionStringBuilder s = new System.Data.Common.DbConnectionStringBuilder(false);
-            s.ConnectionString = conn_str;
-            string dbcode="cap_db";
-            object database = "";
-            if (s.TryGetValue("Initial Catalog", out database))
-            {
-                dbcode = database.ToString();
-            }
+            var dbcode = FindDBName(conn_str);
             Print("解析数据库元数据...");
             using (SQLServerManagement manage = new SQLServerManagement(conn_str))
             {
@@ -131,14 +125,23 @@ namespace Console
 
         static string FindDBName(string connStr)
         {
-            var reg_str = "Initial Catalog.*?;";
-            var ok = Regex.Match(connStr, reg_str);
-            if (ok.Success)
+            var db_name = string.Empty;
+            var cb = new DbConnectionStringBuilder(false);
+            cb.ConnectionString = connStr;
+            object database;
+            if (cb.TryGetValue("Initial Catalog", out database))
             {
-                return ok.Value.Split('=')[1].Trim().TrimEnd(';');
+                db_name = database.ToString();
+            }
+            else
+            {
+                if (cb.TryGetValue("Database", out database))
+                {
+                    db_name = database.ToString();
+                }
             }
 
-            return string.Empty;
+            return db_name;
         }
 
         static bool IsExist(string connStr, string db)
