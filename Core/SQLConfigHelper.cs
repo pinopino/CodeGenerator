@@ -22,7 +22,7 @@ namespace Generator.Core
         private static readonly string _classSuffix_default = string.Empty;
         private static readonly string _methods_default = "Exists,Insert,Delete,Update,GetModel,GetList,GetRecordCount,GetListByPage";
         private static readonly string _exceptTables_default = ConfigurationManager.AppSettings["ExceptTables"] ?? string.Empty;
-        private static readonly bool _do_partial_check = false;
+        private static readonly string _exceptColumns_default = ConfigurationManager.AppSettings["UpdateExceptColumns"] ?? string.Empty;
         private static readonly string _partial_check_dal_path = string.Empty;
         private static readonly List<string> _exist_enum = new List<string>();
 
@@ -87,6 +87,12 @@ namespace Generator.Core
 
             config.PartialCheck_DAL_Path = ConfigurationManager.AppSettings["PartialCheck_DAL_Path"] ?? _partial_check_dal_path;
             config.ExceptTables = _exceptTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            config.ExceptColumns = _exceptColumns_default
+                .Replace('；', ';')
+                .Replace('：', ':')
+                .Replace('，', ',')
+                .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .ToDictionary(p => p.Split(':')[0], p => p.Split(':')[1].Split(',').ToList());
             config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
             config.Model_Namespace = string.Format("namespace {0}.{1}", _project, model_namespace);
@@ -247,13 +253,16 @@ namespace Generator.Core
                 {
                     if (!table.Columns[j].IsIdentity)
                     {
-                        if (j != table.Columns.Count - 1)
+                        if (!IsExceptColumn(config, table.Name, table.Columns[j].Name))
                         {
-                            sb.Append(string.Format("\"{0}\", ", table.Columns[j].Name));
-                        }
-                        else
-                        {
-                            sb.Append(string.Format("\"{0}\" ", table.Columns[j].Name));
+                            if (j != table.Columns.Count - 1)
+                            {
+                                sb.Append(string.Format("\"{0}\", ", table.Columns[j].Name));
+                            }
+                            else
+                            {
+                                sb.Append(string.Format("\"{0}\" ", table.Columns[j].Name));
+                            }
                         }
                     }
                 }
@@ -568,6 +577,12 @@ namespace Generator.Core
             }
 
             return ret;
+        }
+
+        private static bool IsExceptColumn(SQLMetaData config, string table, string colunm)
+        {
+            return config.ExceptColumns.ContainsKey("*") && config.ExceptColumns["*"].Contains(colunm) || 
+                config.ExceptColumns.ContainsKey(table) && config.ExceptColumns[table].Contains(colunm);
         }
     }
 }

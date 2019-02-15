@@ -271,7 +271,7 @@ namespace Generator.Core
             var sb1 = new StringBuilder();
             table_config.Columns.ForEach(p =>
             {
-                if (!p.IsIdentity)
+                if (!p.IsIdentity && !IsExceptColumn(tableName, p.Name))
                     sb1.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name));
             });
 
@@ -287,6 +287,12 @@ namespace Generator.Core
                                     sb2.ToString().TrimEnd(", ".ToCharArray()));
 
             return str;
+        }
+
+        private bool IsExceptColumn(string table, string colunm)
+        {
+            return _config.ExceptColumns.ContainsKey("*") && _config.ExceptColumns["*"].Contains(colunm) ||
+                _config.ExceptColumns.ContainsKey(table) && _config.ExceptColumns[table].Contains(colunm);
         }
         #endregion
 

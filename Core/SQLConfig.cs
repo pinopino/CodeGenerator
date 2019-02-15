@@ -22,6 +22,7 @@ namespace Generator.Core
         private string _partial_check_dal_path;
         private List<TableMetaData> _tables;
         private List<string> _exceptTables;
+        private Dictionary<string, List<string>> _exceptColumns;
 
         public SQLMetaData()
         {
@@ -42,6 +43,7 @@ namespace Generator.Core
 
             _tables = new List<TableMetaData>();
             _exceptTables = new List<string>();
+            _exceptColumns = new Dictionary<string, List<string>>();
         }
 
         public TableMetaData this[string TableName]
@@ -189,6 +191,12 @@ namespace Generator.Core
         {
             set { this._partial_check_dal_path = value; }
             get { return this._partial_check_dal_path; }
+        }
+
+        public Dictionary<string, List<string>> ExceptColumns
+        {
+            set { this._exceptColumns = value; }
+            get { return this._exceptColumns; }
         }
     }
 
