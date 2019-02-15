@@ -4,7 +4,7 @@
         /// <param name="model">{1}实体</param>
 		/// <param name="fields">需要更新的字段名字</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, IList<string> fields = null, SqlConnection conn = null, SqlTransaction transaction = null)
+        public static bool Update({2} model, IList<string> fields = null, bool reverse = false, SqlConnection conn = null, SqlTransaction transaction = null)
         {{
             var sql = new StringBuilder();
             sql.Append("UPDATE {3}");
@@ -14,6 +14,10 @@
             }}
             else
             {{
+				if (reverse == true)
+				{{
+					 fields = _all_fields.Except(fields).ToList();
+				}}
                 sql.Append(" SET ");
                 for (int i = 0; i < fields.Count; i++)
                 {{

@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Generator.Core
 {
-    public class SQLMetaDataHelper 
+    public class SQLMetaDataHelper
     {
         private static readonly string _project = ConfigurationManager.AppSettings["Project"] ?? "LuckyStar";
         private static readonly string _basePath = ConfigurationManager.AppSettings["OutputBasePath"] ?? "d:\\output";
@@ -242,6 +242,24 @@ namespace Generator.Core
                         config.DAL_ClassNameSuffix,
                         string.IsNullOrWhiteSpace(config.DAL_BaseClass) ? string.Empty : (" : " + config.DAL_BaseClass)));
                 sb.AppendLine(string.Format("{0}{{", '\t'));
+                sb.Append(string.Format("{0}{0}private static List<string> _all_fields = new List<string> {{ ", '\t'));
+                for (int j = 0; j < table.Columns.Count; j++)
+                {
+                    if (!table.Columns[j].IsIdentity)
+                    {
+                        if (j != table.Columns.Count - 1)
+                        {
+                            sb.Append(string.Format("\"{0}\", ", table.Columns[j].Name));
+                        }
+                        else
+                        {
+                            sb.Append(string.Format("\"{0}\" ", table.Columns[j].Name));
+                        }
+                    }
+                }
+                sb.Append("};");
+                sb.AppendLine();
+                sb.AppendLine();
                 // 按方法生成
                 foreach (var item in config.DAL_Methods)
                 {
@@ -528,7 +546,7 @@ namespace Generator.Core
                     }
                 }
 
-                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs","");
+                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs", "");
                 var table = config.Tables.Find(p => p.Name == tmp_file_name);
                 var key_words2 = table.Columns.Select(p => p.Name.ToLower()).ToList();
                 key_words2.Add(table.Name.ToLower());
