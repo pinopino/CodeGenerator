@@ -125,7 +125,8 @@ namespace Generator.Core
                 case "datetime2": commonType = typeof(DateTime); break;
                 case "datetimeoffset": commonType = typeof(DateTimeOffset); break;
                 case "decimal": commonType = typeof(decimal); break;
-                case "float": commonType = typeof(double); break;
+                case "float": commonType = typeof(float); break;
+                case "double": commonType = typeof(double); break;
                 case "image": commonType = typeof(byte[]); break;
                 case "int": commonType = typeof(int); break;
                 case "money": commonType = typeof(decimal); break;
@@ -168,7 +169,8 @@ namespace Generator.Core
                 case "datetime2": csharpType = "DateTime"; break;
                 case "datetimeoffset": csharpType = "DateTimeOffset"; break;
                 case "decimal": csharpType = "decimal"; break;
-                case "float": csharpType = "double"; break;
+                case "float": csharpType = "float"; break;
+                case "double": csharpType = "double"; break;
                 case "image": csharpType = "byte[]"; break;
                 case "int": csharpType = "int"; break;
                 case "money": csharpType = "decimal"; break;
