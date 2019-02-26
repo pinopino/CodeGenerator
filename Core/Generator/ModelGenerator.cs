@@ -49,7 +49,7 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (fileds != null) _fileds.Add(\"" + p.Name + "\");" : string.Empty));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (_fileds != null) _fileds.Add(\"" + p.Name + "\");" : string.Empty));
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.Append(string.Format("{0}{0}}}", '\t'));
                 }
@@ -67,7 +67,7 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (fileds != null) _fileds.Add(\"" + p.Name + "\");" : string.Empty));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (_fileds != null) _fileds.Add(\"" + p.Name + "\");" : string.Empty));
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
                     sb2.AppendLine();
@@ -90,7 +90,7 @@ namespace Generator.Core
                                     _config.Model_ClassNameSuffix,
                                     string.IsNullOrWhiteSpace(_config.Model_BaseClass) ? string.Empty : (" : " + _config.Model_BaseClass),
                                     tableName,
-                                    trace ? Environment.NewLine + "\t\tprivate List<string> fileds;" : string.Empty,
+                                    trace ? Environment.NewLine + "\t\tprivate List<string> _fileds;" : string.Empty,
                                     sb1.ToString(),
                                     sb2.ToString());
             return str;
