@@ -1,4 +1,5 @@
 ﻿using Generator.Template;
+using System;
 using System.Text;
 
 namespace Generator.Core
@@ -15,6 +16,7 @@ namespace Generator.Core
         public string Get_Class(string tableName)
         {
             var table_config = _config[tableName];
+            var trace = _config.TraceFieldTables.Contains(tableName);
 
             var sb1 = new StringBuilder();
             table_config.Columns.ForEach(p =>
@@ -47,7 +49,7 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (fileds != null) _fileds.Add(\"" + p.Name + "\");" : string.Empty));
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.Append(string.Format("{0}{0}}}", '\t'));
                 }
@@ -65,11 +67,20 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (fileds != null) _fileds.Add(\"" + p.Name + "\");" : string.Empty));
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
                     sb2.AppendLine();
                 }
+            }
+
+            if (trace)
+            {
+                sb2.AppendLine();
+                sb2.AppendLine();
+                sb2.AppendLine("\t\tpublic void BeginTrace() { _fileds = new List<string>(); }");
+                sb2.AppendLine();
+                sb2.Append("\t\tpublic void EndTrace() { _fileds.Clear(); _fields = null; }");
             }
 
             var str = string.Format(ModelTemplate.CLASS_TEMPLATE,
@@ -79,6 +90,7 @@ namespace Generator.Core
                                     _config.Model_ClassNameSuffix,
                                     string.IsNullOrWhiteSpace(_config.Model_BaseClass) ? string.Empty : (" : " + _config.Model_BaseClass),
                                     tableName,
+                                    trace ? Environment.NewLine + "\t\tprivate List<string> fileds;" : string.Empty,
                                     sb1.ToString(),
                                     sb2.ToString());
             return str;

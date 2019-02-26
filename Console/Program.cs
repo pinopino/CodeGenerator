@@ -95,7 +95,7 @@ namespace Console
             }
 
             var files = Directory.GetFiles(config_path, "*.sql", SearchOption.TopDirectoryOnly);
-            var arrs = db_names.Replace('，', ',').Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var arrs = db_names.Replace('；', ';').Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var item in arrs)
             {
                 System.Console.WriteLine("尝试重新生成数据库[" + item + "]...");

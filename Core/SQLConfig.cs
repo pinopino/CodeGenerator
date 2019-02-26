@@ -23,6 +23,7 @@ namespace Generator.Core
         private List<TableMetaData> _tables;
         private List<string> _exceptTables;
         private Dictionary<string, List<string>> _exceptColumns;
+        private List<string> _traceFieldTables;
 
         public SQLMetaData()
         {
@@ -44,6 +45,7 @@ namespace Generator.Core
             _tables = new List<TableMetaData>();
             _exceptTables = new List<string>();
             _exceptColumns = new Dictionary<string, List<string>>();
+            _traceFieldTables = new List<string>();
         }
 
         public TableMetaData this[string TableName]
@@ -197,6 +199,12 @@ namespace Generator.Core
         {
             set { this._exceptColumns = value; }
             get { return this._exceptColumns; }
+        }
+
+        public List<string> TraceFieldTables
+        {
+            set { this._traceFieldTables = value; }
+            get { return this._traceFieldTables; }
         }
     }
 
