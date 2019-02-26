@@ -78,6 +78,8 @@ namespace Generator.Core
             {
                 sb2.AppendLine();
                 sb2.AppendLine();
+                sb2.AppendLine("\t\tpublic System.Collections.ObjectModel.ReadOnlyCollection<string> GetTraceFields() { return _fields.AsReadOnly(); }");
+                sb2.AppendLine();
                 sb2.AppendLine("\t\tpublic void BeginTrace() { _fields = new List<string>(); }");
                 sb2.AppendLine();
                 sb2.Append("\t\tpublic void EndTrace() { _fields.Clear(); _fields = null; }");
