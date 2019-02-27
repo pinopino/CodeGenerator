@@ -49,7 +49,7 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (_fields != null) _fields.Add(\"" + p.Name + "\");" : string.Empty));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (_____flag && _fields != null) _fields.Add(\"" + p.Name + "\");" : string.Empty));
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.Append(string.Format("{0}{0}}}", '\t'));
                 }
@@ -67,7 +67,7 @@ namespace Generator.Core
                         sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (_fields != null) _fields.Add(\"" + p.Name + "\");" : string.Empty));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? "if (_____flag && _fields != null) _fields.Add(\"" + p.Name + "\");" : string.Empty));
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
                     sb2.AppendLine();
@@ -80,9 +80,9 @@ namespace Generator.Core
                 sb2.AppendLine();
                 sb2.AppendLine("\t\tpublic System.Collections.ObjectModel.ReadOnlyCollection<string> GetTraceFields() { return _fields.AsReadOnly(); }");
                 sb2.AppendLine();
-                sb2.AppendLine("\t\tpublic void BeginTrace() { _fields = new List<string>(); }");
+                sb2.AppendLine("\t\tpublic void BeginTrace() { _____flag = true; _fields = new List<string>(); }");
                 sb2.AppendLine();
-                sb2.Append("\t\tpublic void EndTrace() { _fields.Clear(); _fields = null; }");
+                sb2.Append("\t\tpublic void EndTrace() { _fields.Clear(); _fields = null; _____flag = false; }");
             }
 
             var str = string.Format(ModelTemplate.CLASS_TEMPLATE,
@@ -92,7 +92,7 @@ namespace Generator.Core
                                     _config.Model_ClassNameSuffix,
                                     string.IsNullOrWhiteSpace(_config.Model_BaseClass) ? string.Empty : (" : " + _config.Model_BaseClass),
                                     tableName,
-                                    trace ? Environment.NewLine + "\t\tprivate List<string> _fields;" : string.Empty,
+                                    trace ? Environment.NewLine + "\t\tprivate List<string> _fields;" +Environment.NewLine + "\t\tprivate bool _____flag;" : string.Empty,
                                     sb1.ToString(),
                                     sb2.ToString());
             return str;
