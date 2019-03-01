@@ -49,7 +49,7 @@ namespace Generator.Core
 
                 if (trace)
                 {
-                    sb2.AppendLine(string.Format("{0}{0}private volatile int _ver_{1};", '\t', p.Name.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}[Newtonsoft.Json.JsonProperty] private volatile int _ver_{1};", '\t', p.Name.ToLower()));
                     sb3.AppendLine($"\t\t\tif (_ver_{p.Name.ToLower()} != 0)");
                     sb3.AppendLine("\t\t\t{");
                     sb3.AppendLine("\t\t\t\tupdate_fields.Add(\"" + p.Name + "\");");
