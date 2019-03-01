@@ -1,7 +1,6 @@
 ﻿		/// <summary>
 		/// 获取记录总数
 		/// </summary>
-		/// <param name="predicate">查询条件</param>
         public static int GetCount(Expression<Func<{0}, bool>> predicate)
         {{
             throw new NotImplementedException();

@@ -1,29 +1,7 @@
 ﻿		/// <summary>
         /// 批量获取{0}
         /// </summary>
-        /// <param name="where">查询条件（不需要带有where关键字）</param>
-        /// <param name="top">取出前top数的数据</param>
-        /// <returns>{1}列表</returns>
-        public static List<{2}> GetList(string where = "", int top = 100)
+        public static List<{1}> GetList(Expression<Func<{1}, bool>> predicate, int top = 100)
         {{
-            var sql = new StringBuilder();
-            sql.Append("SELECT ");
-            sql.Append(" TOP " + top.ToString());
-            sql.Append(" {3} ");
-            sql.Append(" FROM {4} ");
-			if (!string.IsNullOrWhiteSpace(where))
-            {{
-                if (where.ToLower().Contains("where"))
-                {{
-                    throw new ArgumentException("where子句不需要带where关键字");
-                }}
-				sql.Append(" WHERE " + where);
-            }}
-            object ret = null;
-            using (var conn = GetOpenConnection())
-            {{
-                ret = conn.Query<{5}>(sql.ToString()).ToList();
-            }}
-			{7}
-            return (List<{6}>)ret;
+            throw new NotImplementedException();
         }}

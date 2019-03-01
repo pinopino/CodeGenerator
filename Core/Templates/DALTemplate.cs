@@ -44,14 +44,12 @@ namespace Generator.Template
         #endregion
 
         #region GetList
-        // GetList_Single&MultipleId
+        // GetList_With_Predicate
         public readonly static string GET_LIST_TEMPLATE1 = GetTemplateFile("GET_LIST_TEMPLATE1");
-
-        // GetList_Single&MultipleId_With_Predicate
-        public readonly static string GET_LIST_TEMPLATE2 = GetTemplateFile("GET_LIST_TEMPLATE2");
         #endregion
 
         #region GetCount
+        // GetCount_With_Predicate
         public readonly static string GET_COUNT_TEMPLATE = GetTemplateFile("GET_COUNT_TEMPLATE");
         #endregion
 

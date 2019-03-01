@@ -3,8 +3,50 @@
         /// </summary>
         /// <param name="model">{1}实体</param>
 		/// <param name="fields">需要更新的字段名字</param>
+		/// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, IList<{2}Column> fields = null, bool reverse = false, SqlConnection conn = null, SqlTransaction transaction = null)
+        public static bool Update({2} model, IList<{2}Column> fields = null, bool reverse = false, SqlConnection conn = null, SqlTransaction transaction = null)
         {{
-            throw new NotImplementedException();
+            var sql = new StringBuilder();
+            sql.Append("UPDATE {3}");
+            if (fields == null || fields.Count == 0)
+            {{
+                 sql.Append(" SET {4}");
+            }}
+            else
+            {{
+				if (reverse == true)
+				{{
+					 fields = _all_fields.Except(fields).ToList();
+				}}
+                sql.Append(" SET ");
+                for (int i = 0; i < fields.Count; i++)
+                {{
+                    sql.Append("[" + fields[i] + "]=@" + fields[i] + "");
+                    if (i != fields.Count - 1)
+                    {{
+                        sql.Append(",");
+                    }}
+                }}
+            }}
+            sql.Append(" WHERE {5}");
+            var ret = false;
+            if (conn != null)
+            {{
+                if (transaction == null)
+                {{
+                    throw new ArgumentNullException("transaction");
+                }}
+                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+            }}
+            else
+            {{
+                using (var conn1 = GetOpenConnection())
+                {{
+                    ret = conn1.Execute(sql.ToString(), model) > 0;
+                }}
+            }}
+
+            return ret;
         }}
+

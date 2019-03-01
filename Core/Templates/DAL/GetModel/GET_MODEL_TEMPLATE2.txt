@@ -1,9 +1,7 @@
 ﻿		/// <summary>
         /// 获取指定的{0}
         /// </summary>
-{1}
-        /// <returns>{2}实体</returns>
-        public static {3} GetModel(Expression<Func<{4}, bool>> predicate)
+        public static {1} GetModel(Expression<Func<{1}, bool>> predicate)
         {{
             throw new NotImplementedException();
         }}

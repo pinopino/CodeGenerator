@@ -120,7 +120,7 @@
     <Content Include="Templates\DAL\Exists\EXISTS_TEMPLATE2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Templates\DAL\GetModel\GET_LIST_TEMPLATE2.txt">
+    <Content Include="Templates\DAL\GetModel\GET_LIST_TEMPLATE1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\DAL\GetModel\GET_MODEL_TEMPLATE2.txt">
@@ -130,9 +130,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\DAL\Page\GET_COUNT_TEMPLATE.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\DAL\GetModel\GET_LIST_TEMPLATE1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\DAL\GetModel\GET_MODEL_TEMPLATE1.txt">

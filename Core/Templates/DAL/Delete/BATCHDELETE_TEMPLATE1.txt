@@ -3,7 +3,7 @@
         /// </summary>
         /// <param name="ids">{1} id列表</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Delete(List<{2}> ids)
+        public static bool Delete(List<{2}> Ids)
         {{
             var sql = new StringBuilder();
             sql.Append("DELETE FROM {3} ");

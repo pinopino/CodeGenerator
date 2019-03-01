@@ -100,6 +100,8 @@
     <None Include="CopyFiles\DAL\PageDataView.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="BaseTableHelper.cs" />
+    <Compile Include="PageDataView.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

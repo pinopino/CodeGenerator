@@ -36,7 +36,7 @@ namespace Generator.Core
             sb2.AppendLine("\t\t{");
             sb2.AppendLine("\t\t\tName = name;");
             sb2.AppendLine("\t\t}");
-            sb1.AppendLine();
+            sb2.AppendLine();
             sb2.AppendLine("\t\tpublic string Name { private set; get; }");
             sb2.AppendLine("\t}");
 
@@ -65,13 +65,9 @@ namespace Generator.Core
                     sb2.Append($"{column.Name}, ");
                 }
             }
-            sb1.AppendLine();
-            sb1.AppendLine($"\t\t\tpublic static List<{tableName}Column> GetAll()");
-            sb1.AppendLine("\t\t\t{");
-            sb1.Append($"\t\t\t\treturn new List<{tableName}Column> {{ ");
+            sb1.Append($"\t\t\tpublic static readonly List<{tableName}Column> All = {{ ");
             sb1.Append(sb2);
             sb1.AppendLine("};");
-            sb1.AppendLine("\t\t\t}");
             sb1.AppendLine("\t\t}");
 
             return sb1.ToString();
@@ -80,6 +76,13 @@ namespace Generator.Core
 
         #region Exists
         public string Get_Exists(string tableName)
+        {
+            var str1 = Get_Exists1(tableName);
+            var str2 = Get_Exists2(tableName);
+            return str1 + Environment.NewLine + str2;
+        }
+
+        private string Get_Exists1(string tableName)
         {
             var table_config = _config[tableName];
 
@@ -102,6 +105,15 @@ namespace Generator.Core
                                     string.Format("[{0}]", tableName),
                                     sb3.ToString().TrimEnd("and "),
                                     sb4.ToString().TrimEnd(", ".ToCharArray()));
+            return str;
+        }
+
+        private string Get_Exists2(string tableName)
+        {
+            var table_config = _config[tableName];
+            var str = string.Format(DALTemplate.EXISTS_TEMPLATE2,
+                                    table_config.Comment,
+                                    tableName);
             return str;
         }
         #endregion
@@ -171,6 +183,13 @@ namespace Generator.Core
         #region Delete
         public string Get_Delete(string tableName)
         {
+            var str1 = Get_Delete1(tableName);
+            var str2 = Get_Delete2(tableName);
+            return str1 + Environment.NewLine + str2;
+        }
+
+        private string Get_Delete1(string tableName)
+        {
             var table_config = _config[tableName];
 
             var sb1 = new StringBuilder();
@@ -195,6 +214,15 @@ namespace Generator.Core
 
             return str;
         }
+
+        private string Get_Delete2(string tableName)
+        {
+            var table_config = _config[tableName];
+            var str = string.Format(DALTemplate.DELETE_TEMPLATE2,
+                                    table_config.Comment,
+                                    tableName);
+            return str;
+        }
         #endregion
 
         #region BatchDelete
@@ -216,6 +244,13 @@ namespace Generator.Core
 
         #region Update
         public string Get_Update(string tableName)
+        {
+            var str1 = Get_Update1(tableName);
+            var str2 = Get_Update2(tableName);
+            return str1 + str2;
+        }
+
+        private string Get_Update1(string tableName)
         {
             var table_config = _config[tableName];
             var sb1 = new StringBuilder();
@@ -239,6 +274,16 @@ namespace Generator.Core
             return str;
         }
 
+        private string Get_Update2(string tableName)
+        {
+            var table_config = _config[tableName];
+            var str = string.Format(DALTemplate.UPDATE_TEMPLATE2,
+                                    table_config.Comment,
+                                    tableName,
+                                    tableName);
+            return str;
+        }
+
         private bool IsExceptColumn(string table, string colunm)
         {
             return _config.ExceptColumns.ContainsKey("*") && _config.ExceptColumns["*"].Contains(colunm) ||
@@ -248,6 +293,13 @@ namespace Generator.Core
 
         #region Select
         public string Get_GetModel(string tableName)
+        {
+            var str1 = Get_GetModel1(tableName);
+            var str2 = Get_GetModel2(tableName);
+            return str1 + Environment.NewLine + str2;
+        }
+
+        private string Get_GetModel1(string tableName)
         {
             var table_config = _config[tableName];
             var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
@@ -284,33 +336,21 @@ namespace Generator.Core
             return str;
         }
 
+        private string Get_GetModel2(string tableName)
+        {
+            var table_config = _config[tableName];
+            var str = string.Format(DALTemplate.GET_MODEL_TEMPLATE2,
+                                    table_config.Comment,
+                                    tableName);
+            return str;
+        }
+
         public string Get_GetList(string tableName)
         {
             var table_config = _config[tableName];
-            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
-
-            var sb1 = new StringBuilder();
-            table_config.Columns.ForEach(p => sb1.Append(string.Format("[{0}], ", p.Name)));
-
-            var sb2 = new StringBuilder();
-            if (trace)
-            {
-                sb2.AppendLine("foreach (var item in ret)");
-                sb2.AppendLine("\t\t\t{");
-                sb2.AppendLine("\t\t\t\titem.OpenTrace();");
-                sb2.AppendLine("\t\t\t}");
-            }
-
             var str = string.Format(DALTemplate.GET_LIST_TEMPLATE1,
                                     table_config.Comment,
-                                    tableName,
-                                    tableName,
-                                    sb1.ToString().TrimEnd(", ".ToCharArray()),
-                                    string.Format("[{0}]", tableName),
-                                    tableName,
-                                    tableName,
-                                    sb2.ToString());
-
+                                    tableName);
             return str;
         }
         #endregion
@@ -320,7 +360,7 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.GET_COUNT_TEMPLATE,
-                                    string.Format("[{0}]", tableName));
+                                    tableName);
 
             return str;
         }
