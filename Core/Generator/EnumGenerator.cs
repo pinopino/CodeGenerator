@@ -14,24 +14,24 @@ namespace Generator.Core
             this._config = config;
         }
 
-        public string Get_Enum(string enumName, string[] values)
+        public string Get_Enum(string enumName, string[] values, string type)
         {
             var sb1 = new StringBuilder();
             for (int i = 0; i < values.Length; i += 2)
             {
                 if (i + 2 == values.Length)
                 {
-                    sb1.Append("\t\t" + values[i + 1] + " = " + values[i]);
+                    sb1.Append($"\t\tpublic static readonly {type} {values[i + 1]} = {values[i]};");
                 }
                 else
                 {
                     if (i == 0)
                     {
-                        sb1.AppendLine(values[i + 1] + " = " + values[i] + ",");
+                        sb1.AppendLine($"public static readonly {type} {values[i + 1]} = {values[i]};");
                     }
                     else
                     {
-                        sb1.AppendLine("\t\t" + values[i + 1] + " = " + values[i] + ",");
+                        sb1.AppendLine($"\t\tpublic static readonly {type} {values[i + 1]} = {values[i]};");
                     }
                 }
             }

@@ -1,7 +1,7 @@
 ﻿	/// <summary>
 	/// {0}枚举
 	/// </summary>
-	public enum {1}
+	public static class {1}
 	{{
 		{2}
 	}}
