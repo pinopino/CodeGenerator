@@ -24,6 +24,6 @@
             {{
                 ret = conn.Query<{5}>(sql.ToString()).ToList();
             }}
-
+			{7}
             return (List<{6}>)ret;
         }}

@@ -306,6 +306,7 @@ namespace Generator.Core
         private string Get_GetModel1(string tableName)
         {
             var table_config = _config[tableName];
+            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
 
             var sb1 = new StringBuilder();
             table_config.PrimaryKey.ForEach(p => sb1.AppendLine(string.Format("{0}{0}/// <param name=\"{1}\">{2}</param>", '\t', p.Name, p.Comment)));
@@ -333,7 +334,8 @@ namespace Generator.Core
                                     sb4.ToString().TrimEnd("and "),
                                     tableName,
                                     tableName,
-                                    sb5.ToString().TrimEnd(", ".ToCharArray()));
+                                    sb5.ToString().TrimEnd(", ".ToCharArray()),
+                                    trace ? "ret.OpenTrace();" + Environment.NewLine : string.Empty);
 
             return str;
         }
@@ -347,9 +349,19 @@ namespace Generator.Core
         private string Get_GetList1(string tableName)
         {
             var table_config = _config[tableName];
+            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
 
             var sb1 = new StringBuilder();
             table_config.Columns.ForEach(p => sb1.Append(string.Format("[{0}], ", p.Name)));
+
+            var sb2 = new StringBuilder();
+            if (trace)
+            {
+                sb2.AppendLine("foreach (var item in ret)");
+                sb2.AppendLine("\t\t\t{");
+                sb2.AppendLine("\t\t\t\titem.OpenTrace();");
+                sb2.AppendLine("\t\t\t}");
+            }
 
             var str = string.Format(DALTemplate.GET_LIST_TEMPLATE1,
                                     table_config.Comment,
@@ -358,7 +370,8 @@ namespace Generator.Core
                                     sb1.ToString().TrimEnd(", ".ToCharArray()),
                                     string.Format("[{0}]", tableName),
                                     tableName,
-                                    tableName);
+                                    tableName,
+                                    sb2.ToString());
 
             return str;
         }
