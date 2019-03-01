@@ -4,7 +4,7 @@
         /// <param name="model">{1}实体</param>
 		/// <param name="fields">需要更新的字段名字</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, IList<{2}Column> fields = null, bool reverse = false, SqlConnection conn = null, SqlTransaction transaction = null)
+        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, SqlConnection conn = null, SqlTransaction transaction = null)
         {{
             throw new NotImplementedException();
         }}

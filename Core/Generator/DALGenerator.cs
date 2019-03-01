@@ -50,7 +50,7 @@ namespace Generator.Core
             var sb2 = new StringBuilder();
             sb1.AppendLine($"\t\tpublic static readonly {tableName}Table Table = new {tableName}Table(\"{tableName}\");");
             sb1.AppendLine();
-            sb1.AppendLine("\t\tpublic class Columns");
+            sb1.AppendLine("\t\tpublic sealed class Columns");
             sb1.AppendLine("\t\t{");
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
@@ -95,7 +95,7 @@ namespace Generator.Core
             var sb4 = new StringBuilder();
             table_config.ExistPredicate.ForEach(p => sb4.Append(string.Format("@{0}={1}, ", p.Name, p.Name)));
 
-            var str = string.Format(DALTemplate.EXISTS_TEMPLATE,
+            var str = string.Format(DALTemplate.EXISTS_TEMPLATE1,
                                     table_config.Comment,
                                     sb1.ToString().TrimEnd(Environment.NewLine),
                                     sb2.ToString().TrimEnd(", ".ToCharArray()),
@@ -108,19 +108,6 @@ namespace Generator.Core
 
         #region Insert
         public string Get_Insert(string tableName)
-        {
-            var table_config = _config[tableName];
-            if (table_config.PrimaryKey.Count == 1)
-            {
-                return Get_Insert_SingleId(tableName);
-            }
-            else
-            {
-                return Get_Insert_MultipleId(tableName);
-            }
-        }
-
-        private string Get_Insert_SingleId(string tableName)
         {
             var table_config = _config[tableName];
             var primaryKey = table_config.PrimaryKey[0];
@@ -159,58 +146,6 @@ namespace Generator.Core
             return str;
         }
 
-        private string Get_Insert_MultipleId(string tableName)
-        {
-            var table_config = _config[tableName];
-
-            var sb1 = new StringBuilder();
-            sb1.Append("Tuple<");
-            table_config.PrimaryKey.ForEach(p => sb1.Append(string.Format("{0}, ", p.DbType)));
-            sb1.Append(">");
-
-            var sb2 = new StringBuilder();
-            table_config.Columns.ForEach(p =>
-            {
-                if (!p.IsIdentity)
-                {
-                    sb2.Append(string.Format("[{0}], ", p.Name));
-                }
-            });
-
-            var sb3 = new StringBuilder();
-            table_config.PrimaryKey.ForEach(p => sb3.Append(string.Format("INSERTED.[{0}], ", p.Name)));
-
-            var sb4 = new StringBuilder();
-            table_config.Columns.ForEach(p =>
-            {
-                if (!p.IsIdentity)
-                {
-                    sb4.Append(string.Format("@{0}, ", p.Name));
-                }
-            });
-
-            var sb5 = sb1.ToString().Replace(", >", "") + ">";
-
-            var sb6 = sb1.ToString().Replace(", >", "") + ">";
-
-            var sb7 = sb1.ToString().Replace(", >", "") + ">";
-
-            var str = string.Format(DALTemplate.INSERT_TEMPLATE2,
-                                    table_config.Comment,
-                                    table_config.Comment,
-                                    sb1.ToString().Replace(", >", "") + ">",
-                                    tableName,
-                                    string.Format("[{0}]", tableName),
-                                    sb2.ToString().TrimEnd(", ".ToCharArray()),
-                                    sb3.ToString().TrimEnd(", ".ToCharArray()),
-                                    sb4.ToString().TrimEnd(", ".ToCharArray()),
-                                    sb5,
-                                    sb6,
-                                    sb7);
-
-            return str;
-        }
-
         private string GetReturnStr(string keyType)
         {
             switch (keyType.ToLower())
@@ -235,12 +170,6 @@ namespace Generator.Core
 
         #region Delete
         public string Get_Delete(string tableName)
-        {
-            var table_config = _config[tableName];
-            return Get_Delete1(tableName);
-        }
-
-        private string Get_Delete1(string tableName)
         {
             var table_config = _config[tableName];
 
@@ -272,19 +201,6 @@ namespace Generator.Core
         public string Get_BatchDelete(string tableName)
         {
             var table_config = _config[tableName];
-            if (table_config.PrimaryKey.Count == 1)
-            {
-                return Get_BatchDelete_SingleId(tableName);
-            }
-            else
-            {
-                return Get_BatchDelete_MultipleId(tableName);
-            }
-        }
-
-        private string Get_BatchDelete_SingleId(string tableName)
-        {
-            var table_config = _config[tableName];
             var primaryKey = table_config.PrimaryKey[0];
 
             var str = string.Format(DALTemplate.BATCHDELETE_TEMPLATE1,
@@ -296,40 +212,10 @@ namespace Generator.Core
 
             return str;
         }
-
-        private string Get_BatchDelete_MultipleId(string tableName)
-        {
-            var table_config = _config[tableName];
-
-            var sb1 = new StringBuilder();
-            sb1.Append("Tuple<");
-            table_config.PrimaryKey.ForEach(p => sb1.Append(string.Format("{0}, ", p.DbType)));
-            sb1.Append(">");
-
-            var sb2 = new StringBuilder();
-            sb2.Append("(");
-            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}], ", p.Name)));
-            sb2.Append(")");
-
-            var str = string.Format(DALTemplate.BATCHDELETE_TEMPLATE2,
-                                    table_config.Comment,
-                                    table_config.Comment,
-                                    sb1.ToString().Replace(", >", "") + ">",
-                                    string.Format("[{0}]", tableName),
-                                    sb2.ToString().Replace(", )", "") + ")");
-
-            return str;
-        }
         #endregion
 
         #region Update
         public string Get_Update(string tableName)
-        {
-            var table_config = _config[tableName];
-            return Get_Update1(tableName);
-        }
-
-        private string Get_Update1(string tableName)
         {
             var table_config = _config[tableName];
             var sb1 = new StringBuilder();
@@ -362,12 +248,6 @@ namespace Generator.Core
 
         #region Select
         public string Get_GetModel(string tableName)
-        {
-            var table_config = _config[tableName];
-            return Get_GetModel1(tableName);
-        }
-
-        private string Get_GetModel1(string tableName)
         {
             var table_config = _config[tableName];
             var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
@@ -405,12 +285,6 @@ namespace Generator.Core
         }
 
         public string Get_GetList(string tableName)
-        {
-            var table_config = _config[tableName];
-            return Get_GetList1(tableName);
-        }
-
-        private string Get_GetList1(string tableName)
         {
             var table_config = _config[tableName];
             var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);

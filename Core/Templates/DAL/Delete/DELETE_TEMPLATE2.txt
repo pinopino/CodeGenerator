@@ -1,0 +1,9 @@
+﻿		/// <summary>
+        /// 删除指定的{0}
+        /// </summary>
+{1}
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Delete((Expression<Func<{2}, bool>> predicate))
+        {{
+            throw new NotImplementedException();
+        }}

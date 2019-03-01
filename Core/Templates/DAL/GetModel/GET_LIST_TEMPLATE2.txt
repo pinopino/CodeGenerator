@@ -1,0 +1,10 @@
+﻿		/// <summary>
+        /// 批量获取{0}
+        /// </summary>
+        /// <param name="where">查询条件（不需要带有where关键字）</param>
+        /// <param name="top">取出前top数的数据</param>
+        /// <returns>{1}列表</returns>
+        public static List<{2}> GetList(Expression<Func<{2}, bool>> predicate, int top = 100)
+        {{
+            throw new NotImplementedException();
+        }}
