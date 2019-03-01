@@ -243,6 +243,7 @@ namespace Generator.Core
                 sb.AppendLine();
                 sb.AppendLine(config.DAL_Namespace);
                 sb.AppendLine("{");
+                sb.AppendLine(g.Get_MetaData1(table.Name));
                 sb.AppendLine(string.Format("{0}public partial class {1}{2}{3}{4}",
                         '\t',
                         config.DAL_ClassNamePrefix,
@@ -250,27 +251,7 @@ namespace Generator.Core
                         config.DAL_ClassNameSuffix,
                         string.IsNullOrWhiteSpace(config.DAL_BaseClass) ? string.Empty : (" : " + config.DAL_BaseClass)));
                 sb.AppendLine(string.Format("{0}{{", '\t'));
-                sb.Append(string.Format("{0}{0}private static List<string> _all_fields = new List<string> {{ ", '\t'));
-                for (int j = 0; j < table.Columns.Count; j++)
-                {
-                    if (!table.Columns[j].IsIdentity)
-                    {
-                        if (!IsExceptColumn(config, table.Name, table.Columns[j].Name))
-                        {
-                            if (j != table.Columns.Count - 1)
-                            {
-                                sb.Append(string.Format("\"{0}\", ", table.Columns[j].Name));
-                            }
-                            else
-                            {
-                                sb.Append(string.Format("\"{0}\" ", table.Columns[j].Name));
-                            }
-                        }
-                    }
-                }
-                sb.Append("};");
-                sb.AppendLine();
-                sb.AppendLine();
+                sb.AppendLine(g.Get_MetaData2(table.Name));
                 // 按方法生成
                 foreach (var item in config.DAL_Methods)
                 {

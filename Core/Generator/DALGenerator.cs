@@ -14,6 +14,70 @@ namespace Generator.Core
             this._config = config;
         }
 
+        #region 元数据
+        public string Get_MetaData1(string tableName)
+        {
+            var sb1 = new StringBuilder();
+            sb1.AppendLine($"\tpublic sealed class {tableName}Column");
+            sb1.AppendLine("\t{");
+            sb1.AppendLine($"\t\tinternal {tableName}Column(string name)");
+            sb1.AppendLine("\t\t{");
+            sb1.AppendLine("\t\t\tName = name;");
+            sb1.AppendLine("\t\t}");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\tpublic string Name { private set; get; }");
+            sb1.AppendLine("\t}");
+            sb1.AppendLine();
+
+            var sb2 = new StringBuilder();
+            sb2.AppendLine($"\tpublic sealed class {tableName}Table");
+            sb2.AppendLine("\t{");
+            sb2.AppendLine($"\t\tinternal {tableName}Table(string name)");
+            sb2.AppendLine("\t\t{");
+            sb2.AppendLine("\t\t\tName = name;");
+            sb2.AppendLine("\t\t}");
+            sb1.AppendLine();
+            sb2.AppendLine("\t\tpublic string Name { private set; get; }");
+            sb2.AppendLine("\t}");
+
+            return sb1.Append(sb2).ToString();
+        }
+
+        public string Get_MetaData2(string tableName)
+        {
+            var table_config = _config[tableName];
+            var sb1 = new StringBuilder();
+            var sb2 = new StringBuilder();
+            sb1.AppendLine($"\t\tpublic static readonly {tableName}Table Table = new {tableName}Table(\"{tableName}\");");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\tpublic class Columns");
+            sb1.AppendLine("\t\t{");
+            for (int i = 0; i < table_config.Columns.Count; i++)
+            {
+                var column = table_config.Columns[i];
+                sb1.AppendLine($"\t\t\tpublic static readonly {tableName}Column {column.Name} = new {tableName}Column(\"{column.Name}\");");
+                if (i == table_config.Columns.Count - 1)
+                {
+                    sb2.Append($"{column.Name} ");
+                }
+                else
+                {
+                    sb2.Append($"{column.Name}, ");
+                }
+            }
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\t\tpublic static List<{tableName}Column> GetAll()");
+            sb1.AppendLine("\t\t\t{");
+            sb1.Append($"\t\t\t\treturn new List<{tableName}Column> {{ ");
+            sb1.Append(sb2);
+            sb1.AppendLine("};");
+            sb1.AppendLine("\t\t\t}");
+            sb1.AppendLine("\t\t}");
+
+            return sb1.ToString();
+        }
+        #endregion
+
         #region Exists
         public string Get_Exists(string tableName)
         {
