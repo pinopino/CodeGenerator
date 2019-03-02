@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Generator.Core
 {
@@ -24,6 +25,7 @@ namespace Generator.Core
         private List<string> _exceptTables;
         private Dictionary<string, List<string>> _exceptColumns;
         private List<string> _traceFieldTables;
+        private List<Tuple<string, string>> _joinedTables;
 
         public SQLMetaData()
         {
@@ -46,6 +48,7 @@ namespace Generator.Core
             _exceptTables = new List<string>();
             _exceptColumns = new Dictionary<string, List<string>>();
             _traceFieldTables = new List<string>();
+            _joinedTables = new List<Tuple<string, string>>();
         }
 
         public TableMetaData this[string TableName]
@@ -205,6 +208,12 @@ namespace Generator.Core
         {
             set { this._traceFieldTables = value; }
             get { return this._traceFieldTables; }
+        }
+
+        public List<Tuple<string, string>> JoinedTables
+        {
+            set { this._joinedTables = value; }
+            get { return this._joinedTables; }
         }
     }
 

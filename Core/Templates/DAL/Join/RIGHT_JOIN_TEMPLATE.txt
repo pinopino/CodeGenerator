@@ -1,0 +1,7 @@
+﻿		/// <summary>
+        /// 获取{0}实体对象
+        /// </summary>
+        public static List<{1}> RightJoin(Expression<Func<{2}, {3}, bool>> on, Expression<Func<{2}, {3}, bool>> predicate, int top = 100)
+        {{
+            throw new NotImplementedException();
+        }}

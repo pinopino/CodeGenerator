@@ -108,6 +108,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Templates\DAL\Join\INNER_JOIN_TEMPLATE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\DAL\Join\RIGHT_JOIN_TEMPLATE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\DAL\Join\LEFT_JOIN_TEMPLATE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Templates\DAL\Delete\BATCHDELETE_TEMPLATE1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -23,6 +23,7 @@ namespace Generator.Core
         private static readonly string _methods_default = "Exists,Insert,Delete,Update,GetModel,GetList,GetRecordCount,GetListByPage";
         private static readonly string _exceptTables_default = ConfigurationManager.AppSettings["ExceptTables"] ?? string.Empty;
         private static readonly string _traceFieldTables_default = ConfigurationManager.AppSettings["TraceFieldTabls"] ?? string.Empty;
+        private static readonly string _joinTables_default = ConfigurationManager.AppSettings["JoinedTables"] ?? string.Empty;
         private static readonly string _exceptColumns_default = ConfigurationManager.AppSettings["UpdateExceptColumns"] ?? string.Empty;
         private static readonly string _partial_check_dal_path = string.Empty;
         private static readonly List<string> _exist_enum = new List<string>();
@@ -89,6 +90,13 @@ namespace Generator.Core
             config.PartialCheck_DAL_Path = ConfigurationManager.AppSettings["PartialCheck_DAL_Path"] ?? _partial_check_dal_path;
             config.ExceptTables = _exceptTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
             config.TraceFieldTables = _traceFieldTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            config.JoinedTables = _joinTables_default
+                .Replace('（', ' ')
+                .Replace('）', ' ')
+                .Replace('；', ';')
+                .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => new Tuple<string, string>(p.Split(',')[0].Trim(), p.Split(',')[1].Trim()))
+                .ToList();
             config.ExceptColumns = _exceptColumns_default
                 .Replace('；', ';')
                 .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
