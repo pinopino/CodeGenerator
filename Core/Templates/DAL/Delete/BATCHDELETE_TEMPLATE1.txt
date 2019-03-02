@@ -1,7 +1,7 @@
 ﻿		/// <summary>
         /// 批量删除指定的{0}
         /// </summary>
-        /// <param name="ids">{1} id列表</param>
+        /// <param name="ids">{1}id列表</param>
         /// <returns>是否成功，true为成功</returns>
         public static bool Delete(List<{2}> Ids)
         {{

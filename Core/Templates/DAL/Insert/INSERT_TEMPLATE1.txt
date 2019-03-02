@@ -1,7 +1,7 @@
 ﻿		/// <summary>
         /// 添加{0}
         /// </summary>
-        /// <param name="model">{1}实体</param>
+        /// <param name="model">{1}</param>
         /// <returns>新插入数据的id</returns>
         public static {2} Insert({3} model, SqlConnection conn = null, SqlTransaction transaction = null)
         {{

@@ -99,7 +99,7 @@ namespace Generator.Core
             table_config.ExistPredicate.ForEach(p => sb4.Append(string.Format("@{0}={1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.EXISTS_TEMPLATE1,
-                                    table_config.Comment,
+                                    tableName + "实体对象",
                                     sb1.ToString().TrimEnd(Environment.NewLine),
                                     sb2.ToString().TrimEnd(", ".ToCharArray()),
                                     string.Format("[{0}]", tableName),
@@ -112,7 +112,7 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.EXISTS_TEMPLATE2,
-                                    table_config.Comment,
+                                    tableName + "实体对象",
                                     tableName);
             return str;
         }
@@ -143,8 +143,8 @@ namespace Generator.Core
             });
 
             var str = string.Format(DALTemplate.INSERT_TEMPLATE1,
-                                    table_config.Comment,
-                                    table_config.Comment,
+                                    $"新{tableName}记录",
+                                    tableName + "实体对象",
                                     primaryKey.DbType,
                                     tableName,
                                     string.Format("[{0}]", tableName),
@@ -205,7 +205,7 @@ namespace Generator.Core
             table_config.PrimaryKey.ForEach(p => sb4.Append(string.Format("@{0}={1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.DELETE_TEMPLATE1,
-                                    table_config.Comment,
+                                    tableName + "数据记录",
                                     sb1.ToString().TrimEnd(Environment.NewLine),
                                     sb2.ToString().TrimEnd(", ".ToCharArray()),
                                     string.Format("[{0}]", tableName),
@@ -219,7 +219,7 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.DELETE_TEMPLATE2,
-                                    table_config.Comment,
+                                    tableName + "数据记录",
                                     tableName);
             return str;
         }
@@ -232,8 +232,8 @@ namespace Generator.Core
             var primaryKey = table_config.PrimaryKey[0];
 
             var str = string.Format(DALTemplate.BATCHDELETE_TEMPLATE1,
-                                    table_config.Comment,
-                                    table_config.Comment,
+                                    tableName + "数据记录",
+                                    tableName + "实体对象的",
                                     primaryKey.DbType,
                                     string.Format("[{0}]", tableName),
                                     string.Format("[{0}]", primaryKey.Name));
@@ -264,8 +264,8 @@ namespace Generator.Core
             table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE1,
-                                    table_config.Comment,
-                                    table_config.Comment,
+                                    tableName + "数据记录",
+                                    tableName + "实体对象",
                                     tableName,
                                     string.Format("[{0}]", tableName),
                                     sb1.ToString().TrimEnd(", ".ToCharArray()),
@@ -278,8 +278,8 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE2,
-                                    table_config.Comment,
-                                    tableName,
+                                    tableName + "数据记录",
+                                    tableName + "实体对象",
                                     tableName);
             return str;
         }
@@ -320,7 +320,7 @@ namespace Generator.Core
             table_config.PrimaryKey.ForEach(p => sb5.Append(string.Format("@{0}={1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.GET_MODEL_TEMPLATE1,
-                                    table_config.Comment,
+                                    tableName + "实体对象",
                                     sb1.ToString().TrimEnd(Environment.NewLine),
                                     tableName,
                                     tableName,
@@ -340,7 +340,7 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.GET_MODEL_TEMPLATE2,
-                                    table_config.Comment,
+                                    tableName + "实体对象",
                                     tableName);
             return str;
         }
@@ -349,7 +349,7 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.GET_LIST_TEMPLATE1,
-                                    table_config.Comment,
+                                    tableName + "实体对象",
                                     tableName);
             return str;
         }

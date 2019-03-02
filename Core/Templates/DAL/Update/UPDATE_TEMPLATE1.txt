@@ -1,7 +1,7 @@
 ﻿		/// <summary>
         /// 更新{0}
         /// </summary>
-        /// <param name="model">{1}实体</param>
+        /// <param name="model">{1}</param>
 		/// <param name="fields">需要更新的字段名字</param>
 		/// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
