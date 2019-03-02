@@ -384,7 +384,8 @@ namespace Generator.Core
             sb.AppendLine();
             sb.AppendLine(Get_Joined1(mainTable, subTable));
             sb.AppendLine(Get_Joined2(mainTable, subTable));
-            sb.Append(Get_Joined3(mainTable, subTable));
+            sb.AppendLine(Get_Joined3(mainTable, subTable));
+            sb.AppendLine(Get_JoinedPage(mainTable, subTable));
 
             return sb.ToString();
         }
@@ -413,6 +414,15 @@ namespace Generator.Core
         {
             var str = string.Format(DALTemplate.RIGHT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
+                                    $"Joined{mainTable}",
+                                    mainTable,
+                                    subTable);
+            return str;
+        }
+
+        private string Get_JoinedPage(string mainTable, string subTable)
+        {
+            var str = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE,
                                     $"Joined{mainTable}",
                                     mainTable,
                                     subTable);

@@ -108,6 +108,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Templates\DAL\Join\JOINED_PAGE_TEMPLATE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Templates\DAL\Join\INNER_JOIN_TEMPLATE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
