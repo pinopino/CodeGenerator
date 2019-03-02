@@ -13,10 +13,10 @@ namespace Generator.Core
             this._config = config;
         }
 
-        public string Get_Class(string tableName)
+        public string Get_Class(string tableName, bool noTrace = false)
         {
             var table_config = _config[tableName];
-            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
+            var trace = noTrace && (_config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName));
 
             var sb1 = new StringBuilder();
             var sb2 = new StringBuilder();
@@ -127,6 +127,7 @@ namespace Generator.Core
             }
 
             var str = string.Format(ModelTemplate.CLASS_TEMPLATE,
+                                    tableName,
                                     table_config.Comment,
                                     _config.Model_ClassNamePrefix,
                                     tableName,
@@ -136,6 +137,93 @@ namespace Generator.Core
                                     Environment.NewLine + sb1.ToString(),
                                     trace ? Environment.NewLine + "\t\tprivate bool _____flag;" + Environment.NewLine + sb2.ToString() : string.Empty,
                                     sb4.ToString());
+            return str;
+        }
+
+        public string Get_Joined_Class(string mainTable, string subTable)
+        {
+            var sub_class_str = Get_Class(subTable, true);
+
+            var table_config = _config[mainTable];
+            var sb1 = new StringBuilder();
+            for (int i = 0; i < table_config.Columns.Count; i++)
+            {
+                var p = table_config.Columns[i];
+                if (i == table_config.Columns.Count - 1)
+                {
+                    if (p.Nullable && p.DbType != "string")
+                    {
+                        sb1.Append(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
+                    }
+                    else
+                    {
+                        sb1.Append(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
+                    }
+                }
+                else
+                {
+                    if (p.Nullable && p.DbType != "string")
+                    {
+                        sb1.AppendLine(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
+                    }
+                    else
+                    {
+                        sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
+                    }
+                }
+            }
+
+            var sb2 = new StringBuilder();
+            for (int i = 0; i < table_config.Columns.Count; i++)
+            {
+                var p = table_config.Columns[i];
+                if (i == table_config.Columns.Count - 1)
+                {
+                    sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
+                    sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
+                    sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
+                    if (p.Nullable && p.DbType != "string")
+                    {
+                        sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
+                    }
+                    else
+                    {
+                        sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
+                    }
+                    sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
+                    sb2.Append(string.Format("{0}{0}}}", '\t'));
+                }
+                else
+                {
+                    sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
+                    sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
+                    sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
+                    if (p.Nullable && p.DbType != "string")
+                    {
+                        sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
+                    }
+                    else
+                    {
+                        sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
+                    }
+                    sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
+                    sb2.AppendLine();
+                }
+            }
+
+            var str = string.Format(ModelTemplate.JOINED_CLASS_TEMPLATE,
+                                    "Joined" + mainTable,
+                                    "Joined" + mainTable,
+                                    string.IsNullOrWhiteSpace(_config.Model_BaseClass) ? string.Empty : (" : " + _config.Model_BaseClass),
+                                    sub_class_str,
+                                    "Joined" + mainTable,
+                                    Environment.NewLine + sb1.ToString(),
+                                    sb2.ToString());
             return str;
         }
     }

@@ -93,14 +93,15 @@ namespace Generator.Core
             config.JoinedTables = _joinTables_default
                 .Replace('（', ' ')
                 .Replace('）', ' ')
+                .Replace('(', ' ')
+                .Replace(')', ' ')
                 .Replace('；', ';')
                 .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .Select(p => new Tuple<string, string>(p.Split(',')[0].Trim(), p.Split(',')[1].Trim()))
-                .ToList();
+                .ToDictionary(p => p.Split(',')[0].Trim(), p => p.Split(',')[1].Trim());
             config.ExceptColumns = _exceptColumns_default
                 .Replace('；', ';')
                 .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .ToDictionary(p => p.Split(':')[0], p => p.Split(':')[1].Split(',').ToList());
+                .ToDictionary(p => p.Split(':')[0].Trim(), p => p.Split(':')[1].Split(',').ToList());
             config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
             config.Model_Namespace = string.Format("namespace {0}.{1}", _project, model_namespace);
@@ -311,6 +312,12 @@ namespace Generator.Core
                 sb.AppendLine(string.Format("{0}}}", '\t'));
                 sb.AppendLine("}");
 
+                // Joined
+                if (config.JoinedTables.ContainsKey(table.Name))
+                {
+                    g.Get_Joined(table.Name, config.JoinedTables[table.Name]);
+                }
+
                 File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
                 sb.Clear();
 
@@ -363,6 +370,27 @@ namespace Generator.Core
                     // 打印进度
                     ProgressPrint(progress, (i + 1), config.Tables.Count);
                 }
+            }
+
+            // 如果配置文件指定了JoinedTables，那么这里需要为这些关联表生成额外的包装model，
+            // 路径：Model\JoinedViewModel
+            Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
+            var sb2 = new StringBuilder();
+            foreach (var pair in config.JoinedTables)
+            {
+                var main_table = pair.Key;
+                var sub_table = pair.Value;
+                sb2.Append(config.Model_HeaderNote);
+                sb2.Append(string.Join(Environment.NewLine, config.Model_Using));
+                sb2.AppendLine();
+                sb2.AppendLine();
+                sb2.AppendLine(config.Model_Namespace + "JoinedViewModel");
+                sb2.AppendLine("{");
+                sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
+                sb2.AppendLine("}");
+
+                File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + main_table)), sb2.ToString());
+                sb2.Clear();
             }
 
             // 拷贝公用文件到指定目录
@@ -572,7 +600,7 @@ namespace Generator.Core
 
         private static bool IsExceptColumn(SQLMetaData config, string table, string colunm)
         {
-            return config.ExceptColumns.ContainsKey("*") && config.ExceptColumns["*"].Contains(colunm) || 
+            return config.ExceptColumns.ContainsKey("*") && config.ExceptColumns["*"].Contains(colunm) ||
                 config.ExceptColumns.ContainsKey(table) && config.ExceptColumns[table].Contains(colunm);
         }
     }
