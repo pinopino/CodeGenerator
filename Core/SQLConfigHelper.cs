@@ -81,6 +81,7 @@ namespace Generator.Core
             var dal_headerNode = ConfigurationManager.AppSettings["DAL_HeaderNote"] ?? _headerNode_default;
             var dal_using = ConfigurationManager.AppSettings["DAL_Using"] ?? string.Format(_using_default, "using Dapper;");
             dal_using += string.Format("using {0}.{1};", _project, model_namespace);
+            dal_using += string.Format("using {0}.{1}.{2};", _project, model_namespace, "JoinedViewModel");
             var dal_namespace = ConfigurationManager.AppSettings["DAL_Namespace"] ?? "DAL";
             var dal_baseClass = ConfigurationManager.AppSettings["DAL_BaseClass"] ?? _baseClass_default;
             var dal_classPrefix = ConfigurationManager.AppSettings["DAL_ClassPrefix"] ?? _classPrefix_default;
@@ -309,14 +310,13 @@ namespace Generator.Core
                             break;
                     }
                 }
-                sb.AppendLine(string.Format("{0}}}", '\t'));
-                sb.AppendLine("}");
-
                 // Joined
                 if (config.JoinedTables.ContainsKey(table.Name))
                 {
-                    g.Get_Joined(table.Name, config.JoinedTables[table.Name]);
+                    sb.Append(g.Get_Joined(table.Name, config.JoinedTables[table.Name]));
                 }
+                sb.AppendLine(string.Format("{0}}}", '\t'));
+                sb.AppendLine("}");
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
                 sb.Clear();
@@ -384,7 +384,7 @@ namespace Generator.Core
                 sb2.Append(string.Join(Environment.NewLine, config.Model_Using));
                 sb2.AppendLine();
                 sb2.AppendLine();
-                sb2.AppendLine(config.Model_Namespace + "JoinedViewModel");
+                sb2.AppendLine(config.Model_Namespace + ".JoinedViewModel");
                 sb2.AppendLine("{");
                 sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
                 sb2.AppendLine("}");

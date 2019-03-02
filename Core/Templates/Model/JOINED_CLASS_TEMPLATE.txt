@@ -2,12 +2,13 @@
 	/// {0}实体
 	/// </summary>
 	[Serializable]
-	public class {1}{2}
+	public class {1}
 	{{
-		{3}
-
-		public {4}()
-		{{}}
+		public class {2}
+		{{
+{3}
+{4}		
+		}}
 {5}
 {6}
 	}}

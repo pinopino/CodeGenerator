@@ -381,9 +381,10 @@ namespace Generator.Core
         public string Get_Joined(string mainTable, string subTable)
         {
             var sb = new StringBuilder();
+            sb.AppendLine();
             sb.AppendLine(Get_Joined1(mainTable, subTable));
             sb.AppendLine(Get_Joined2(mainTable, subTable));
-            sb.AppendLine(Get_Joined3(mainTable, subTable));
+            sb.Append(Get_Joined3(mainTable, subTable));
 
             return sb.ToString();
         }
@@ -400,7 +401,7 @@ namespace Generator.Core
 
         private string Get_Joined2(string mainTable, string subTable)
         {
-            var str = string.Format(DALTemplate.INNER_JOIN_TEMPLATE,
+            var str = string.Format(DALTemplate.LEFT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     $"Joined{mainTable}",
                                     mainTable,
@@ -410,7 +411,7 @@ namespace Generator.Core
 
         private string Get_Joined3(string mainTable, string subTable)
         {
-            var str = string.Format(DALTemplate.INNER_JOIN_TEMPLATE,
+            var str = string.Format(DALTemplate.RIGHT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     $"Joined{mainTable}",
                                     mainTable,
