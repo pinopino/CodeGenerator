@@ -21,6 +21,7 @@ namespace Console
     {
         public int Id;
         public string Name;
+        public bool IsAdmin;
     }
 
     class PredicateVisitor : ExpressionVisitor
@@ -28,87 +29,114 @@ namespace Console
         private StringBuilder sb = new StringBuilder();
         private bool invert = false;
         private bool quote = true;
+        private bool boolean = false; // 布尔表达式的左侧表达式是否为一个bool类型
+        private bool has_right = false;
 
         public void Test()
         {
-            var list = new List<string> { "1", "2", "3" };
-            Expression<Func<ExUser, object>> exp1 = p => !(!(p.Id > 1 && p.Id < 20) || p.Name == "abc");
-            Visit(exp1);
-            System.Console.WriteLine(this);
-            sb.Clear();
-            Expression<Func<ExUser, object>> exp2 = p => !(p.Id == 1 || p.Id == 2 || p.Id == 3);
-            Visit(exp2);
-            System.Console.WriteLine(this);
-            sb.Clear();
-            Expression<Func<ExUser, object>> exp3 = p => p.Name.Contains("a");
-            Visit(exp3);
-            System.Console.WriteLine(this);
-            sb.Clear();
-            Expression<Func<ExUser, object>> exp4 = p => list.Contains(p.Name);
-            Visit(exp4);
+            var list = new List<int> { 1, 2, 3 };
+            //Expression<Func<ExUser, object>> exp1 = p => !(!(p.Id > 1 && p.Id < 20) || p.Name == "abc");
+            //Visit(exp1);
+            //System.Console.WriteLine(this);
+            //sb.Clear();
+            //Expression<Func<ExUser, object>> exp2 = p => !(p.Id == 1 || p.Id == 2 || p.Id == 3);
+            //Visit(exp2);
+            //System.Console.WriteLine(this);
+            //sb.Clear();
+            //Expression<Func<ExUser, object>> exp3 = p => p.Name.Contains("a");
+            //Visit(exp3);
+            //System.Console.WriteLine(this);
+            //sb.Clear();
+            //Expression<Func<ExUser, object>> exp4 = p => list.Contains(p.Id);
+            //Visit(exp4);
+            //System.Console.WriteLine(this);
+            //sb.Clear();
+            //Expression<Func<ExUser, object>> exp5 = p => p.IsAdmin;
+            //Visit(exp5);
+            //System.Console.WriteLine(this);
+            //sb.Clear();
+            //Expression<Func<ExUser, object>> exp6 = p => !p.IsAdmin;
+            //Visit(exp6);
+            //System.Console.WriteLine(this);
+            //sb.Clear();
+            Expression<Func<ExUser, object>> exp7 = p => p.IsAdmin == true;
+            Visit(exp7);
             System.Console.WriteLine(this);
             sb.Clear();
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            has_right = true;
             sb.Append("(");
             this.Visit(node.Left);
 
+            var tmp = invert;
+            if(node.Left.NodeType == ExpressionType.Not)
+                invert = invert ^ true;
             switch (node.NodeType)
             {
                 case ExpressionType.And:
-                    sb.Append(" AND ");
-                    break;
-
                 case ExpressionType.AndAlso:
-                    sb.Append(" AND ");
+                    sb.Append(invert ? " OR " : " AND ");
                     break;
 
                 case ExpressionType.Or:
-                    sb.Append(" OR ");
-                    break;
-
                 case ExpressionType.OrElse:
-                    sb.Append(" OR ");
+                    sb.Append(invert ? " AND " : " OR ");
                     break;
 
                 case ExpressionType.Equal:
                     if (IsNullConstant(node.Right))
                     {
-                        sb.Append(" IS ");
+                        sb.Append(invert ? " IS NOT " : " IS ");
                     }
                     else
                     {
-                        sb.Append(" = ");
+                        if (boolean)
+                        {
+                            sb.Append(" = ");
+                        }
+                        else
+                        {
+                            sb.Append(invert ? " <> " : " = ");
+                        }
                     }
                     break;
 
                 case ExpressionType.NotEqual:
                     if (IsNullConstant(node.Right))
                     {
-                        sb.Append(" IS NOT ");
+                        sb.Append(invert ? " IS " : " IS NOT ");
                     }
                     else
                     {
-                        sb.Append(" <> ");
+                        if (boolean)
+                        {
+                            sb.Append(" = ");
+                            invert = true;
+                        }
+                        else
+                        {
+                            sb.Append(invert ? " = " : " != ");
+                        }
                     }
                     break;
 
                 case ExpressionType.LessThan:
-                    sb.Append(" < ");
+                    sb.Append(invert ? " >= " : " < ");
                     break;
 
                 case ExpressionType.LessThanOrEqual:
-                    sb.Append(" <= ");
+                    sb.Append(invert ? " > " : " <= ");
                     break;
 
                 case ExpressionType.GreaterThan:
-                    sb.Append(" > ");
+                    sb.Append(invert ? " <= " : " > ");
                     break;
 
                 case ExpressionType.GreaterThanOrEqual:
-                    sb.Append(" >= ");
+                    sb.Append(invert ? " < " : " >= ");
                     break;
 
                 default:
@@ -116,7 +144,9 @@ namespace Console
             }
 
             this.Visit(node.Right);
+            invert = tmp;
             sb.Append(")");
+            has_right = false;
             return node;
         }
 
@@ -125,8 +155,10 @@ namespace Console
             switch (node.NodeType)
             {
                 case ExpressionType.Not:
-                    sb.Append("NOT");
+                    var tmp = invert;
+                    invert = invert ^ true;
                     this.Visit(node.Operand);
+                    invert = tmp;
                     break;
                 case ExpressionType.Convert:
                     this.Visit(node.Operand);
@@ -149,7 +181,7 @@ namespace Console
                 switch (Type.GetTypeCode(node.Value.GetType()))
                 {
                     case TypeCode.Boolean:
-                        sb.Append(((bool)node.Value) ? 1 : 0);
+                        sb.Append(((bool)node.Value) ^ invert ? 1 : 0);
                         break;
 
                     case TypeCode.String:
@@ -213,7 +245,17 @@ namespace Console
             }
 
             if (node.Expression.NodeType == ExpressionType.Parameter)
+            {
                 sb.Append(node.Member.Name);
+                if (node.Type == typeof(bool))
+                {
+                    boolean = true;
+                    if (!has_right)
+                    {
+                        sb.Append(invert ? " = 0" : " = 1");
+                    }
+                }
+            }
 
             return node;
         }
@@ -224,7 +266,7 @@ namespace Console
             {
                 sb.Append("(");
                 this.Visit(node.Object);
-                sb.Append($" LIKE '%");
+                sb.Append(invert ? "NOT LIKE '%" : " LIKE '%");
                 quote = false;
                 this.Visit(node.Arguments[0]);
                 quote = true;
@@ -235,7 +277,7 @@ namespace Console
             {
                 sb.Append("(");
                 this.Visit(node.Object);
-                sb.Append($" LIKE '");
+                sb.Append(invert ? "NOT LIKE '" : " LIKE '");
                 quote = false;
                 this.Visit(node.Arguments[0]);
                 quote = true;
@@ -246,7 +288,7 @@ namespace Console
             {
                 sb.Append("(");
                 this.Visit(node.Object);
-                sb.Append($" LIKE '%");
+                sb.Append(invert ? "NOT LIKE '%" : " LIKE '%");
                 quote = false;
                 this.Visit(node.Arguments[0]);
                 quote = true;
@@ -275,7 +317,7 @@ namespace Console
                 }
                 sb.Append("(");
                 this.Visit(property);
-                sb.Append(" IN (");
+                sb.Append(invert ? " NOT IN (" : " IN (");
                 this.Visit(collection);
                 sb.Append("))");
             }
@@ -287,9 +329,9 @@ namespace Console
             return node;
         }
 
-        private bool IsNullConstant(Expression exp)
+        private bool IsNullConstant(Expression expr)
         {
-            return (exp.NodeType == ExpressionType.Constant && ((ConstantExpression)exp).Value == null);
+            return (expr.NodeType == ExpressionType.Constant && ((ConstantExpression)expr).Value == null);
         }
 
         public override string ToString()
