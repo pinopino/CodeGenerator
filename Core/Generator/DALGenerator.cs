@@ -134,7 +134,8 @@ namespace Generator.Core
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.EXISTS_TEMPLATE2,
                                     tableName + "实体对象",
-                                    tableName);
+                                    tableName,
+                                    $"[{tableName}]");
             return str;
         }
         #endregion
@@ -241,7 +242,8 @@ namespace Generator.Core
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.DELETE_TEMPLATE2,
                                     tableName + "数据记录",
-                                    tableName);
+                                    tableName,
+                                    $"[{tableName}]");
             return str;
         }
         #endregion

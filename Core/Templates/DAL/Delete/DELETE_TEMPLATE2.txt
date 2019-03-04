@@ -3,5 +3,17 @@
         /// </summary>
         public static bool Delete(Expression<Func<{1}, bool>> predicate)
         {{
-            throw new NotImplementedException();
+			var parser = new PredicateParser();
+            var where = parser.Parse(predicate);
+
+            var sql = new StringBuilder();
+            sql.Append("DELETE FROM {2} ");
+            sql.Append(" WHERE " + where);
+            var ret = false;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.Execute(sql.ToString()) > 0;
+            }}
+
+            return ret;
         }}
