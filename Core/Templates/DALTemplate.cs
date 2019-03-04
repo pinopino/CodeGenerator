@@ -61,7 +61,9 @@ namespace Generator.Template
         public readonly static string INNER_JOIN_TEMPLATE = GetTemplateFile("INNER_JOIN_TEMPLATE");
         public readonly static string LEFT_JOIN_TEMPLATE = GetTemplateFile("LEFT_JOIN_TEMPLATE");
         public readonly static string RIGHT_JOIN_TEMPLATE = GetTemplateFile("RIGHT_JOIN_TEMPLATE");
-        public readonly static string JOINED_PAGE_TEMPLATE = GetTemplateFile("JOINED_PAGE_TEMPLATE");
+        public readonly static string JOINED_PAGE_TEMPLATE1 = GetTemplateFile("LEFT_JOINED_PAGE_TEMPLATE");
+        public readonly static string JOINED_PAGE_TEMPLATE2 = GetTemplateFile("INNER_JOINED_PAGE_TEMPLATE");
+        public readonly static string JOINED_PAGE_TEMPLATE3 = GetTemplateFile("RIGHT_JOINED_PAGE_TEMPLATE");
         #endregion
 
         #region 辅助方法

@@ -1,7 +1,24 @@
 ﻿		/// <summary>
 		/// 获取记录总数
 		/// </summary>
-        public static int GetCount(Expression<Func<{0}, bool>> predicate)
+        public static int GetCount(Expression<Func<{0}, bool>> predicate = null)
         {{
-            throw new NotImplementedException();
+			var where = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where = parser.Parse(predicate);
+			}}
+
+            var sql = new StringBuilder();
+            sql.Append("SELECT COUNT(1) FROM {1}");
+			if (where != string.Empty)
+				sql.Append(" WHERE " + where);
+            var ret = -1;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.ExecuteScalar<int>(sql.ToString());
+            }}
+
+            return ret;
         }}

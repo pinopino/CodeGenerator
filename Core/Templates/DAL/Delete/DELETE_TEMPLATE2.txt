@@ -1,14 +1,19 @@
 ﻿		/// <summary>
         /// 删除指定的{0}
         /// </summary>
-        public static bool Delete(Expression<Func<{1}, bool>> predicate)
+        public static bool Delete(Expression<Func<{1}, bool>> predicate = null)
         {{
-			var parser = new PredicateParser();
-            var where = parser.Parse(predicate);
-
+			var where = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where = parser.Parse(predicate);
+			}}
+			
             var sql = new StringBuilder();
-            sql.Append("DELETE FROM {2} ");
-            sql.Append(" WHERE " + where);
+            sql.Append("DELETE FROM {2}");
+			if (where != string.Empty)
+				sql.Append(" WHERE " + where);
             var ret = false;
             using (var conn = GetOpenConnection())
             {{

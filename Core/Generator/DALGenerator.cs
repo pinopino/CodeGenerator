@@ -20,7 +20,7 @@ namespace Generator.Core
         public string Get_MetaData1(string tableName)
         {
             var sb1 = new StringBuilder();
-            sb1.AppendLine($"\tpublic sealed class {tableName}Column");
+            sb1.AppendLine($"\tpublic sealed class {tableName}Column : IColumn");
             sb1.AppendLine("\t{");
             sb1.AppendLine($"\t\tinternal {tableName}Column(string name)");
             sb1.AppendLine("\t\t{");
@@ -230,7 +230,7 @@ namespace Generator.Core
                                     tableName + "数据记录",
                                     sb1.ToString().TrimEnd(Environment.NewLine),
                                     sb2.ToString().TrimEnd(", ".ToCharArray()),
-                                    string.Format("[{0}]", tableName),
+                                    $"[{tableName}]",
                                     sb3.ToString().TrimEnd("and "),
                                     sb4.ToString().TrimEnd(", ".ToCharArray()));
 
@@ -258,7 +258,7 @@ namespace Generator.Core
                                     tableName + "数据记录",
                                     tableName + "实体对象的",
                                     primaryKey.DbType,
-                                    string.Format("[{0}]", tableName),
+                                    $"[{tableName}]",
                                     string.Format("[{0}]", primaryKey.Name));
 
             return str;
@@ -270,7 +270,7 @@ namespace Generator.Core
         {
             var str1 = Get_Update1(tableName);
             var str2 = Get_Update2(tableName);
-            return str1 + str2;
+            return str1 + Environment.NewLine + str2;
         }
 
         private string Get_Update1(string tableName)
@@ -300,10 +300,23 @@ namespace Generator.Core
         private string Get_Update2(string tableName)
         {
             var table_config = _config[tableName];
+            var sb1 = new StringBuilder();
+            table_config.Columns.ForEach(p =>
+            {
+                if (!p.IsIdentity && !IsExceptColumn(tableName, p.Name))
+                    sb1.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name));
+            });
+
+            var sb2 = new StringBuilder();
+            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name)));
+
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE2,
                                     tableName + "数据记录",
                                     tableName + "实体对象",
-                                    tableName);
+                                    tableName,
+                                    $"[{tableName}]",
+                                    sb1.ToString().TrimEnd(", ".ToCharArray()));
+
             return str;
         }
 
@@ -362,18 +375,34 @@ namespace Generator.Core
         private string Get_GetModel2(string tableName)
         {
             var table_config = _config[tableName];
+            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
             var str = string.Format(DALTemplate.GET_MODEL_TEMPLATE2,
                                     tableName + "实体对象",
-                                    tableName);
+                                    tableName,
+                                    $"[{tableName}]",
+                                    trace ? "ret.OpenTrace();" + Environment.NewLine : string.Empty);
             return str;
         }
 
         public string Get_GetList(string tableName)
         {
             var table_config = _config[tableName];
+            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
+
+            var sb1 = new StringBuilder();
+            if (trace)
+            {
+                sb1.AppendLine("foreach (var item in ret)");
+                sb1.AppendLine("\t\t\t{");
+                sb1.AppendLine("\t\t\t\titem.OpenTrace();");
+                sb1.AppendLine("\t\t\t}");
+            }
+
             var str = string.Format(DALTemplate.GET_LIST_TEMPLATE1,
                                     tableName + "实体对象",
-                                    tableName);
+                                    tableName,
+                                    $"[{tableName}]",
+                                    sb1.ToString());
             return str;
         }
         #endregion
@@ -383,8 +412,8 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.GET_COUNT_TEMPLATE,
-                                    tableName);
-
+                                    tableName,
+                                    $"[{tableName}]");
             return str;
         }
 
@@ -392,10 +421,7 @@ namespace Generator.Core
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.GET_LIST_BY_PAGE_TEMPLATE,
-                                    tableName,
-                                    tableName,
                                     tableName);
-
             return str;
         }
         #endregion
@@ -408,7 +434,7 @@ namespace Generator.Core
             sb.AppendLine(Get_Joined1(mainTable, subTable));
             sb.AppendLine(Get_Joined2(mainTable, subTable));
             sb.AppendLine(Get_Joined3(mainTable, subTable));
-            sb.AppendLine(Get_JoinedPage(mainTable, subTable));
+            sb.Append(Get_JoinedPage(mainTable, subTable));
 
             return sb.ToString();
         }
@@ -445,11 +471,22 @@ namespace Generator.Core
 
         private string Get_JoinedPage(string mainTable, string subTable)
         {
-            var str = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE,
+            var str1 = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE1,
                                     $"Joined{mainTable}",
                                     mainTable,
                                     subTable);
-            return str;
+
+            var str2 = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE2,
+                                    $"Joined{mainTable}",
+                                    mainTable,
+                                    subTable);
+
+            var str3 = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE3,
+                                    $"Joined{mainTable}",
+                                    mainTable,
+                                    subTable);
+
+            return str1 + Environment.NewLine + str2 + Environment.NewLine + str3;
         }
         #endregion
     }

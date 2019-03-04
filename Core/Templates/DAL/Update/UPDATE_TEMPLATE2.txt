@@ -6,7 +6,55 @@
 		/// <param name="fields">需要更新的字段</param>
 		/// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, IList<{2}Column> fields = null, bool reverse = false, SqlConnection conn = null, SqlTransaction transaction = null)
+        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate = null, IList<{2}Column> fields = null, bool reverse = false, SqlConnection conn = null, SqlTransaction transaction = null)
         {{
-            throw new NotImplementedException();
+			var where = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where = parser.Parse(predicate);
+			}}
+
+            var sql = new StringBuilder();
+            sql.Append("UPDATE {3}");
+            if (fields == null || fields.Count == 0)
+            {{
+                 sql.Append(" SET {4}");
+            }}
+            else
+            {{
+				if (reverse == true)
+				{{
+					 fields = Columns.All.Except(fields).ToList();
+				}}
+                sql.Append(" SET ");
+                for (int i = 0; i < fields.Count; i++)
+                {{
+                    sql.Append("[" + fields[i].Name + "]=@" + fields[i].Name + "");
+                    if (i != fields.Count - 1)
+                    {{
+                        sql.Append(",");
+                    }}
+                }}
+            }}
+            if (where != string.Empty)
+				sql.Append(" WHERE " + where);
+            var ret = false;
+            if (conn != null)
+            {{
+                if (transaction == null)
+                {{
+                    throw new ArgumentNullException("transaction");
+                }}
+                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+            }}
+            else
+            {{
+                using (var conn1 = GetOpenConnection())
+                {{
+                    ret = conn1.Execute(sql.ToString(), model) > 0;
+                }}
+            }}
+
+            return ret;
         }}

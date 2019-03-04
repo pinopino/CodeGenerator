@@ -22,7 +22,7 @@
                 sql.Append(" SET ");
                 for (int i = 0; i < fields.Count; i++)
                 {{
-                    sql.Append("[" + fields[i] + "]=@" + fields[i] + "");
+                    sql.Append("[" + fields[i].Name + "]=@" + fields[i].Name + "");
                     if (i != fields.Count - 1)
                     {{
                         sql.Append(",");
@@ -49,4 +49,3 @@
 
             return ret;
         }}
-

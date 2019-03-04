@@ -108,7 +108,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Templates\DAL\Join\JOINED_PAGE_TEMPLATE.txt">
+    <Content Include="Templates\DAL\Page\RIGHT_JOINED_PAGE_TEMPLATE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\DAL\Page\INNER_JOINED_PAGE_TEMPLATE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\DAL\Page\LEFT_JOINED_PAGE_TEMPLATE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\DAL\Join\INNER_JOIN_TEMPLATE.txt">

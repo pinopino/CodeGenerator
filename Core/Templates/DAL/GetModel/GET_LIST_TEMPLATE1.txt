@@ -1,7 +1,24 @@
 ﻿		/// <summary>
         /// 批量获取{0}
         /// </summary>
-        public static List<{1}> GetList(Expression<Func<{1}, bool>> predicate, int top = 100)
+        public static List<{1}> GetList(Expression<Func<{1}, bool>> predicate = null, int top = 100)
         {{
-            throw new NotImplementedException();
+			var where = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where = parser.Parse(predicate);
+			}}
+
+            var sql = new StringBuilder();
+            sql.Append("SELECT TOP " + top.ToString() + " * FROM {2}");
+            if (where != string.Empty)
+				sql.Append(" WHERE " + where);
+			object ret = null;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.Query<{1}>(sql.ToString()).ToList();
+            }}
+			{3}
+            return (List<{1}>)ret;
         }}

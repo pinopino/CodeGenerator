@@ -1,7 +1,25 @@
 ﻿		/// <summary>
 		/// 分页获取数据列表
 		/// </summary>
-		public static PageDataView<{0}> GetListByPage(Expression<Func<{1}, bool>> predicate, {1}Column orderBy = null, IList<{1}Column> columns = null, int pageSize = 20, int currentPage = 1)
+		public static PageDataView<{0}> GetPage(
+			Expression<Func<{0}, bool>> predicate = null, 
+			{0}Column orderBy = null, 
+			IList<{0}Column> columns = null, 
+			int pageSize = 20, 
+			int currentPage = 1)
         {{
-            throw new NotImplementedException();
+			var where = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where = parser.Parse(predicate);
+			}}
+
+			return Paged<{0}>(
+					{0}, 
+					where, 
+					orderBy == null ? string.Empty : orderBy.Name , 
+					columns == null ? "*" : string.Join(", ", columns.Select(p => p.Name)), 
+					pageSize, 
+					currentPage);
         }}

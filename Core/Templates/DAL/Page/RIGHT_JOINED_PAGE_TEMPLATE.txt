@@ -1,0 +1,34 @@
+﻿		/// <summary>
+		/// 分页获取RightJoined数据列表
+		/// </summary>
+		public static PageDataView<{0}> GetRightJoinedPage(
+			Expression<Func<{1}, {2}, bool>> on, 
+			Expression<Func<{1}, {2}, bool>> predicate = null, 
+			IColumn orderBy = null, 
+			IList<IColumn> columns = null, 
+			int pageSize = 20, 
+			int currentPage = 1)
+        {{
+			var on = string.Empty;
+			var parser = new PredicateParser();
+			on = parser.Parse(on);
+
+            var where = string.Empty;
+			if (predicate != null)
+			{{
+				parser.Reset();
+				where = parser.Parse(predicate);
+			}}
+
+			return JoinPaged<{0}>(
+					3, 
+					{0},  
+					{1}, 
+					{2}, 
+					on, 
+					where, 
+					orderBy == null ? string.Empty : orderBy.Name , 
+					columns == null ? "*" : string.Join(", ", columns.Select(p => p.Name)), 
+					pageSize, 
+					currentPage);
+        }}
