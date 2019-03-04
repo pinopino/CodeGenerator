@@ -22,7 +22,7 @@ namespace Generator.Core
         private static readonly string _classSuffix_default = string.Empty;
         private static readonly string _methods_default = "Exists,Insert,Delete,Update,GetModel,GetList,GetRecordCount,GetListByPage";
         private static readonly string _exceptTables_default = ConfigurationManager.AppSettings["ExceptTables"] ?? string.Empty;
-        private static readonly string _traceFieldTables_default = ConfigurationManager.AppSettings["TraceFieldTabls"] ?? string.Empty;
+        private static readonly string _traceFieldTables_default = ConfigurationManager.AppSettings["TraceFieldTables"] ?? string.Empty;
         private static readonly string _joinTables_default = ConfigurationManager.AppSettings["JoinedTables"] ?? string.Empty;
         private static readonly string _exceptColumns_default = ConfigurationManager.AppSettings["UpdateExceptColumns"] ?? string.Empty;
         private static readonly string _partial_check_dal_path = string.Empty;
