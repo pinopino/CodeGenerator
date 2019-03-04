@@ -2,12 +2,14 @@
 using Generator.Template;
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Generator.Core
 {
     public class DALGenerator
     {
         private SQLMetaData _config;
+        private List<string> _keywords = new List<string> { "Type" };
 
         public DALGenerator(SQLMetaData config)
         {
@@ -58,19 +60,38 @@ namespace Generator.Core
                 sb1.AppendLine($"\t\t\tpublic static readonly {tableName}Column {column.Name} = new {tableName}Column(\"{column.Name}\");");
                 if (i == table_config.Columns.Count - 1)
                 {
-                    sb2.Append($"{column.Name} ");
+                    if (IsKeyword(column.Name))
+                    {
+                        sb2.Append($"@{column.Name} ");
+                    }
+                    else
+                    {
+                        sb2.Append($"{column.Name} ");
+                    }
                 }
                 else
                 {
-                    sb2.Append($"{column.Name}, ");
+                    if (IsKeyword(column.Name))
+                    {
+                        sb2.Append($"@{column.Name}, ");
+                    }
+                    else
+                    {
+                        sb2.Append($"{column.Name}, ");
+                    }
                 }
             }
-            sb1.Append($"\t\t\tpublic static readonly List<{tableName}Column> All = {{ ");
+            sb1.Append($"\t\t\tpublic static readonly List<{tableName}Column> All = new List<{tableName}Column> {{ ");
             sb1.Append(sb2);
             sb1.AppendLine("};");
             sb1.AppendLine("\t\t}");
 
             return sb1.ToString();
+        }
+
+        private bool IsKeyword(string colunm)
+        {
+            return _keywords.Contains(colunm);
         }
         #endregion
 

@@ -17,7 +17,7 @@
             {{
 				if (reverse == true)
 				{{
-					 fields = _all_fields.Except(fields).ToList();
+					 fields = Columns.All.Except(fields).ToList();
 				}}
                 sql.Append(" SET ");
                 for (int i = 0; i < fields.Count; i++)

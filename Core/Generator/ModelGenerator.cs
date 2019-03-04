@@ -76,7 +76,7 @@ namespace Generator.Core
                         sb4.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb4.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb4.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? $"if (_____flag) Interlocked.Increment(ref _ver_{p.Name.ToLower()}); " : string.Empty));
+                    sb4.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? $"if (_____flag) System.Threading.Interlocked.Increment(ref _ver_{p.Name.ToLower()}); " : string.Empty));
                     sb4.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb4.Append(string.Format("{0}{0}}}", '\t'));
                 }
@@ -94,7 +94,7 @@ namespace Generator.Core
                         sb4.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                     }
                     sb4.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb4.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? $"if (_____flag) Interlocked.Increment(ref _ver_{p.Name.ToLower()}); " : string.Empty));
+                    sb4.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? $"if (_____flag) System.Threading.Interlocked.Increment(ref _ver_{p.Name.ToLower()}); " : string.Empty));
                     sb4.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb4.AppendLine(string.Format("{0}{0}}}", '\t'));
                     sb4.AppendLine();
