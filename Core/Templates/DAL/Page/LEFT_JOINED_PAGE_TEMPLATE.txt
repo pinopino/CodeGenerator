@@ -9,9 +9,9 @@
 			int pageSize = 20, 
 			int currentPage = 1)
         {{
-			var on = string.Empty;
+			var on_str = string.Empty;
 			var parser = new PredicateParser();
-			on = parser.Parse(on);
+			on_str = parser.Parse(on);
 
             var where = string.Empty;
 			if (predicate != null)
@@ -22,10 +22,9 @@
 
 			return JoinPaged<{0}>(
 					1, 
-					{0},  
-					{1}, 
-					{2}, 
-					on, 
+					"{1}",  
+					"{2}", 
+					on_str, 
 					where, 
 					orderBy == null ? string.Empty : orderBy.Name , 
 					columns == null ? "*" : string.Join(", ", columns.Select(p => p.Name)), 

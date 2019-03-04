@@ -12,6 +12,11 @@ using System.Text;
 
 namespace DataLayer.Base
 {
+    public interface IColumn
+    {
+        string Name { get; }
+    }
+
     internal class PredicateParser : ExpressionVisitor
     {
         private StringBuilder sb = new StringBuilder();

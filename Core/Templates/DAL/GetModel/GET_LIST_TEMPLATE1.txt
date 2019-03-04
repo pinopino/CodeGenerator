@@ -14,11 +14,11 @@
             sql.Append("SELECT TOP " + top.ToString() + " * FROM {2}");
             if (where != string.Empty)
 				sql.Append(" WHERE " + where);
-			object ret = null;
+			List<{1}> ret = null;
             using (var conn = GetOpenConnection())
             {{
                 ret = conn.Query<{1}>(sql.ToString()).ToList();
             }}
 			{3}
-            return (List<{1}>)ret;
+            return ret;
         }}
