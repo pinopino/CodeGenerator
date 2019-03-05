@@ -147,30 +147,16 @@ namespace Generator.Core
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var p = table_config.Columns[i];
-                if (i == table_config.Columns.Count - 1)
+                if (p.Nullable && p.DbType != "string")
                 {
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb1.Append(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
-                    else
-                    {
-                        sb1.Append(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
+                    sb1.AppendLine(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
                 else
                 {
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb1.AppendLine(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
-                    else
-                    {
-                        sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
+                    sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
             }
-            sb1.AppendLine();
+            sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', subTable, subTable.ToLower()));
 
             var sb2 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
@@ -192,6 +178,12 @@ namespace Generator.Core
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
                     sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
+                    sb2.AppendLine();
+                    sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', subTable, subTable));
+                    sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', subTable.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', subTable.ToLower()));
                     sb2.Append(string.Format("{0}{0}}}", '\t'));
                 }
                 else

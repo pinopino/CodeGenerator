@@ -1,7 +1,49 @@
 ﻿		/// <summary>
         /// 获取{0}列表
         /// </summary>
-        public static List<{1}> LeftJoin(Expression<Func<{2}, {3}, bool>> on, Expression<Func<{2}, {3}, bool>> predicate, int top = 100)
+        public static List<{0}> LeftJoin(Expression<Func<{1}, {2}, bool>> on, Expression<Func<{1}, {2}, bool>> predicate = null)
         {{
-            throw new NotImplementedException();
+            var on_str = string.Empty;
+			var parser = new PredicateParser();
+			on_str = parser.Parse(on);
+
+            var where = string.Empty;
+			if (predicate != null)
+			{{
+				parser.Reset();
+				where = parser.Parse(predicate);
+			}}
+
+			var sql = new StringBuilder();
+            if (columns != null && columns.Count > 0)
+            {{
+				sql.Append("SELECT ");
+                for (int i = 0; i < columns.Count; i++)
+                {{
+                    var col = columns[i];
+                    if (i == columns.Count - 1)
+                    {{
+                        sql.Append($"[{{col.Table}}].[{{col.Name}}] ");
+                    }}
+                    else
+                    {{
+                        sql.Append($"[{{col.Table}}].[{{col.Name}}], ");
+                    }}
+                }}
+				sql.Append("FROM [{1}] LEFT JOIN [{2}] ");
+            }}
+            else
+            {{
+                sql.Append("SELECT [{1}].*, [{2}].* FROM [{1}] LEFT JOIN [{2}] ");
+            }}
+            sql.Append("ON " + on_str);
+            if (where != string.Empty)
+                sql.Append(" WHERE " + where);
+            List<{0}> ret = null;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.Query<{0}>(sql.ToString()).ToList();
+            }}
+
+            return ret;
         }}

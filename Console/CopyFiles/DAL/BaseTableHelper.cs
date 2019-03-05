@@ -14,6 +14,7 @@ namespace DataLayer.Base
 {
     public interface IColumn
     {
+        string Table { get; }
         string Name { get; }
     }
 
@@ -221,7 +222,7 @@ namespace DataLayer.Base
 
             if (node.Expression.NodeType == ExpressionType.Parameter)
             {
-                sb.Append(node.Member.Name);
+                sb.Append($"[{node.Expression.Type.Name}].{node.Member.Name}");
                 if (node.Type == typeof(bool))
                 {
                     boolean = true;

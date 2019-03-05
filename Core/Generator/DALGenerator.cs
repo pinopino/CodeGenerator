@@ -22,12 +22,15 @@ namespace Generator.Core
             var sb1 = new StringBuilder();
             sb1.AppendLine($"\tpublic sealed class {tableName}Column : IColumn");
             sb1.AppendLine("\t{");
-            sb1.AppendLine($"\t\tinternal {tableName}Column(string name)");
+            sb1.AppendLine($"\t\tinternal {tableName}Column(string table, string name)");
             sb1.AppendLine("\t\t{");
+            sb1.AppendLine("\t\t\tTable = table;");
             sb1.AppendLine("\t\t\tName = name;");
             sb1.AppendLine("\t\t}");
             sb1.AppendLine();
             sb1.AppendLine("\t\tpublic string Name { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\tpublic string Table { private set; get; }");
             sb1.AppendLine("\t}");
             sb1.AppendLine();
 
@@ -57,7 +60,7 @@ namespace Generator.Core
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var column = table_config.Columns[i];
-                sb1.AppendLine($"\t\t\tpublic static readonly {tableName}Column {column.Name} = new {tableName}Column(\"{column.Name}\");");
+                sb1.AppendLine($"\t\t\tpublic static readonly {tableName}Column {column.Name} = new {tableName}Column(\"{tableName}\", \"{column.Name}\");");
                 if (i == table_config.Columns.Count - 1)
                 {
                     if (IsKeyword(column.Name))
@@ -443,7 +446,6 @@ namespace Generator.Core
         {
             var str = string.Format(DALTemplate.INNER_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
-                                    $"Joined{mainTable}",
                                     mainTable,
                                     subTable);
             return str;
@@ -453,7 +455,6 @@ namespace Generator.Core
         {
             var str = string.Format(DALTemplate.LEFT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
-                                    $"Joined{mainTable}",
                                     mainTable,
                                     subTable);
             return str;
@@ -462,7 +463,6 @@ namespace Generator.Core
         private string Get_Joined3(string mainTable, string subTable)
         {
             var str = string.Format(DALTemplate.RIGHT_JOIN_TEMPLATE,
-                                    $"Joined{mainTable}",
                                     $"Joined{mainTable}",
                                     mainTable,
                                     subTable);
