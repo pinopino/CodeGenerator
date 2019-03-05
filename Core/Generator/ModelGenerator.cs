@@ -24,27 +24,13 @@ namespace Generator.Core
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var p = table_config.Columns[i];
-                if (i == table_config.Columns.Count - 1)
+                if (p.Nullable && p.DbType != "string")
                 {
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb1.Append(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
-                    else
-                    {
-                        sb1.Append(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
+                    sb1.AppendLine(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
                 else
                 {
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb1.AppendLine(string.Format("{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
-                    else
-                    {
-                        sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
+                    sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
 
                 if (trace)
@@ -57,6 +43,7 @@ namespace Generator.Core
                     sb3.AppendLine("\t\t\t}");
                 }
             }
+            sb1.Append("\t\tprivate int ___pagerow;");
 
             var sb4 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
@@ -78,7 +65,7 @@ namespace Generator.Core
                     sb4.AppendLine(string.Format("{0}{0}{{", '\t'));
                     sb4.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; {2}}}", '\t', p.Name.ToLower(), trace ? $"if (_____flag) System.Threading.Interlocked.Increment(ref _ver_{p.Name.ToLower()}); " : string.Empty));
                     sb4.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
-                    sb4.Append(string.Format("{0}{0}}}", '\t'));
+                    sb4.AppendLine(string.Format("{0}{0}}}", '\t'));
                 }
                 else
                 {
@@ -100,6 +87,12 @@ namespace Generator.Core
                     sb4.AppendLine();
                 }
             }
+            sb4.AppendLine();
+            sb4.AppendLine("\t\tpublic int __PageRow");
+            sb4.AppendLine("\t\t{");
+            sb4.AppendLine("\t\t\tset { ____pagerow = value; }");
+            sb4.AppendLine("\t\t\tget { return ____pagerow; }");
+            sb4.Append("\t\t}");
 
             if (trace)
             {

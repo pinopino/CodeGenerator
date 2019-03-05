@@ -16,10 +16,10 @@
 			}}
 
 			return Paged<{0}>(
-					"{0}", 
+					"[{0}]", 
 					where, 
-					orderBy == null ? string.Empty : orderBy.Name , 
-					columns == null ? "*" : string.Join(", ", columns.Select(p => p.Name)), 
+					orderBy == null ? string.Empty : $"[{{orderBy.Name}}]" , 
+					columns == null ? "*" : string.Join(", ", columns.Select(p => $"[{{p.Name}}]")), 
 					pageSize, 
 					currentPage);
         }}

@@ -404,29 +404,29 @@ namespace DataLayer.Base
             int currentPage)
         {
             var result = new PageDataView<T>();
-            var count_sql = string.Format("SELECT COUNT(1) FROM {0} {1} {2} ON {3}",
+            var join = type == 1 ? "LEFT JOIN" : (type == 2 ? " INNER JOIN" : "RIGHT JOIN");
+            var count_sql = string.Format("SELECT COUNT(1) FROM {0} {1} {2} ON {3} {4}",
                 tableName1,
-                type == 1 ? "LEFT JOIN" : (type == 2 ? " INNER JOIN" : "RIGHT JOIN"),
+                join,
                 tableName2,
                 on,
-                string.IsNullOrEmpty(where) ? string.Empty : " WHERE " + where);
+                string.IsNullOrEmpty(where) ? string.Empty : "WHERE " + where);
 
             if (string.IsNullOrWhiteSpace(orderBy))
             {
                 orderBy = "id desc";
             }
 
-            var sql = string.Format("SELECT Paged.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3} {4} ON {5}) AS Paged ", 
+            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3} {4} ON {5} {6}) AS Paged ", 
                 columns, 
                 orderBy,
                 tableName1,
-                type == 1 ? "LEFT JOIN" : (type == 2 ? " INNER JOIN" : "RIGHT JOIN"),
+                join,
                 tableName2,
                 on,
-                string.IsNullOrEmpty(where) ? string.Empty : " WHERE " + where);
+                string.IsNullOrEmpty(where) ? string.Empty : "WHERE " + where);
             var pageStart = (currentPage - 1) * pageSize;
             sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
-            count_sql += where;
             using (var conn = GetOpenConnection())
             {
                 result.TotalRecords = connection.ExecuteScalar<int>(count_sql);

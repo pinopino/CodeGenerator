@@ -22,12 +22,12 @@
 
 			return JoinPaged<{0}>(
 					3, 
-					"{1}",  
-					"{2}", 
+					"[{1}]",  
+					"[{2}]", 
 					on_str, 
 					where, 
-					orderBy == null ? string.Empty : orderBy.Name , 
-					columns == null ? "*" : string.Join(", ", columns.Select(p => p.Name)), 
+					orderBy == null ? string.Empty : $"[{{orderBy.Table}}].[{{orderBy.Name}}]", 
+					columns == null ? "[{1}].*, [{2}].*" : string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]")), 
 					pageSize, 
 					currentPage);
         }}
