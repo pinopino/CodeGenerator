@@ -26,6 +26,7 @@ namespace DataLayer.Base
         private bool quote = true;
         private bool boolean = false; // 布尔表达式的左侧表达式是否为一个bool类型
         private bool has_right = false;
+        private bool is_left = false;
 
         public string Parse(Expression predicate)
         {
@@ -46,7 +47,9 @@ namespace DataLayer.Base
         {
             has_right = true;
             sb.Append("(");
+            is_left = true;
             this.Visit(node.Left);
+            is_left = false;
 
             var tmp = invert;
             if (node.Left.NodeType == ExpressionType.Not)
@@ -158,7 +161,14 @@ namespace DataLayer.Base
                 switch (Type.GetTypeCode(node.Value.GetType()))
                 {
                     case TypeCode.Boolean:
-                        sb.Append(((bool)node.Value) ^ invert ? 1 : 0);
+                        if (is_left)
+                        {
+                            sb.Append(((bool)node.Value) ^ invert ? true : false);
+                        }
+                        else
+                        {
+                            sb.Append(((bool)node.Value) ^ invert ? 1 : 0);
+                        }
                         break;
 
                     case TypeCode.String:
