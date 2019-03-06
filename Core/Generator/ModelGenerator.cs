@@ -21,6 +21,7 @@ namespace Generator.Core
             var sb1 = new StringBuilder();
             var sb2 = new StringBuilder();
             var sb3 = new StringBuilder();
+            var sb5 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var p = table_config.Columns[i];
@@ -38,9 +39,10 @@ namespace Generator.Core
                     sb2.AppendLine(string.Format("{0}{0}[Newtonsoft.Json.JsonProperty] private volatile int _ver_{1};", '\t', p.Name.ToLower()));
                     sb3.AppendLine($"\t\t\tif (_ver_{p.Name.ToLower()} != 0)");
                     sb3.AppendLine("\t\t\t{");
-                    sb3.AppendLine("\t\t\t\tupdate_fields.Add(\"" + p.Name + "\");");
+                    sb3.AppendLine($"\t\t\t\tupdate_fields.Add(update_fields.Add(DataLayer.{p.Name}Helper.Columns.{p.Name});");
                     sb3.AppendLine($"\t\t\t\t_ver_{ p.Name.ToLower()} = 0;");
                     sb3.AppendLine("\t\t\t}");
+                    sb5.AppendLine($"\t\t\t_ver_{p.Name.ToLower()} = 0;");
                 }
             }
             sb1.Append("\t\tprivate int ___pagerow;");
@@ -90,8 +92,8 @@ namespace Generator.Core
             sb4.AppendLine();
             sb4.AppendLine("\t\tpublic int __PageRow");
             sb4.AppendLine("\t\t{");
-            sb4.AppendLine("\t\t\tset { ____pagerow = value; }");
-            sb4.AppendLine("\t\t\tget { return ____pagerow; }");
+            sb4.AppendLine("\t\t\tset { ___pagerow = value; }");
+            sb4.AppendLine("\t\t\tget { return ___pagerow; }");
             sb4.Append("\t\t}");
 
             if (trace)
@@ -99,23 +101,29 @@ namespace Generator.Core
                 sb4.AppendLine();
                 // GetTraceFields
                 sb4.AppendLine();
-                sb4.AppendLine("\t\tpublic System.Collections.ObjectModel.ReadOnlyCollection<string> GetTraceFields()");
+                sb4.AppendLine("\t\tpublic System.Collections.ObjectModel.ReadOnlyCollection<DataLayer.Base.IColumn> GetTraceFields()");
                 sb4.AppendLine("\t\t{");
-                sb4.AppendLine("\t\t\tvar update_fields = new List<string>();");
+                sb4.AppendLine("\t\t\tvar update_fields = new List<DataLayer.Base.IColumn>();");
                 sb4.AppendLine(sb3.ToString());
                 sb4.AppendLine("\t\t\treturn update_fields.AsReadOnly();");
                 sb4.AppendLine("\t\t}");
                 // OpenTrace
                 sb4.AppendLine();
-                sb4.AppendLine("\t\tinternal void OpenTrace()");
+                sb4.AppendLine("\t\tpublic void BeginTrace()");
                 sb4.AppendLine("\t\t{");
                 sb4.AppendLine("\t\t\t_____flag = true;");
                 sb4.AppendLine("\t\t}");
                 sb4.AppendLine();
                 // CloseTrace
-                sb4.AppendLine("\t\tinternal void CloseTrace()");
+                sb4.AppendLine("\t\tpublic void EndTrace()");
                 sb4.AppendLine("\t\t{");
                 sb4.AppendLine("\t\t\t_____flag = false;");
+                sb4.Append("\t\t}");
+                // ResetTrace
+                sb4.AppendLine("\t\tpublic void ResetTrace()");
+                sb4.AppendLine("\t\t{");
+                sb4.AppendLine("\t\t\t_____flag = false;");
+                sb4.AppendLine(sb5.ToString());
                 sb4.Append("\t\t}");
             }
 
