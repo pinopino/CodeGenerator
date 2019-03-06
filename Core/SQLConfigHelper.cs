@@ -438,7 +438,7 @@ namespace Generator.Core
                             sb.AppendLine();
                             sb.AppendLine(string.Format("namespace {0}.{1}", _project, "GenEnum"));
                             sb.AppendLine("{");
-                            sb.AppendLine(g.Get_Enum(enum_name, arrs, column.DbType));
+                            sb.AppendLine(g.Get_Enum(enum_name, comment, arrs, column.DbType));
                             sb.AppendLine("}");
                             File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", enum_name)), sb.ToString());
                             sb.Clear();
