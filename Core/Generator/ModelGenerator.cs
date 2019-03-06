@@ -39,7 +39,7 @@ namespace Generator.Core
                     sb2.AppendLine(string.Format("{0}{0}[Newtonsoft.Json.JsonProperty] private volatile int _ver_{1};", '\t', p.Name.ToLower()));
                     sb3.AppendLine($"\t\t\tif (_ver_{p.Name.ToLower()} != 0)");
                     sb3.AppendLine("\t\t\t{");
-                    sb3.AppendLine($"\t\t\t\tupdate_fields.Add(columns.{p.Name});");
+                    sb3.AppendLine($"\t\t\t\tupdate_fields.Add({tableName}Helper.Columns.{p.Name});");
                     sb3.AppendLine($"\t\t\t\t_ver_{ p.Name.ToLower()} = 0;");
                     sb3.AppendLine("\t\t\t}");
                     sb5.AppendLine($"\t\t\t_ver_{p.Name.ToLower()} = 0;");
@@ -101,12 +101,11 @@ namespace Generator.Core
                 sb4.AppendLine();
                 // GetTraceFields
                 sb4.AppendLine();
-                sb4.AppendLine("\t\tpublic System.Collections.ObjectModel.ReadOnlyCollection<DataLayer.Base.IColumn> GetTraceFields()");
+                sb4.AppendLine($"\t\tpublic IList<{tableName}Column> GetTraceFields()");
                 sb4.AppendLine("\t\t{");
-                sb4.AppendLine($"\t\t\tvar _columns = DataLayer.{tableName}Helper.Columns;");
-                sb4.AppendLine("\t\t\tvar update_fields = new List<DataLayer.Base.IColumn>();");
+                sb4.AppendLine($"\t\t\tvar update_fields = new List<{tableName}Column>();");
                 sb4.AppendLine(sb3.ToString());
-                sb4.AppendLine("\t\t\treturn update_fields.AsReadOnly();");
+                sb4.AppendLine("\t\t\treturn update_fields;");
                 sb4.AppendLine("\t\t}");
                 // OpenTrace
                 sb4.AppendLine();

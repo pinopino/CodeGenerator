@@ -16,6 +16,7 @@ namespace DataLayer.Base
     {
         string Table { get; }
         string Name { get; }
+        bool IsAddEqual { get; }
     }
 
     internal class PredicateParser : ExpressionVisitor

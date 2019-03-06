@@ -31,6 +31,10 @@ namespace Generator.Core
             sb1.AppendLine("\t\tpublic string Name { private set; get; }");
             sb1.AppendLine();
             sb1.AppendLine("\t\tpublic string Table { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\tpublic bool IsAddEqual { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\tpublic {tableName}Column SetAddEqual() {{ IsAddEqual ^= true; return this; }}");
             sb1.AppendLine("\t}");
             sb1.AppendLine();
 
@@ -283,11 +287,11 @@ namespace Generator.Core
             table_config.Columns.ForEach(p =>
             {
                 if (!p.IsIdentity && !IsExceptColumn(tableName, p.Name))
-                    sb1.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name));
+                    sb1.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name));
             });
 
             var sb2 = new StringBuilder();
-            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name)));
+            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE1,
                                     tableName + "数据记录",
@@ -307,11 +311,11 @@ namespace Generator.Core
             table_config.Columns.ForEach(p =>
             {
                 if (!p.IsIdentity && !IsExceptColumn(tableName, p.Name))
-                    sb1.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name));
+                    sb1.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name));
             });
 
             var sb2 = new StringBuilder();
-            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}]=@{1}, ", p.Name, p.Name)));
+            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE2,
                                     tableName + "数据记录",
