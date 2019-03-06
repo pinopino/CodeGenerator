@@ -19,6 +19,6 @@
             {{
                 ret = conn.Query<{1}>(sql.ToString()).ToList();
             }}
-			{3}
+			
             return ret;
         }}

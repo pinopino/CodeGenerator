@@ -13,6 +13,6 @@
             {{
                 ret = conn.QueryFirstOrDefault<{9}>(sql.ToString(), new {{ {10} }});
             }}
-			{11}
+
             return ret;
         }}

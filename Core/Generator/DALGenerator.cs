@@ -341,7 +341,6 @@ namespace Generator.Core
         private string Get_GetModel1(string tableName)
         {
             var table_config = _config[tableName];
-            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
 
             var sb1 = new StringBuilder();
             table_config.PrimaryKey.ForEach(p => sb1.AppendLine(string.Format("{0}{0}/// <param name=\"{1}\">{2}</param>", '\t', p.Name, p.Comment)));
@@ -369,8 +368,7 @@ namespace Generator.Core
                                     sb4.ToString().TrimEnd("and "),
                                     tableName,
                                     tableName,
-                                    sb5.ToString().TrimEnd(", ".ToCharArray()),
-                                    trace ? "ret.OpenTrace();" + Environment.NewLine : string.Empty);
+                                    sb5.ToString().TrimEnd(", ".ToCharArray()));
 
             return str;
         }
@@ -378,34 +376,20 @@ namespace Generator.Core
         private string Get_GetModel2(string tableName)
         {
             var table_config = _config[tableName];
-            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
             var str = string.Format(DALTemplate.GET_MODEL_TEMPLATE2,
                                     tableName + "实体对象",
                                     tableName,
-                                    $"[{tableName}]",
-                                    trace ? "ret.OpenTrace();" + Environment.NewLine : string.Empty);
+                                    $"[{tableName}]");
             return str;
         }
 
         public string Get_GetList(string tableName)
         {
             var table_config = _config[tableName];
-            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
-
-            var sb1 = new StringBuilder();
-            if (trace)
-            {
-                sb1.AppendLine("foreach (var item in ret)");
-                sb1.AppendLine("\t\t\t{");
-                sb1.AppendLine("\t\t\t\titem.OpenTrace();");
-                sb1.AppendLine("\t\t\t}");
-            }
-
             var str = string.Format(DALTemplate.GET_LIST_TEMPLATE1,
                                     tableName + "实体对象",
                                     tableName,
-                                    $"[{tableName}]",
-                                    sb1.ToString());
+                                    $"[{tableName}]");
             return str;
         }
         #endregion
