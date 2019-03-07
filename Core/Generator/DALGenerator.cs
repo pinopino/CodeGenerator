@@ -20,7 +20,7 @@ namespace Generator.Core
         public string Get_MetaData1(string tableName)
         {
             var sb1 = new StringBuilder();
-            sb1.AppendLine($"\tnamespace {_config.DAL_Namespace}.Metadata");
+            sb1.AppendLine($"\tnamespace Metadata");
             sb1.AppendLine("\t{");
             sb1.AppendLine($"\t\tpublic sealed class {tableName}Column : IColumn");
             sb1.AppendLine("\t\t{");

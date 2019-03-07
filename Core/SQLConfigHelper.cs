@@ -248,6 +248,7 @@ namespace Generator.Core
                 }
                 sb.Append(config.DAL_HeaderNote);
                 sb.AppendLine(string.Join(Environment.NewLine, config.DAL_Using));
+                sb.AppendLine($"using {config.DAL_Namespace}.Metadata;");
                 if (config.JoinedTables.Count > 0)
                 {
                     sb.AppendLine($"using {config.Model_Namespace}.JoinedViewModel;");
@@ -357,6 +358,7 @@ namespace Generator.Core
                 }
                 sb.Append(config.Model_HeaderNote);
                 sb.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                sb.AppendLine($"using {config.DAL_Namespace};");
                 sb.AppendLine($"using {config.DAL_Namespace}.Metadata;");
                 sb.AppendLine();
                 sb.AppendLine($"namespace {config.Model_Namespace}");
@@ -386,6 +388,7 @@ namespace Generator.Core
                     var sub_table = pair.Value;
                     sb2.Append(config.Model_HeaderNote);
                     sb2.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                    sb.AppendLine($"using {config.DAL_Namespace};");
                     sb2.AppendLine($"using {config.DAL_Namespace}.Metadata;");
                     sb2.AppendLine();
                     sb2.AppendLine($"namespace {config.Model_Namespace}.JoinedViewModel");
