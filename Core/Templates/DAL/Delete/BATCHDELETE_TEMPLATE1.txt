@@ -11,7 +11,7 @@
             var ret = false;
             using (var conn = GetOpenConnection())
             {{
-                ret = conn.Execute(sql.ToString(), new {{ @ids = Ids.ToArray() }}) > 0;
+                ret = conn.Execute(sql.ToString(), new {{ @ids = Ids}}) > 0;
             }}
 
             return ret;

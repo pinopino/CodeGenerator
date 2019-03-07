@@ -28,7 +28,7 @@
             {{
 				if (reverse == true)
 				{{
-					 fields = Columns.All.Except(fields).ToArray();
+					 fields = ({2}Column[])Columns.All.Except(fields);
 				}}
                 sql.Append(" SET ");
                 for (int i = 0; i < fields.Length; i++)
