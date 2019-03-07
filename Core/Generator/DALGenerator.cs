@@ -34,7 +34,13 @@ namespace Generator.Core
             sb1.AppendLine();
             sb1.AppendLine("\t\tpublic bool IsAddEqual { private set; get; }");
             sb1.AppendLine();
+            sb1.AppendLine("\t\tpublic bool Asc { private set; get { Asc ? \"ASC\" : \"DESC\"; } }");
+            sb1.AppendLine();
             sb1.AppendLine($"\t\tpublic {tableName}Column SetAddEqual() {{ IsAddEqual ^= true; return this; }}");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByAsc() {{ Asc = true; return this; }}");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByDesc() {{ Asc = false; return this; }}");
             sb1.AppendLine("\t}");
             sb1.AppendLine();
 
@@ -277,53 +283,39 @@ namespace Generator.Core
         {
             var str1 = Get_Update1(tableName);
             var str2 = Get_Update2(tableName);
-            return str1 + Environment.NewLine + str2;
+            return str2 + Environment.NewLine + str1;
         }
 
         private string Get_Update1(string tableName)
         {
             var table_config = _config[tableName];
+
             var sb1 = new StringBuilder();
+            table_config.PrimaryKey.ForEach(p => sb1.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name)));
+
+            var sb2 = new StringBuilder();
             table_config.Columns.ForEach(p =>
             {
                 if (!p.IsIdentity && !IsExceptColumn(tableName, p.Name))
-                    sb1.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name));
+                    sb2.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name));
             });
-
-            var sb2 = new StringBuilder();
-            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name)));
 
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE1,
                                     tableName + "数据记录",
                                     tableName + "实体对象",
                                     tableName,
-                                    string.Format("[{0}]", tableName),
                                     sb1.ToString().TrimEnd(", ".ToCharArray()),
                                     sb2.ToString().TrimEnd(", ".ToCharArray()));
-
             return str;
         }
 
         private string Get_Update2(string tableName)
         {
             var table_config = _config[tableName];
-            var sb1 = new StringBuilder();
-            table_config.Columns.ForEach(p =>
-            {
-                if (!p.IsIdentity && !IsExceptColumn(tableName, p.Name))
-                    sb1.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name));
-            });
-
-            var sb2 = new StringBuilder();
-            table_config.PrimaryKey.ForEach(p => sb2.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name)));
-
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE2,
                                     tableName + "数据记录",
                                     tableName + "实体对象",
-                                    tableName,
-                                    $"[{tableName}]",
-                                    sb1.ToString().TrimEnd(", ".ToCharArray()));
-
+                                    tableName);
             return str;
         }
 
@@ -422,10 +414,11 @@ namespace Generator.Core
         {
             var sb = new StringBuilder();
             sb.AppendLine();
+            sb.Append(Get_JoinedPage(mainTable, subTable));
+            sb.AppendLine();
             sb.AppendLine(Get_Joined1(mainTable, subTable));
             sb.AppendLine(Get_Joined2(mainTable, subTable));
             sb.AppendLine(Get_Joined3(mainTable, subTable));
-            sb.Append(Get_JoinedPage(mainTable, subTable));
 
             return sb.ToString();
         }

@@ -5,10 +5,21 @@
 		/// <param name="fields">需要更新的字段名字</param>
 		/// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, IList<{2}Column> fields = null, bool reverse = false, SqlConnection conn = null, SqlTransaction transaction = null)
+        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, bool reverse, SqlConnection conn, SqlTransaction transaction, params {2}Column[] fields)
         {{
+			var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}}
+			else
+			{{
+				where_str = "{3}";
+			}}
+
             var sql = new StringBuilder();
-            sql.Append("UPDATE {3}");
+            sql.Append("UPDATE [{2}]");
             if (fields == null || fields.Count == 0)
             {{
                  sql.Append(" SET {4}");
@@ -37,7 +48,7 @@
                     }}
                 }}
             }}
-            sql.Append(" WHERE {5}");
+            sql.Append(" WHERE " + where_str);
             var ret = false;
             if (conn != null)
             {{

@@ -7,13 +7,13 @@
 			if (predicate != null)
 			{{
 				var parser = new PredicateParser();
-				where = parser.Parse(predicate);
+				where_str = parser.Parse(predicate);
 			}}
 			
             var sql = new StringBuilder();
             sql.Append("DELETE FROM {2}");
 			if (where != string.Empty)
-				sql.Append(" WHERE " + where);
+				sql.Append(" WHERE " + where_str);
             var ret = false;
             using (var conn = GetOpenConnection())
             {{

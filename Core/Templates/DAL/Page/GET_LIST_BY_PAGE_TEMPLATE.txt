@@ -3,23 +3,35 @@
 		/// </summary>
 		public static PageDataView<{0}> GetPage(
 			Expression<Func<{0}, bool>> predicate = null, 
-			{0}Column orderBy = null, 
-			IList<{0}Column> columns = null, 
 			int pageSize = 20, 
-			int currentPage = 1)
+			int currentPage = 1, 
+			params {0}Column[] orderBy, 
+			params {0}Column[] columns)
         {{
-			var where = string.Empty;
+			var where_str = string.Empty;
 			if (predicate != null)
 			{{
 				var parser = new PredicateParser();
-				where = parser.Parse(predicate);
+				where_str = parser.Parse(predicate);
 			}}
+
+			var orderby_str = string.Empty;
+            if (orderBy != null && orderBy.Length > 0)
+            {{
+                orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Name}}] {{p.Asc}}"));
+            }}
+
+            var column_str = "*";
+            if (columns != null && columns.Length > 0)
+            {{
+                column_str = string.Join(", ", columns.Select(p => $"[{{p.Name}}]"));
+            }}
 
 			return Paged<{0}>(
 					"[{0}]", 
-					where, 
-					orderBy == null ? string.Empty : $"[{{orderBy.Name}}]" , 
-					columns == null ? "*" : string.Join(", ", columns.Select(p => $"[{{p.Name}}]")), 
+					where_str, 
+					orderby_str, 
+					column_str, 
 					pageSize, 
 					currentPage);
         }}

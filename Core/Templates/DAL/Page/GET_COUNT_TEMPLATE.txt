@@ -3,17 +3,18 @@
 		/// </summary>
         public static int GetCount(Expression<Func<{0}, bool>> predicate = null)
         {{
-			var where = string.Empty;
+			var where_str = string.Empty;
 			if (predicate != null)
 			{{
 				var parser = new PredicateParser();
-				where = parser.Parse(predicate);
+				where_str = parser.Parse(predicate);
 			}}
 
             var sql = new StringBuilder();
             sql.Append("SELECT COUNT(1) FROM {1}");
-			if (where != string.Empty)
-				sql.Append(" WHERE " + where);
+			if (where_str != string.Empty)
+				sql.Append(" WHERE " + where_str);
+
             var ret = -1;
             using (var conn = GetOpenConnection())
             {{

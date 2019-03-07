@@ -1,44 +1,42 @@
 ﻿		/// <summary>
         /// 获取{0}列表
         /// </summary>
-        public static List<{0}> InnerJoin(Expression<Func<{1}, {2}, bool>> on, Expression<Func<{1}, {2}, bool>> predicate = null, IList<IColumn> columns = null)
+        public static List<{0}> InnerJoin(
+			Expression<Func<{1}, {2}, bool>> on, 
+			Expression<Func<{1}, {2}, bool>> predicate = null, 
+			params ChannelAccountColumn[] orderBy, 
+			params ChannelAccountColumn[] columns)
         {{
             var on_str = string.Empty;
 			var parser = new PredicateParser();
 			on_str = parser.Parse(on);
 
-            var where = string.Empty;
+            var where_str = string.Empty;
 			if (predicate != null)
 			{{
 				parser.Reset();
-				where = parser.Parse(predicate);
+				where_str = parser.Parse(predicate);
 			}}
 
-			var sql = new StringBuilder();
-            if (columns != null && columns.Count > 0)
+			var orderby_str = string.Empty;
+            if (orderBy != null && orderBy.Length > 0)
             {{
-				sql.Append("SELECT ");
-                for (int i = 0; i < columns.Count; i++)
-                {{
-                    var col = columns[i];
-                    if (i == columns.Count - 1)
-                    {{
-                        sql.Append($"[{{col.Table}}].[{{col.Name}}] ");
-                    }}
-                    else
-                    {{
-                        sql.Append($"[{{col.Table}}].[{{col.Name}}], ");
-                    }}
-                }}
-				sql.Append("FROM [{1}] INNER JOIN [{2}] ");
+                orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Table}}].[{{p.Name}}] {{p.Asc}}"));
             }}
-            else
+
+            var column_str = "[{1}].*, [{2}].*";
+            if (columns != null && columns.Length > 0)
             {{
-                sql.Append("SELECT [{1}].*, [{2}].* FROM [{1}] INNER JOIN [{2}] ");
+                column_str = string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]"));
             }}
+
+			sql.Append($"SELECT {{column_str}} FROM [{1}] INNER JOIN [{2}] ");
             sql.Append("ON " + on_str);
-            if (where != string.Empty)
-                sql.Append(" WHERE " + where);
+            if (where_str != string.Empty)
+                sql.Append(" WHERE " + where_str);
+			if (orderby_str != string.Empty)
+                sql.Append(" ORDER BY " + orderby_str);
+
             List<{0}> ret = null;
             using (var conn = GetOpenConnection())
             {{

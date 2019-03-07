@@ -4,11 +4,11 @@
 		public static bool Exists(Expression<Func<{1}, bool>> predicate)
 		{{
 			var parser = new PredicateParser();
-            var where = parser.Parse(predicate);
+            var where_str = parser.Parse(predicate);
 
             var sql = new StringBuilder();
             sql.Append("SELECT COUNT(1) FROM {2}");
-            sql.Append(" WHERE " + where);
+            sql.Append(" WHERE " + where_str);
             var ret = false;
             using (var conn = GetOpenConnection())
             {{
