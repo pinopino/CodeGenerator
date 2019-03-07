@@ -34,13 +34,14 @@ namespace Generator.Core
             sb1.AppendLine();
             sb1.AppendLine("\t\tpublic bool IsAddEqual { private set; get; }");
             sb1.AppendLine();
-            sb1.AppendLine("\t\tpublic bool Asc { private set; get { Asc ? \"ASC\" : \"DESC\"; } }");
+            sb1.AppendLine("\t\tprivate bool _asc;");
+            sb1.AppendLine("\t\tpublic string Asc { get { return this._asc ? \"ASC\" : \"DESC\"; } }");
             sb1.AppendLine();
             sb1.AppendLine($"\t\tpublic {tableName}Column SetAddEqual() {{ IsAddEqual ^= true; return this; }}");
             sb1.AppendLine();
-            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByAsc() {{ Asc = true; return this; }}");
+            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByAsc() {{ this._asc = true; return this; }}");
             sb1.AppendLine();
-            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByDesc() {{ Asc = false; return this; }}");
+            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByDesc() {{ this._asc = false; return this; }}");
             sb1.AppendLine("\t}");
             sb1.AppendLine();
 

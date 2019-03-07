@@ -5,7 +5,7 @@
 			Expression<Func<{0}, bool>> predicate = null, 
 			int pageSize = 20, 
 			int currentPage = 1, 
-			params {0}Column[] orderBy, 
+			{0}Column orderBy = null, 
 			params {0}Column[] columns)
         {{
 			var where_str = string.Empty;
@@ -16,7 +16,45 @@
 			}}
 
 			var orderby_str = string.Empty;
-            if (orderBy != null && orderBy.Length > 0)
+            if (orderBy != null)
+            {{
+                orderby_str = $"[{{orderBy.Name}}] {{orderBy.Asc}}";
+            }}
+
+            var column_str = "*";
+            if (columns != null && columns.Length > 0)
+            {{
+                column_str = string.Join(", ", columns.Select(p => $"[{{p.Name}}]"));
+            }}
+
+			return Paged<{0}>(
+					"[{0}]", 
+					where_str, 
+					orderby_str, 
+					column_str, 
+					pageSize, 
+					currentPage);
+        }}
+
+		/// <summary>
+		/// 分页获取数据列表
+		/// </summary>
+		public static PageDataView<{0}> GetPage(
+			Expression<Func<{0}, bool>> predicate = null, 
+			int pageSize = 20, 
+			int currentPage = 1, 
+			IList<{0}Column> orderBy = null, 
+			params {0}Column[] columns)
+        {{
+			var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}}
+
+			var orderby_str = string.Empty;
+            if (orderBy != null && orderBy.Count > 0)
             {{
                 orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Name}}] {{p.Asc}}"));
             }}
