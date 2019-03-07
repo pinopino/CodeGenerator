@@ -36,6 +36,7 @@
 					if (fields[i].IsAddEqual)
 					{{
 						sql.Append("[" + fields[i].Name + "] += @" + fields[i].Name + "");
+						fields[i].SetAddEqual();
 					}}
 					else
 					{{
