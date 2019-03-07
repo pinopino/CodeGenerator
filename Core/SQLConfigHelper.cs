@@ -81,7 +81,6 @@ namespace Generator.Core
             var dal_headerNode = ConfigurationManager.AppSettings["DAL_HeaderNote"] ?? _headerNode_default;
             var dal_using = ConfigurationManager.AppSettings["DAL_Using"] ?? string.Format(_using_default, "using Dapper;");
             dal_using += string.Format("using {0}.{1};", _project, model_namespace);
-            dal_using += string.Format("using {0}.{1}.{2};", _project, model_namespace, "JoinedViewModel");
             var dal_namespace = ConfigurationManager.AppSettings["DAL_Namespace"] ?? "DAL";
             var dal_baseClass = ConfigurationManager.AppSettings["DAL_BaseClass"] ?? _baseClass_default;
             var dal_classPrefix = ConfigurationManager.AppSettings["DAL_ClassPrefix"] ?? _classPrefix_default;
@@ -105,14 +104,14 @@ namespace Generator.Core
                 .ToDictionary(p => p.Split(':')[0].Trim(), p => p.Split(':')[1].Split(',').ToList());
             config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
-            config.Model_Namespace = string.Format("namespace {0}.{1}", _project, model_namespace);
+            config.Model_Namespace = string.Format("{0}.{1}", _project, model_namespace);
             config.Model_BaseClass = model_baseClass;
             config.Model_ClassNamePrefix = model_classPrefix;
             config.Model_ClassNameSuffix = model_classSuffix;
 
             config.DAL_HeaderNote = string.Format(dal_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.DAL_Using = dal_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
-            config.DAL_Namespace = string.Format("namespace {0}.{1}", _project, dal_namespace);
+            config.DAL_Namespace = string.Format("{0}.{1}", _project, dal_namespace);
             config.DAL_BaseClass = dal_baseClass;
             config.DAL_ClassNamePrefix = dal_classPrefix;
             config.DAL_ClassNameSuffix = dal_classSuffix;
@@ -248,10 +247,13 @@ namespace Generator.Core
                     continue;
                 }
                 sb.Append(config.DAL_HeaderNote);
-                sb.Append(string.Join(Environment.NewLine, config.DAL_Using));
+                sb.AppendLine(string.Join(Environment.NewLine, config.DAL_Using));
+                if (config.JoinedTables.Count > 0)
+                {
+                    sb.AppendLine($"using {config.Model_Namespace}.JoinedViewModel;");
+                }
                 sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine(config.DAL_Namespace);
+                sb.AppendLine($"namespace {config.DAL_Namespace}");
                 sb.AppendLine("{");
                 sb.AppendLine(g.Get_MetaData1(table.Name));
                 sb.AppendLine(string.Format("{0}public partial class {1}{2}{3}{4}",
@@ -354,10 +356,10 @@ namespace Generator.Core
                     continue;
                 }
                 sb.Append(config.Model_HeaderNote);
-                sb.Append(string.Join(Environment.NewLine, config.Model_Using));
+                sb.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                sb.AppendLine($"using {config.DAL_Namespace}.Metadata;");
                 sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine(config.Model_Namespace);
+                sb.AppendLine($"namespace {config.Model_Namespace}");
                 sb.AppendLine("{");
                 sb.AppendLine(g.Get_Class(table.Name));
                 sb.AppendLine("}");
@@ -374,23 +376,26 @@ namespace Generator.Core
 
             // 如果配置文件指定了JoinedTables，那么这里需要为这些关联表生成额外的包装model，
             // 路径：Model\JoinedViewModel
-            Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
-            var sb2 = new StringBuilder();
-            foreach (var pair in config.JoinedTables)
+            if (config.JoinedTables.Count > 0)
             {
-                var main_table = pair.Key;
-                var sub_table = pair.Value;
-                sb2.Append(config.Model_HeaderNote);
-                sb2.Append(string.Join(Environment.NewLine, config.Model_Using));
-                sb2.AppendLine();
-                sb2.AppendLine();
-                sb2.AppendLine(config.Model_Namespace + ".JoinedViewModel");
-                sb2.AppendLine("{");
-                sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
-                sb2.AppendLine("}");
+                Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
+                var sb2 = new StringBuilder();
+                foreach (var pair in config.JoinedTables)
+                {
+                    var main_table = pair.Key;
+                    var sub_table = pair.Value;
+                    sb2.Append(config.Model_HeaderNote);
+                    sb2.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                    sb2.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                    sb2.AppendLine();
+                    sb2.AppendLine($"namespace {config.Model_Namespace}.JoinedViewModel");
+                    sb2.AppendLine("{");
+                    sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
+                    sb2.AppendLine("}");
 
-                File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + main_table)), sb2.ToString());
-                sb2.Clear();
+                    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + main_table)), sb2.ToString());
+                    sb2.Clear();
+                }
             }
 
             // 拷贝公用文件到指定目录

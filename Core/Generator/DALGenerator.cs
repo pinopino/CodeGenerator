@@ -20,43 +20,45 @@ namespace Generator.Core
         public string Get_MetaData1(string tableName)
         {
             var sb1 = new StringBuilder();
-            sb1.AppendLine($"\tpublic sealed class {tableName}Column : IColumn");
+            sb1.AppendLine($"\tnamespace {_config.DAL_Namespace}.Metadata");
             sb1.AppendLine("\t{");
-            sb1.AppendLine($"\t\tinternal {tableName}Column(string table, string name)");
+            sb1.AppendLine($"\t\tpublic sealed class {tableName}Column : IColumn");
             sb1.AppendLine("\t\t{");
-            sb1.AppendLine("\t\t\tTable = table;");
-            sb1.AppendLine("\t\t\tName = name;");
+            sb1.AppendLine($"\t\t\tinternal {tableName}Column(string table, string name)");
+            sb1.AppendLine("\t\t\t{");
+            sb1.AppendLine("\t\t\t\tTable = table;");
+            sb1.AppendLine("\t\t\t\tName = name;");
+            sb1.AppendLine("\t\t\t}");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tpublic string Name { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tpublic string Table { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tpublic bool IsAddEqual { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tprivate bool _asc;");
+            sb1.AppendLine("\t\t\tpublic string Asc { get { return this._asc ? \"ASC\" : \"DESC\"; } }");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\t\tpublic {tableName}Column SetAddEqual() {{ IsAddEqual ^= true; return this; }}");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\t\tpublic {tableName}Column SetOrderByAsc() {{ this._asc = true; return this; }}");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\t\tpublic {tableName}Column SetOrderByDesc() {{ this._asc = false; return this; }}");
             sb1.AppendLine("\t\t}");
             sb1.AppendLine();
-            sb1.AppendLine("\t\tpublic string Name { private set; get; }");
+            
+            sb1.AppendLine($"\t\tpublic sealed class {tableName}Table");
+            sb1.AppendLine("\t\t{");
+            sb1.AppendLine($"\t\t\tinternal {tableName}Table(string name)");
+            sb1.AppendLine("\t\t\t{");
+            sb1.AppendLine("\t\t\t\tName = name;");
+            sb1.AppendLine("\t\t\t}");
             sb1.AppendLine();
-            sb1.AppendLine("\t\tpublic string Table { private set; get; }");
-            sb1.AppendLine();
-            sb1.AppendLine("\t\tpublic bool IsAddEqual { private set; get; }");
-            sb1.AppendLine();
-            sb1.AppendLine("\t\tprivate bool _asc;");
-            sb1.AppendLine("\t\tpublic string Asc { get { return this._asc ? \"ASC\" : \"DESC\"; } }");
-            sb1.AppendLine();
-            sb1.AppendLine($"\t\tpublic {tableName}Column SetAddEqual() {{ IsAddEqual ^= true; return this; }}");
-            sb1.AppendLine();
-            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByAsc() {{ this._asc = true; return this; }}");
-            sb1.AppendLine();
-            sb1.AppendLine($"\t\tpublic {tableName}Column SetOrderByDesc() {{ this._asc = false; return this; }}");
+            sb1.AppendLine("\t\t\tpublic string Name { private set; get; }");
+            sb1.AppendLine("\t\t}");
             sb1.AppendLine("\t}");
-            sb1.AppendLine();
 
-            var sb2 = new StringBuilder();
-            sb2.AppendLine($"\tpublic sealed class {tableName}Table");
-            sb2.AppendLine("\t{");
-            sb2.AppendLine($"\t\tinternal {tableName}Table(string name)");
-            sb2.AppendLine("\t\t{");
-            sb2.AppendLine("\t\t\tName = name;");
-            sb2.AppendLine("\t\t}");
-            sb2.AppendLine();
-            sb2.AppendLine("\t\tpublic string Name { private set; get; }");
-            sb2.AppendLine("\t}");
-
-            return sb1.Append(sb2).ToString();
+            return sb1.ToString();
         }
 
         public string Get_MetaData2(string tableName)
