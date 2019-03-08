@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -198,49 +199,95 @@ namespace DataLayer.Base
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            // 闭包带进来的变量是生成类型的一个Field
-            if (node.Expression.NodeType == ExpressionType.Constant)
+            if (node.Expression == null)
             {
-                var container = ((ConstantExpression)node.Expression).Value;
-                var value = ((FieldInfo)node.Member).GetValue(container);
-                var coll = value as IList;
-                for (int i = 0; i < coll.Count; i++)
+                var value = ((FieldInfo)node.Member).GetValue(null);
+                sb.Append(value);
+            }
+            else
+            {
+                // 闭包带进来的变量是生成类型的一个Field
+                if (node.Expression.NodeType == ExpressionType.Constant)
                 {
-                    var item = coll[i];
-                    if (i == coll.Count - 1)
+                    var container = ((ConstantExpression)node.Expression).Value;
+                    var value = ((FieldInfo)node.Member).GetValue(container);
+                    var coll = value as IList;
+                    if (coll != null)
                     {
-                        if (item is string)
+                        for (int i = 0; i < coll.Count; i++)
                         {
-                            sb.Append($"'{item}'");
-                        }
-                        else
-                        {
-                            sb.Append($"{item}");
+                            var item = coll[i];
+                            if (i == coll.Count - 1)
+                            {
+                                if (item is string)
+                                {
+                                    sb.Append($"'{item}'");
+                                }
+                                else
+                                {
+                                    sb.Append($"{item}");
+                                }
+                            }
+                            else
+                            {
+                                if (item is string)
+                                {
+                                    sb.Append($"'{item}', ");
+                                }
+                                else
+                                {
+                                    sb.Append($"{item}, ");
+                                }
+                            }
                         }
                     }
                     else
                     {
-                        if (item is string)
+                        switch (Type.GetTypeCode(value.GetType()))
                         {
-                            sb.Append($"'{item}', ");
-                        }
-                        else
-                        {
-                            sb.Append($"{item}, ");
+                            case TypeCode.Boolean:
+                                if (is_left)
+                                {
+                                    sb.Append(((bool)value) ^ invert ? true : false);
+                                }
+                                else
+                                {
+                                    sb.Append(((bool)value) ^ invert ? 1 : 0);
+                                }
+                                break;
+
+                            case TypeCode.String:
+                                if (quote) sb.Append("'");
+                                sb.Append(value);
+                                if (quote) sb.Append("'");
+                                break;
+
+                            case TypeCode.DateTime:
+                                sb.Append("'");
+                                sb.Append(value);
+                                sb.Append("'");
+                                break;
+
+                            case TypeCode.Object:
+                                throw new NotSupportedException(string.Format("The constant for '{0}' is not supported", value));
+
+                            default:
+                                sb.Append(value);
+                                break;
                         }
                     }
                 }
-            }
 
-            if (node.Expression.NodeType == ExpressionType.Parameter)
-            {
-                sb.Append($"[{node.Expression.Type.Name}].{node.Member.Name}");
-                if (node.Type == typeof(bool))
+                if (node.Expression.NodeType == ExpressionType.Parameter)
                 {
-                    boolean = true;
-                    if (!has_right)
+                    sb.Append($"[{node.Expression.Type.Name}].{node.Member.Name}");
+                    if (node.Type == typeof(bool))
                     {
-                        sb.Append(invert ? " = 0" : " = 1");
+                        boolean = true;
+                        if (!has_right)
+                        {
+                            sb.Append(invert ? " = 0" : " = 1");
+                        }
                     }
                 }
             }
@@ -338,7 +385,17 @@ namespace DataLayer.Base
 
         static BaseTableHelper()
         {
-            ConnectionString = "";
+            // 添加json配置文件路径
+#if LOCAL
+            var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.Local.json");
+#elif DEBUG
+            var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.Development.json");
+#else
+            var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json");
+#endif
+            // 创建配置根对象
+            var configurationRoot = builder.Build();
+            ConnectionString = configurationRoot.GetSection("DbConnect:ConnectString_SilverPay").Value;
         }
 
         protected static SqlConnection GetOpenConnection(bool mars = false)
@@ -365,11 +422,11 @@ namespace DataLayer.Base
         }
 
         protected static PageDataView<T> Paged<T>(
-            string tableName, 
-            string where, 
-            string orderBy, 
-            string columns, 
-            int pageSize, 
+            string tableName,
+            string where,
+            string orderBy,
+            string columns,
+            int pageSize,
             int currentPage)
         {
             var result = new PageDataView<T>();
@@ -406,13 +463,13 @@ namespace DataLayer.Base
 
         protected static PageDataView<T> JoinPaged<T>(
             int type, /* 1 left 2 inner 3 right */
-            string tableName1, 
-            string tableName2, 
-            string on, 
-            string where, 
-            string orderBy, 
-            string columns, 
-            int pageSize, 
+            string tableName1,
+            string tableName2,
+            string on,
+            string where,
+            string orderBy,
+            string columns,
+            int pageSize,
             int currentPage)
         {
             var result = new PageDataView<T>();
@@ -429,8 +486,8 @@ namespace DataLayer.Base
                 orderBy = "id desc";
             }
 
-            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3} {4} ON {5} {6}) AS Paged ", 
-                columns, 
+            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3} {4} ON {5} {6}) AS Paged ",
+                columns,
                 orderBy,
                 tableName1,
                 join,
