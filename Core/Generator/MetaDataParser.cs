@@ -2,8 +2,6 @@
 using Microsoft.SqlServer.Management.Smo;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Generator.Core
 {

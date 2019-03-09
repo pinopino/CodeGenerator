@@ -26,9 +26,9 @@ namespace DataLayer.Base
         private StringBuilder sb = new StringBuilder();
         private bool invert = false;
         private bool quote = true;
-        private bool boolean = false; // 布尔表达式的左侧表达式是否为一个bool类型
-        private bool has_right = false;
-        private bool is_left = false;
+        private bool boolean = false;
+        private bool invert_used = true;
+        private ExpressionType? prev_op = null;
 
         public string Parse(Expression predicate)
         {
@@ -42,28 +42,22 @@ namespace DataLayer.Base
             invert = false;
             quote = true;
             boolean = false;
-            has_right = false;
+            prev_op = null;
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            has_right = true;
             sb.Append("(");
-            is_left = true;
-            this.Visit(node.Left);
-            is_left = false;
-
+            prev_op = node.NodeType;
             var tmp = invert;
-            if (node.Left.NodeType == ExpressionType.Not)
-                invert = invert ^ true;
+            this.Visit(node.Left);
+
             switch (node.NodeType)
             {
-                case ExpressionType.And:
                 case ExpressionType.AndAlso:
                     sb.Append(invert ? " OR " : " AND ");
                     break;
 
-                case ExpressionType.Or:
                 case ExpressionType.OrElse:
                     sb.Append(invert ? " AND " : " OR ");
                     break;
@@ -96,7 +90,7 @@ namespace DataLayer.Base
                         if (boolean)
                         {
                             sb.Append(" = ");
-                            invert = true;
+                            invert = invert ^ true;
                         }
                         else
                         {
@@ -128,7 +122,6 @@ namespace DataLayer.Base
             this.Visit(node.Right);
             invert = tmp;
             sb.Append(")");
-            has_right = false;
             return node;
         }
 
@@ -140,7 +133,14 @@ namespace DataLayer.Base
                     var tmp = invert;
                     invert = invert ^ true;
                     this.Visit(node.Operand);
-                    invert = tmp;
+                    if (!invert_used)
+                    {
+                        invert = true;
+                    }
+                    else
+                    {
+                        invert = tmp;
+                    }
                     break;
                 case ExpressionType.Convert:
                     this.Visit(node.Operand);
@@ -163,14 +163,7 @@ namespace DataLayer.Base
                 switch (Type.GetTypeCode(node.Value.GetType()))
                 {
                     case TypeCode.Boolean:
-                        if (is_left)
-                        {
-                            sb.Append(((bool)node.Value) ^ invert ? true : false);
-                        }
-                        else
-                        {
-                            sb.Append(((bool)node.Value) ^ invert ? 1 : 0);
-                        }
+                        sb.Append(((bool)node.Value) ^ invert ? 1 : 0);
                         break;
 
                     case TypeCode.String:
@@ -199,6 +192,7 @@ namespace DataLayer.Base
 
         protected override Expression VisitMember(MemberExpression node)
         {
+            // 访问静态字段或属性
             if (node.Expression == null)
             {
                 var value = ((FieldInfo)node.Member).GetValue(null);
@@ -246,14 +240,7 @@ namespace DataLayer.Base
                         switch (Type.GetTypeCode(value.GetType()))
                         {
                             case TypeCode.Boolean:
-                                if (is_left)
-                                {
-                                    sb.Append(((bool)value) ^ invert ? true : false);
-                                }
-                                else
-                                {
-                                    sb.Append(((bool)value) ^ invert ? 1 : 0);
-                                }
+                                sb.Append(((bool)value) ^ invert ? 1 : 0);
                                 break;
 
                             case TypeCode.String:
@@ -280,13 +267,18 @@ namespace DataLayer.Base
 
                 if (node.Expression.NodeType == ExpressionType.Parameter)
                 {
-                    sb.Append($"[{node.Expression.Type.Name}].{node.Member.Name}");
+                    sb.Append($"[{node.Expression.Type.Name}].[{node.Member.Name}]");
                     if (node.Type == typeof(bool))
                     {
                         boolean = true;
-                        if (!has_right)
+                        if (!prev_op.HasValue || (prev_op != ExpressionType.Equal && prev_op != ExpressionType.NotEqual))
                         {
                             sb.Append(invert ? " = 0" : " = 1");
+                            invert_used = true;
+                        }
+                        else
+                        {
+                            invert_used = !invert;
                         }
                     }
                 }
@@ -301,7 +293,7 @@ namespace DataLayer.Base
             {
                 sb.Append("(");
                 this.Visit(node.Object);
-                sb.Append(invert ? "NOT LIKE '%" : " LIKE '%");
+                sb.Append(invert ? " NOT LIKE '%" : " LIKE '%");
                 quote = false;
                 this.Visit(node.Arguments[0]);
                 quote = true;
@@ -312,7 +304,7 @@ namespace DataLayer.Base
             {
                 sb.Append("(");
                 this.Visit(node.Object);
-                sb.Append(invert ? "NOT LIKE '" : " LIKE '");
+                sb.Append(invert ? " NOT LIKE '" : " LIKE '");
                 quote = false;
                 this.Visit(node.Arguments[0]);
                 quote = true;
@@ -323,7 +315,7 @@ namespace DataLayer.Base
             {
                 sb.Append("(");
                 this.Visit(node.Object);
-                sb.Append(invert ? "NOT LIKE '%" : " LIKE '%");
+                sb.Append(invert ? " NOT LIKE '%" : " LIKE '%");
                 quote = false;
                 this.Visit(node.Arguments[0]);
                 quote = true;
