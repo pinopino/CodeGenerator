@@ -67,7 +67,7 @@
 			}}
 
 			var orderby_str = string.Empty;
-            if (orderBy != null && orderBy.Length > 0)
+            if (orderBy != null && orderBy.Count > 0)
             {{
                 orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Table}}].[{{p.Name}}] {{p.Asc}}"));
             }}

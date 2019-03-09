@@ -30,6 +30,7 @@
                 column_str = string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]"));
             }}
 
+			var sql = new StringBuilder();
 			sql.Append($"SELECT {{column_str}} FROM [{1}] LEFT JOIN [{2}] ");
             sql.Append("ON " + on_str);
             if (where_str != string.Empty)
@@ -78,6 +79,7 @@
                 column_str = string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]"));
             }}
 
+			var sql = new StringBuilder();
 			sql.Append($"SELECT {{column_str}} FROM [{1}] LEFT JOIN [{2}] ");
             sql.Append("ON " + on_str);
             if (where_str != string.Empty)
