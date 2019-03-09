@@ -1,4 +1,6 @@
 ﻿using Generator.Common;
+using Generator.Core.Config;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,18 +15,14 @@ namespace Generator.Core
 {
     public class SQLMetaDataHelper
     {
-        private static readonly string _project = ConfigurationManager.AppSettings["Project"] ?? "LuckyStar";
-        private static readonly string _basePath = ConfigurationManager.AppSettings["OutputBasePath"] ?? "d:\\output";
+        private static readonly string _project = ConfigurationManager.AppSettings["Project"] ?? "YourProject";
+        private static readonly string _basePath = ConfigurationManager.AppSettings["OutputBasePath"] ?? "c:\\output";
         private static readonly string _headerNode_default = "/*{0} *  {1}{0} *  本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！{0} */{0}";
         private static readonly string _using_default = "using System;using System.Collections.Generic;using System.Linq;using System.Text;{0}";
         private static readonly string _baseClass_default = string.Empty;
         private static readonly string _classPrefix_default = string.Empty;
         private static readonly string _classSuffix_default = string.Empty;
-        private static readonly string _methods_default = "Exists,Insert,Delete,Update,GetModel,GetList,GetRecordCount,GetListByPage";
-        private static readonly string _exceptTables_default = ConfigurationManager.AppSettings["ExceptTables"] ?? string.Empty;
-        private static readonly string _traceFieldTables_default = ConfigurationManager.AppSettings["TraceFieldTables"] ?? string.Empty;
-        private static readonly string _joinTables_default = ConfigurationManager.AppSettings["JoinedTables"] ?? string.Empty;
-        private static readonly string _exceptColumns_default = ConfigurationManager.AppSettings["UpdateExceptColumns"] ?? string.Empty;
+        private static readonly List<string> _methods_default = new List<string> { "Exists", "Insert", "Delete", "Update", "GetModel", "GetList", "GetCount", "GetPage" };
         private static readonly string _partial_check_dal_path = string.Empty;
         private static readonly List<string> _exist_enum = new List<string>();
 
@@ -71,37 +69,29 @@ namespace Generator.Core
 
         public static void InitConfig(SQLMetaData config)
         {
-            var model_headerNode = ConfigurationManager.AppSettings["Model_HeaderNote"] ?? _headerNode_default;
-            var model_using = ConfigurationManager.AppSettings["Model_Using"] ?? string.Format(_using_default, string.Empty);
-            var model_namespace = ConfigurationManager.AppSettings["Model_Namespace"] ?? "Model";
-            var model_baseClass = ConfigurationManager.AppSettings["Model_BaseClass"] ?? _baseClass_default;
-            var model_classPrefix = ConfigurationManager.AppSettings["Model_ClassPrefix"] ?? _classPrefix_default;
-            var model_classSuffix = ConfigurationManager.AppSettings["Model_ClassSuffix"] ?? _classSuffix_default;
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json");
+            var root = builder.Build();
+            var configuration = new GlobalConfig();
+            root.Bind(configuration);
 
-            var dal_headerNode = ConfigurationManager.AppSettings["DAL_HeaderNote"] ?? _headerNode_default;
-            var dal_using = ConfigurationManager.AppSettings["DAL_Using"] ?? string.Format(_using_default, "using Dapper;");
+            var model_headerNode = configuration.ModelConfig.HeaderNote ?? _headerNode_default;
+            var model_using = configuration.ModelConfig.Using ?? string.Format(_using_default, string.Empty);
+            var model_namespace = configuration.ModelConfig.Namespace ?? "Model";
+            var model_baseClass = configuration.ModelConfig.BaseClass ?? _baseClass_default;
+            var model_classPrefix = configuration.ModelConfig.ClassPrefix ?? _classPrefix_default;
+            var model_classSuffix = configuration.ModelConfig.ClassSuffix ?? _classSuffix_default;
+
+            var dal_headerNode = configuration.DALConfig.HeaderNote ?? _headerNode_default;
+            var dal_using = configuration.DALConfig.HeaderNote ?? string.Format(_using_default, "using Dapper;");
             dal_using += string.Format("using {0}.{1};", _project, model_namespace);
-            var dal_namespace = ConfigurationManager.AppSettings["DAL_Namespace"] ?? "DAL";
-            var dal_baseClass = ConfigurationManager.AppSettings["DAL_BaseClass"] ?? _baseClass_default;
-            var dal_classPrefix = ConfigurationManager.AppSettings["DAL_ClassPrefix"] ?? _classPrefix_default;
-            var dal_classSuffix = ConfigurationManager.AppSettings["DAL_ClassSuffix"] ?? _classSuffix_default;
-            var dal_methods = ConfigurationManager.AppSettings["DAL_Methods"] ?? _methods_default;
+            var dal_namespace = configuration.DALConfig.Namespace ?? "DAL";
+            var dal_baseClass = configuration.DALConfig.BaseClass ?? _baseClass_default;
+            var dal_classPrefix = configuration.DALConfig.ClassPrefix ?? _classPrefix_default;
+            var dal_classSuffix = configuration.DALConfig.ClassSuffix ?? _classSuffix_default;
+            var dal_methods = configuration.DALConfig.Methods.Select(p => p.Name) ?? _methods_default;
 
-            config.PartialCheck_DAL_Path = ConfigurationManager.AppSettings["PartialCheck_DAL_Path"] ?? _partial_check_dal_path;
-            config.ExceptTables = _exceptTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            config.TraceFieldTables = _traceFieldTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            config.JoinedTables = _joinTables_default
-                .Replace('（', ' ')
-                .Replace('）', ' ')
-                .Replace('(', ' ')
-                .Replace(')', ' ')
-                .Replace('；', ';')
-                .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .ToDictionary(p => p.Split(',')[0].Trim(), p => p.Split(',')[1].Trim());
-            config.ExceptColumns = _exceptColumns_default
-                .Replace('；', ';')
-                .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .ToDictionary(p => p.Split(':')[0].Trim(), p => p.Split(':')[1].Split(',').ToList());
             config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
             config.Model_Namespace = string.Format("{0}.{1}", _project, model_namespace);
@@ -115,7 +105,17 @@ namespace Generator.Core
             config.DAL_BaseClass = dal_baseClass;
             config.DAL_ClassNamePrefix = dal_classPrefix;
             config.DAL_ClassNameSuffix = dal_classSuffix;
-            config.DAL_Methods = dal_methods.Replace('，', ',').Split(',').ToList();
+            config.DAL_Methods = dal_methods.ToList();
+
+            config.PartialCheck_DAL_Path = configuration.PartialCheck_DAL_Path ?? _partial_check_dal_path;
+            config.TraceFieldTables = configuration.TraceFieldTables == null ? Enumerable.Empty<string>().ToList() : configuration.TraceFieldTables.Select(p => p.Name).ToList();
+            config.ExceptTables = configuration.ExceptTables == null ? Enumerable.Empty<string>().ToList() : configuration.ExceptTables.Select(p => p.Name).ToList();
+            config.ExceptColumns = configuration.UpdateExceptColumns == null ?
+                new Dictionary<string, List<string>>() :
+                configuration.UpdateExceptColumns.ToDictionary(p => p.Key, p => p.Value.Select(k => k.ColumnName).ToList());
+            config.JoinedTables = configuration.JoinedTables == null ?
+                new Dictionary<string, Tuple<string, string>>() :
+                configuration.JoinedTables.ToDictionary(p => p.Table_Main.Name, p => Tuple.Create(p.Table_Sub.Name, p.Table_Sub_Alias));
         }
 
         public static Type MapCommonType(string dbtype)
@@ -306,7 +306,7 @@ namespace Generator.Core
                                 sb.AppendLine(g.Get_Count(table.Name));
                             }
                             break;
-                        case "getlistbypage":
+                        case "getpage":
                             {
                                 sb.Append(g.Get_GetListByPage(table.Name));
                             }
@@ -316,7 +316,7 @@ namespace Generator.Core
                 // Joined
                 if (config.JoinedTables.ContainsKey(table.Name))
                 {
-                    sb.Append(g.Get_Joined(table.Name, config.JoinedTables[table.Name]));
+                    sb.Append(g.Get_Joined(table.Name, config.JoinedTables[table.Name].Item1));
                 }
                 sb.AppendLine(string.Format("{0}}}", '\t'));
                 sb.AppendLine("}");
@@ -393,7 +393,7 @@ namespace Generator.Core
                     sb2.AppendLine();
                     sb2.AppendLine($"namespace {config.Model_Namespace}.JoinedViewModel");
                     sb2.AppendLine("{");
-                    sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
+                    sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table.Item1));
                     sb2.AppendLine("}");
 
                     File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + main_table)), sb2.ToString());

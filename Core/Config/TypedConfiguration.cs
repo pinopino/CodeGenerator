@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Console.Config
+namespace Generator.Core.Config
 {
     // links：
     // https://andrewlock.net/how-to-use-the-ioptions-pattern-for-configuration-in-asp-net-core-rc2/
