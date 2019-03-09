@@ -402,7 +402,7 @@ namespace Generator.Core
                     sb2.AppendLine();
                     sb2.AppendLine($"namespace {config.Model_Namespace}.JoinedViewModel");
                     sb2.AppendLine("{");
-                    sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table.Item1));
+                    sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
                     sb2.AppendLine("}");
 
                     File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + main_table)), sb2.ToString());

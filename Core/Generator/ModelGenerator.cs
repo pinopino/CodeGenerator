@@ -142,7 +142,7 @@ namespace Generator.Core
             return str;
         }
 
-        public string Get_Joined_Class(string mainTable, string subTable)
+        public string Get_Joined_Class(string mainTable, Tuple<string, string> subTable)
         {
             var table_config = _config[mainTable];
             var sb1 = new StringBuilder();
@@ -158,7 +158,7 @@ namespace Generator.Core
                     sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
             }
-            sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', subTable, subTable.ToLower()));
+            sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', subTable.Item1, subTable.Item1.ToLower()));
 
             var sb2 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
@@ -182,10 +182,10 @@ namespace Generator.Core
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
                     sb2.AppendLine();
-                    sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', subTable, subTable));
+                    sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', subTable.Item1, subTable.Item2));
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', subTable.ToLower()));
-                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', subTable.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', subTable.Item1.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', subTable.Item1.ToLower()));
                     sb2.Append(string.Format("{0}{0}}}", '\t'));
                 }
                 else
@@ -209,7 +209,7 @@ namespace Generator.Core
                 }
             }
 
-            table_config = _config[subTable];
+            table_config = _config[subTable.Item1];
             var sb3 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
@@ -285,7 +285,7 @@ namespace Generator.Core
             var str = string.Format(ModelTemplate.JOINED_CLASS_TEMPLATE,
                                     "Joined" + mainTable,
                                     "Joined" + mainTable,
-                                    subTable,
+                                    subTable.Item1,
                                     sb3.ToString(),
                                     sb4.ToString(),
                                     Environment.NewLine + sb1.ToString(),
