@@ -46,7 +46,7 @@ namespace Generator.Core
             sb1.AppendLine($"\t\t\tpublic {tableName}Column SetOrderByDesc() {{ this._asc = false; return this; }}");
             sb1.AppendLine("\t\t}");
             sb1.AppendLine();
-            
+
             sb1.AppendLine($"\t\tpublic sealed class {tableName}Table");
             sb1.AppendLine("\t\t{");
             sb1.AppendLine($"\t\t\tinternal {tableName}Table(string name)");
@@ -413,48 +413,59 @@ namespace Generator.Core
         #endregion
 
         #region Joined
-        public string Get_Joined(string mainTable, string subTable)
+        public string Get_Joined(string mainTable, Tuple<string, string> subInfo)
         {
             var sb = new StringBuilder();
             sb.AppendLine();
-            sb.Append(Get_JoinedPage(mainTable, subTable));
+            sb.Append(Get_JoinedPage(mainTable, subInfo));
             sb.AppendLine();
-            sb.AppendLine(Get_Joined1(mainTable, subTable));
-            sb.AppendLine(Get_Joined2(mainTable, subTable));
-            sb.AppendLine(Get_Joined3(mainTable, subTable));
+            sb.AppendLine(Get_Joined1(mainTable, subInfo));
+            sb.AppendLine(Get_Joined2(mainTable, subInfo));
+            sb.AppendLine(Get_Joined3(mainTable, subInfo));
 
             return sb.ToString();
         }
 
-        private string Get_Joined1(string mainTable, string subTable)
+        private string Get_Joined1(string mainTable, Tuple<string, string> subInfo)
         {
+            var subTable = subInfo.Item1;
+            var alias = subInfo.Item2;
             var str = string.Format(DALTemplate.INNER_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     mainTable,
-                                    subTable);
+                                    subTable,
+                                    alias);
             return str;
         }
 
-        private string Get_Joined2(string mainTable, string subTable)
+        private string Get_Joined2(string mainTable, Tuple<string, string> subInfo)
         {
+            var subTable = subInfo.Item1;
+            var alias = subInfo.Item2;
             var str = string.Format(DALTemplate.LEFT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     mainTable,
-                                    subTable);
+                                    subTable,
+                                    alias);
             return str;
         }
 
-        private string Get_Joined3(string mainTable, string subTable)
+        private string Get_Joined3(string mainTable, Tuple<string, string> subInfo)
         {
+            var subTable = subInfo.Item1;
+            var alias = subInfo.Item2;
             var str = string.Format(DALTemplate.RIGHT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     mainTable,
-                                    subTable);
+                                    subTable,
+                                    alias);
             return str;
         }
 
-        private string Get_JoinedPage(string mainTable, string subTable)
+        private string Get_JoinedPage(string mainTable, Tuple<string, string> subInfo)
         {
+            var subTable = subInfo.Item1;
+            var alias = subInfo.Item2;
             var str1 = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE1,
                                     $"Joined{mainTable}",
                                     mainTable,

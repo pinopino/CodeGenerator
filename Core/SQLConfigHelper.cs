@@ -325,7 +325,7 @@ namespace Generator.Core
                 // Joined
                 if (config.JoinedTables.ContainsKey(table.Name))
                 {
-                    sb.Append(g.Get_Joined(table.Name, config.JoinedTables[table.Name].Item1));
+                    sb.Append(g.Get_Joined(table.Name, config.JoinedTables[table.Name]));
                 }
                 sb.AppendLine(string.Format("{0}}}", '\t'));
                 sb.AppendLine("}");
