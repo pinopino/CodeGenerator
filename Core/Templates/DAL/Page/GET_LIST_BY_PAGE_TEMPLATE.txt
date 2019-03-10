@@ -40,10 +40,10 @@
 		/// 分页获取数据列表
 		/// </summary>
 		public static PageDataView<{0}> GetPage(
-			Expression<Func<{0}, bool>> predicate = null, 
-			int pageSize = 20, 
-			int currentPage = 1, 
-			IList<{0}Column> orderBy = null, 
+			Expression<Func<{0}, bool>> predicate, 
+			int pageSize, 
+			int currentPage, 
+			IList<{0}Column> orderBy, 
 			params {0}Column[] columns)
         {{
 			var where_str = string.Empty;

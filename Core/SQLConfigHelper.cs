@@ -93,7 +93,7 @@ namespace Generator.Core
             var model_classSuffix = _configuration.ModelConfig.ClassSuffix ?? _classSuffix_default;
 
             var dal_headerNode = _configuration.DALConfig.HeaderNote ?? _headerNode_default;
-            var dal_using = _configuration.DALConfig.HeaderNote ?? string.Format(_using_default, "using Dapper;");
+            var dal_using = _configuration.DALConfig.Using ?? string.Format(_using_default, "using Dapper;");
             dal_using += string.Format("using {0}.{1};", _project, model_namespace);
             var dal_namespace = _configuration.DALConfig.Namespace ?? "DAL";
             var dal_baseClass = _configuration.DALConfig.BaseClass ?? _baseClass_default;

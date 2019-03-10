@@ -7,6 +7,9 @@
 			IColumn orderBy = null, 
 			params IColumn[] columns)
         {{
+			if (on == null)
+                throw new ArgumentNullException("on");
+
             var on_str = string.Empty;
 			var parser = new PredicateParser();
 			on_str = parser.Parse(on);
@@ -52,10 +55,13 @@
         /// </summary>
         public static List<{0}> RightJoin(
 			Expression<Func<{1}, {2}, bool>> on, 
-			Expression<Func<{1}, {2}, bool>> predicate = null, 
-			IList<IColumn> orderBy = null, 
+			Expression<Func<{1}, {2}, bool>> predicate, 
+			IList<IColumn> orderBy, 
 			params IColumn[] columns)
         {{
+			if (on == null)
+                throw new ArgumentNullException("on");
+
             var on_str = string.Empty;
 			var parser = new PredicateParser();
 			on_str = parser.Parse(on);
