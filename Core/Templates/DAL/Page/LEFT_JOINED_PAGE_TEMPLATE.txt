@@ -35,10 +35,8 @@
                 column_str = string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]"));
             }}
 
-			return JoinPaged<{0}>(
+			return JoinPaged(
 					1, 
-					"[{1}]", 
-					"[{2}]", 
 					on_str, 
 					where_str, 
 					orderby_str, 
@@ -84,10 +82,8 @@
                 column_str = string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]"));
             }}
 
-			return JoinPaged<{0}>(
+			return JoinPaged(
 					1, 
-					"[{1}]", 
-					"[{2}]", 
 					on_str, 
 					where_str, 
 					orderby_str, 

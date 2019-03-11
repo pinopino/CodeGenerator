@@ -1,0 +1,55 @@
+﻿		/// <summary>
+		/// 分页获取数据列表
+		/// </summary>
+		private static PageDataView<{0}> JoinPaged(
+            int type, /* 1 left 2 inner 3 right */
+            string on,
+            string where,
+            string orderBy,
+            string columns,
+            int pageSize,
+            int currentPage)
+        {{
+			var tableName1 = "{1}";
+			var tableName2 = "{2}";
+            var result = new PageDataView<{0}>();
+            var join = type == 1 ? "LEFT JOIN" : (type == 2 ? " INNER JOIN" : "RIGHT JOIN");
+            var count_sql = string.Format("SELECT COUNT(1) FROM {{0}} {{1}} {{2}} ON {{3}} {{4}}",
+                tableName1,
+                join,
+                tableName2,
+                on,
+                string.IsNullOrEmpty(where) ? string.Empty : "WHERE " + where);
+
+            if (string.IsNullOrWhiteSpace(orderBy))
+            {{
+                orderBy = "id desc";
+            }}
+
+            var sql = string.Format("SELECT {{0}} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {{1}}) AS Row, {{0}} FROM {{2}} {{3}} {{4}} ON {{5}} {{6}}) AS Paged ",
+                columns,
+                orderBy,
+                tableName1,
+                join,
+                tableName2,
+                on,
+                string.IsNullOrEmpty(where) ? string.Empty : "WHERE " + where);
+            var pageStart = (currentPage - 1) * pageSize;
+            sql += string.Format(" WHERE Row >{{0}} AND Row <={{1}}", pageStart, pageStart + pageSize);
+            using (var conn = GetOpenConnection())
+            {{
+                result.TotalRecords = connection.ExecuteScalar<int>(count_sql);
+                result.TotalPages = result.TotalRecords / pageSize;
+                if (result.TotalRecords % pageSize > 0)
+                    result.TotalPages += 1;
+                var list = connection.Query<{0}, {0}.{2}, {0}>(sql, 
+					(p1, p2) => 
+					{{
+						p1.{3} = p2;
+						return p1;
+					}}).ToList();
+                result.Items = list;
+            }}
+
+            return result;
+        }}

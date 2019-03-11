@@ -23,18 +23,12 @@ namespace DataLayer.Base
 
     internal class PredicateParser : ExpressionVisitor
     {
-        class PrevInfo
-        {
-            public ExpressionType? prev_op;
-            public bool is_right;
-        }
-
         private StringBuilder sb = new StringBuilder();
         private bool invert = false;
         private bool quote = true;
         private bool boolean = false;
         private bool invert_used = true;
-        private PrevInfo previnfo = null;
+        private ExpressionType? prev_op = null;
 
         public string Parse(Expression predicate)
         {
@@ -48,23 +42,15 @@ namespace DataLayer.Base
             invert = false;
             quote = true;
             boolean = false;
-            previnfo = null;
+            invert_used = true;
+            prev_op = null;
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
             sb.Append("(");
-            previnfo = new PrevInfo { is_right = false, prev_op = node.NodeType };
+            prev_op = node.NodeType;
             var tmp = invert;
-            if (node.Left.NodeType == ExpressionType.Constant)
-            {
-                var val = ((ConstantExpression)node.Left).Value;
-                if (val.GetType() == typeof(bool))
-                {
-                    sb.Append(((bool)val) ? " (1 = 1)" : " (1 = 0)");
-                    return node.Left;
-                }
-            }
             this.Visit(node.Left);
 
             switch (node.NodeType)
@@ -134,16 +120,6 @@ namespace DataLayer.Base
                     throw new NotSupportedException(string.Format("The binary operator '{0}' is not supported", node.NodeType));
             }
 
-            previnfo.is_right = true;
-            if (node.Right.NodeType == ExpressionType.Constant)
-            {
-                var val = ((ConstantExpression)node.Right).Value;
-                if (val.GetType() == typeof(bool))
-                {
-                    sb.Append(((bool)val) ? " (1 = 1)" : " (1 = 0)");
-                    return node.Right;
-                }
-            }
             this.Visit(node.Right);
             invert = tmp;
             sb.Append(")");
@@ -296,9 +272,7 @@ namespace DataLayer.Base
                     if (node.Type == typeof(bool))
                     {
                         boolean = true;
-                        if (previnfo == null ||
-                            (previnfo.prev_op != ExpressionType.Equal && previnfo.prev_op != ExpressionType.NotEqual) ||
-                            previnfo.is_right == true)
+                        if (!prev_op.HasValue || (prev_op != ExpressionType.Equal && prev_op != ExpressionType.NotEqual))
                         {
                             sb.Append(invert ? " = 0" : " = 1");
                             invert_used = true;
@@ -467,54 +441,6 @@ namespace DataLayer.Base
             var pageStart = (currentPage - 1) * pageSize;
             sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
             count_sql += where;
-            using (var conn = GetOpenConnection())
-            {
-                result.TotalRecords = connection.ExecuteScalar<int>(count_sql);
-                result.TotalPages = result.TotalRecords / pageSize;
-                if (result.TotalRecords % pageSize > 0)
-                    result.TotalPages += 1;
-                var list = connection.Query<T>(sql);
-                result.Items = list.Count() == 0 ? (new List<T>()) : list.ToList();
-            }
-
-            return result;
-        }
-
-        protected static PageDataView<T> JoinPaged<T>(
-            int type, /* 1 left 2 inner 3 right */
-            string tableName1,
-            string tableName2,
-            string on,
-            string where,
-            string orderBy,
-            string columns,
-            int pageSize,
-            int currentPage)
-        {
-            var result = new PageDataView<T>();
-            var join = type == 1 ? "LEFT JOIN" : (type == 2 ? " INNER JOIN" : "RIGHT JOIN");
-            var count_sql = string.Format("SELECT COUNT(1) FROM {0} {1} {2} ON {3} {4}",
-                tableName1,
-                join,
-                tableName2,
-                on,
-                string.IsNullOrEmpty(where) ? string.Empty : "WHERE " + where);
-
-            if (string.IsNullOrWhiteSpace(orderBy))
-            {
-                orderBy = "id desc";
-            }
-
-            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3} {4} ON {5} {6}) AS Paged ",
-                columns,
-                orderBy,
-                tableName1,
-                join,
-                tableName2,
-                on,
-                string.IsNullOrEmpty(where) ? string.Empty : "WHERE " + where);
-            var pageStart = (currentPage - 1) * pageSize;
-            sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
             using (var conn = GetOpenConnection())
             {
                 result.TotalRecords = connection.ExecuteScalar<int>(count_sql);

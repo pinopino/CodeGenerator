@@ -421,7 +421,7 @@ namespace Generator.Core
             sb.AppendLine();
             sb.AppendLine(Get_Joined1(mainTable, subInfo));
             sb.AppendLine(Get_Joined2(mainTable, subInfo));
-            sb.AppendLine(Get_Joined3(mainTable, subInfo));
+            sb.Append(Get_Joined3(mainTable, subInfo));
 
             return sb.ToString();
         }
@@ -481,7 +481,13 @@ namespace Generator.Core
                                     mainTable,
                                     subTable);
 
-            return str1 + Environment.NewLine + str2 + Environment.NewLine + str3;
+            var str4 = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE4,
+                                    $"Joined{mainTable}",
+                                    mainTable,
+                                    subTable,
+                                    alias);
+
+            return str1 + Environment.NewLine + str2 + Environment.NewLine + str3 + Environment.NewLine + str4;
         }
         #endregion
     }
