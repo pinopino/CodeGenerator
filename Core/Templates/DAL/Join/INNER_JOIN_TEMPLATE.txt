@@ -44,7 +44,7 @@
             List<{0}> ret = null;
             using (var conn = GetOpenConnection())
             {{
-                ret = conn.Query<{0}, {0}.{1}, {0}>(sql.ToString(), 
+                ret = conn.Query<{0}, {0}.{2}, {0}>(sql.ToString(), 
 					(p1, p2) => 
 					{{
 						p1.{3} = p2;
@@ -101,7 +101,7 @@
             List<{0}> ret = null;
             using (var conn = GetOpenConnection())
             {{
-                ret = conn.Query<{0}, {0}.{1}, {0}>(sql.ToString(), 
+                ret = conn.Query<{0}, {0}.{2}, {0}>(sql.ToString(), 
 					(p1, p2) => 
 					{{
 						p1.{3} = p2;

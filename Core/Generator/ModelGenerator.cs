@@ -40,7 +40,7 @@ namespace Generator.Core
                     sb3.AppendLine($"\t\t\tif (_ver_{p.Name.ToLower()} != 0)");
                     sb3.AppendLine("\t\t\t{");
                     sb3.AppendLine($"\t\t\t\tupdate_fields.Add({tableName}Helper.Columns.{p.Name});");
-                    sb3.AppendLine($"\t\t\t\t_ver_{ p.Name.ToLower()} = 0;");
+                    sb3.AppendLine($"\t\t\t\tif (!preserve) _ver_{ p.Name.ToLower()} = 0;");
                     sb3.AppendLine("\t\t\t}");
                     sb5.AppendLine($"\t\t\t_ver_{p.Name.ToLower()} = 0;");
                 }
@@ -101,7 +101,7 @@ namespace Generator.Core
                 sb4.AppendLine();
                 // GetTraceFields
                 sb4.AppendLine();
-                sb4.AppendLine($"\t\tpublic IList<{tableName}Column> GetTraceFields()");
+                sb4.AppendLine($"\t\tpublic IList<{tableName}Column> GetTraceFields(bool preserve = false)");
                 sb4.AppendLine("\t\t{");
                 sb4.AppendLine($"\t\t\tvar update_fields = new List<{tableName}Column>();");
                 sb4.AppendLine(sb3.ToString());

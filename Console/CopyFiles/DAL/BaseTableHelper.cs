@@ -23,12 +23,18 @@ namespace DataLayer.Base
 
     internal class PredicateParser : ExpressionVisitor
     {
+        class PrevInfo
+        {
+            public ExpressionType? prev_op;
+            public bool is_right;
+        }
+
         private StringBuilder sb = new StringBuilder();
         private bool invert = false;
         private bool quote = true;
         private bool boolean = false;
         private bool invert_used = true;
-        private ExpressionType? prev_op = null;
+        private PrevInfo previnfo = null;
 
         public string Parse(Expression predicate)
         {
@@ -42,14 +48,23 @@ namespace DataLayer.Base
             invert = false;
             quote = true;
             boolean = false;
-            prev_op = null;
+            previnfo = null;
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
             sb.Append("(");
-            prev_op = node.NodeType;
+            previnfo = new PrevInfo { is_right = false, prev_op = node.NodeType };
             var tmp = invert;
+            if (node.Left.NodeType == ExpressionType.Constant)
+            {
+                var val = ((ConstantExpression)node.Left).Value;
+                if (val.GetType() == typeof(bool))
+                {
+                    sb.Append(((bool)val) ? " (1 = 1)" : " (1 = 0)");
+                    return node.Left;
+                }
+            }
             this.Visit(node.Left);
 
             switch (node.NodeType)
@@ -119,6 +134,16 @@ namespace DataLayer.Base
                     throw new NotSupportedException(string.Format("The binary operator '{0}' is not supported", node.NodeType));
             }
 
+            previnfo.is_right = true;
+            if (node.Right.NodeType == ExpressionType.Constant)
+            {
+                var val = ((ConstantExpression)node.Right).Value;
+                if (val.GetType() == typeof(bool))
+                {
+                    sb.Append(((bool)val) ? " (1 = 1)" : " (1 = 0)");
+                    return node.Right;
+                }
+            }
             this.Visit(node.Right);
             invert = tmp;
             sb.Append(")");
@@ -271,7 +296,9 @@ namespace DataLayer.Base
                     if (node.Type == typeof(bool))
                     {
                         boolean = true;
-                        if (!prev_op.HasValue || (prev_op != ExpressionType.Equal && prev_op != ExpressionType.NotEqual))
+                        if (previnfo == null ||
+                            (previnfo.prev_op != ExpressionType.Equal && previnfo.prev_op != ExpressionType.NotEqual) ||
+                            previnfo.is_right == true)
                         {
                             sb.Append(invert ? " = 0" : " = 1");
                             invert_used = true;
