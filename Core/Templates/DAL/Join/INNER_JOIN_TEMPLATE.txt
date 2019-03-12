@@ -30,7 +30,42 @@
             var column_str = "[{1}].*, [{2}].*";
             if (columns != null && columns.Length > 0)
             {{
-                column_str = string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]"));
+                var has_id1 = false;
+                var has_id2 = false;
+                var col_list1 = new List<string>();
+                var col_list2 = new List<string>();
+                for (int i = 0; i < columns.Length; i++)
+                {{
+                    var col = columns[i];
+                    if (col.Table == "{1}")
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id1 = true;
+                        }}
+                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                    }}
+                    else
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id2 = true;
+                        }}
+                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}]");
+                    }}
+                }}
+                if (!has_id1)
+                {{
+                    col_list1.Insert(0, "[{1}].[Id]");
+                }}
+                if (!has_id2)
+                {{
+                    col_list2.Insert(0, "[{2}].[Id]");
+                }}
+
+                column_str.Append(string.Join(", ", col_list1.Select(p => p)));
+                column_str.Append(", ");
+                column_str.Append(string.Join(", ", col_list2.Select(p => p)));
             }}
 
 			var sql = new StringBuilder();
@@ -85,9 +120,44 @@
             }}
 
             var column_str = "[{1}].*, [{2}].*";
-            if (columns != null && columns.Length > 0)
+			if (columns != null && columns.Length > 0)
             {{
-                column_str = string.Join(", ", columns.Select(p => $"[{{p.Table}}].[{{p.Name}}]"));
+                var has_id1 = false;
+                var has_id2 = false;
+                var col_list1 = new List<string>();
+                var col_list2 = new List<string>();
+                for (int i = 0; i < columns.Length; i++)
+                {{
+                    var col = columns[i];
+                    if (col.Table == "{1}")
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id1 = true;
+                        }}
+                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                    }}
+                    else
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id2 = true;
+                        }}
+                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}]");
+                    }}
+                }}
+                if (!has_id1)
+                {{
+                    col_list1.Insert(0, "[{1}].[Id]");
+                }}
+                if (!has_id2)
+                {{
+                    col_list2.Insert(0, "[{2}].[Id]");
+                }}
+
+                column_str.Append(string.Join(", ", col_list1.Select(p => p)));
+                column_str.Append(", ");
+                column_str.Append(string.Join(", ", col_list2.Select(p => p)));
             }}
 
 			var sql = new StringBuilder();

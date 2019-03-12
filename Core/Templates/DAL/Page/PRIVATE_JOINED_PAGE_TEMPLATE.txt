@@ -1,5 +1,6 @@
 ﻿		/// <summary>
 		/// 分页获取数据列表
+		/// link: https://stackoverflow.com/questions/7472088/correct-use-of-multimapping-in-dapper
 		/// </summary>
 		private static PageDataView<{0}> JoinPaged(
             int type, /* 1 left 2 inner 3 right */
@@ -23,11 +24,12 @@
 
             if (string.IsNullOrWhiteSpace(orderBy))
             {{
-                orderBy = "id desc";
+                orderBy = "[{1}].[Id] desc";
             }}
 
-            var sql = string.Format("SELECT {{0}} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {{1}}) AS Row, {{0}} FROM {{2}} {{3}} {{4}} ON {{5}} {{6}}) AS Paged ",
-                columns,
+            var sql = string.Format("SELECT {{0}} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {{2}}) AS Row, {{1}} FROM {{3}} {{4}} {{5}} ON {{6}} {{7}}) AS Paged ",
+                "Paged.*",
+				columns,
                 orderBy,
                 tableName1,
                 join,
@@ -42,13 +44,15 @@
                 result.TotalPages = result.TotalRecords / pageSize;
                 if (result.TotalRecords % pageSize > 0)
                     result.TotalPages += 1;
+				SqlMapper.SetTypeMap(typeof({0}.{2}), type_map);
                 var list = connection.Query<{0}, {0}.{2}, {0}>(sql, 
 					(p1, p2) => 
 					{{
 						p1.{3} = p2;
 						return p1;
-					}}).ToList();
+					}}, splitOn: "Id2").ToList();
                 result.Items = list;
+				SqlMapper.RemoveTypeMap(typeof({0}.{2}));
             }}
 
             return result;

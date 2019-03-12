@@ -3,6 +3,7 @@ using Generator.Template;
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Generator.Core
 {
@@ -61,7 +62,46 @@ namespace Generator.Core
             return sb1.ToString();
         }
 
-        public string Get_MetaData2(string tableName)
+        public string Get_MetaData2(string mainTable, Tuple<string, string> subInfo)
+        {
+            var subTable = subInfo.Item1;
+            var columns = _config[subTable].Columns;
+            var sb = new StringBuilder();
+            sb.AppendLine("\t\tstatic Dictionary<string, string> col_map = new Dictionary<string, string>");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine("\t\t\t// column ==> property");
+            for (int i = 0; i < columns.Count; i++)
+            {
+                var col = columns[i];
+                if (i == columns.Count - 1)
+                {
+                    sb.AppendLine($"\t\t\t{{\"{col.Name}2\", \"{col.Name}\"}}");
+                }
+                else
+                {
+                    sb.AppendLine($"\t\t\t{{\"{col.Name}2\", \"{col.Name}\"}}, ");
+                }
+            }
+            sb.AppendLine("\t\t};");
+            sb.AppendLine();
+            sb.AppendLine("\t\tstatic Func<Type, string, System.Reflection.PropertyInfo> mapper = (t, col) =>");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine("\t\t\tif (col_map.ContainsKey(col))");
+            sb.AppendLine("\t\t\t{");
+            sb.AppendLine("\t\t\t\treturn t.GetProperty(col_map[col]);");
+            sb.AppendLine("\t\t\t}");
+            sb.AppendLine("\t\t\telse");
+            sb.AppendLine("\t\t\t{");
+            sb.AppendLine("\t\t\t\treturn t.GetProperty(col);");
+            sb.AppendLine("\t\t\t}");
+            sb.AppendLine("\t\t};");
+            sb.AppendLine();
+            sb.AppendLine($"\t\tstatic CustomPropertyTypeMap type_map = new CustomPropertyTypeMap(typeof(Joined{mainTable}.{subTable}), (t, col) => mapper(t, col));");
+
+            return sb.ToString();
+        }
+
+        public string Get_MetaData3(string tableName)
         {
             var table_config = _config[tableName];
             var sb1 = new StringBuilder();

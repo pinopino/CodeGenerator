@@ -273,7 +273,11 @@ namespace Generator.Core
                         config.DAL_ClassNameSuffix,
                         string.IsNullOrWhiteSpace(config.DAL_BaseClass) ? string.Empty : (" : " + config.DAL_BaseClass)));
                 sb.AppendLine(string.Format("{0}{{", '\t'));
-                sb.AppendLine(g.Get_MetaData2(table.Name));
+                if (config.JoinedTables.ContainsKey(table.Name))
+                {
+                    sb.AppendLine(g.Get_MetaData2(table.Name, config.JoinedTables[table.Name]));
+                }
+                sb.AppendLine(g.Get_MetaData3(table.Name));
                 // 按方法生成
                 foreach (var item in config.DAL_Methods)
                 {
