@@ -96,7 +96,7 @@ namespace Console
             var files = Directory.GetFiles(config_path, "*.sql", SearchOption.TopDirectoryOnly);
             foreach (var item in db_names)
             {
-                System.Console.WriteLine("尝试重新生成数据库[" + item + "]...");
+                System.Console.WriteLine("尝试重新生成数据库[" + item.Name + "]...");
                 System.Console.WriteLine("检测是否存在该数据库");
                 if (IsExist(connStr, item.Name))
                 {
@@ -110,7 +110,7 @@ namespace Console
                             svr.ConnectionContext.ExecuteNonQuery(script);
                         }
                     }
-                    System.Console.WriteLine("存在，重新生成数据库[" + item + "]成功");
+                    System.Console.WriteLine("存在，重新生成数据库[" + item.Name + "]成功");
                 }
                 else
                 {

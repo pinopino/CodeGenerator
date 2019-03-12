@@ -27,7 +27,8 @@
                 orderby_str = $"[{{orderBy.Table}}].[{{orderBy.Name}}] {{orderBy.Asc}}";
             }}
 
-            var column_str = "[{1}].*, [{2}].*";
+			var column_str = new StringBuilder();
+			column_str.Append("[{1}].*, [{2}].*");
             if (columns != null && columns.Length > 0)
             {{
                 var has_id1 = false;
@@ -119,7 +120,8 @@
                 orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Table}}].[{{p.Name}}] {{p.Asc}}"));
             }}
 
-            var column_str = "[{1}].*, [{2}].*";
+            var column_str = new StringBuilder();
+			column_str.Append("[{1}].*, [{2}].*");
 			if (columns != null && columns.Length > 0)
             {{
                 var has_id1 = false;
