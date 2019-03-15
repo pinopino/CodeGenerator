@@ -98,6 +98,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="appsettings.说明">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

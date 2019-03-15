@@ -75,7 +75,7 @@ namespace Generator.Core.Config
     {
         public TableInfo Table_Main { set; get; }
         public TableInfo Table_Sub { set; get; }
-        public string Table_Sub_Alias { set; get; }
+        public string Sub_InnerName { set; get; }
     }
 
     public class ReCreateDBInfo

@@ -124,7 +124,7 @@ namespace Generator.Core
                 _configuration.UpdateExceptColumns.ToDictionary(p => p.Key, p => p.Value.Select(k => k.ColumnName).ToList());
             config.JoinedTables = _configuration.JoinedTables == null ?
                 new Dictionary<string, Tuple<string, string>>() :
-                _configuration.JoinedTables.ToDictionary(p => p.Table_Main.Name, p => Tuple.Create(p.Table_Sub.Name, p.Table_Sub_Alias));
+                _configuration.JoinedTables.ToDictionary(p => p.Table_Main.Name, p => Tuple.Create(p.Table_Sub.Name, p.Sub_InnerName));
         }
 
         public static Type MapCommonType(string dbtype)
