@@ -31,6 +31,9 @@
     { "Name": "表的名字" },
     { "Name": "" }
   ],
+  "EntityTables": [ // 与CacheRepository相关，如果表想要放入cacherepository中，需要实现IEntity接口
+    { "Name": "" }
+  ],
   "ModelConfig": { // 生成Model对象时指定的配置信息
     "HeaderNote": "/*{0} *  {1}{0} *  本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！{0} */{0}",
     "Using": "using System;using System.Collections.Generic;",

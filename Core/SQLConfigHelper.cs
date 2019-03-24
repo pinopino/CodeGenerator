@@ -118,6 +118,7 @@ namespace Generator.Core
 
             config.PartialCheck_DAL_Path = _configuration.PartialCheck_DAL_Path ?? _partial_check_dal_path;
             config.TraceFieldTables = _configuration.TraceFieldTables == null ? Enumerable.Empty<string>().ToList() : _configuration.TraceFieldTables.Select(p => p.Name).ToList();
+            config.EntityTables = _configuration.EntityTables == null ? Enumerable.Empty<string>().ToList() : _configuration.EntityTables.Select(p => p.Name).ToList();
             config.ExceptTables = _configuration.ExceptTables == null ? Enumerable.Empty<string>().ToList() : _configuration.ExceptTables.Select(p => p.Name).ToList();
             config.ExceptColumns = _configuration.UpdateExceptColumns == null ?
                 new Dictionary<string, List<string>>() :

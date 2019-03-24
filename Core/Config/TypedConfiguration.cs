@@ -47,6 +47,10 @@ namespace Generator.Core.Config
         /// </summary>
         public List<TableInfo> TraceFieldTables { set; get; }
         /// <summary>
+        /// 需要实现接口IEntity接口的表
+        /// </summary>
+        public List<TableInfo> EntityTables { set; get; }
+        /// <summary>
         /// 生成Model对象时指定的配置信息
         /// </summary>
         public ModelConfig ModelConfig { set; get; }

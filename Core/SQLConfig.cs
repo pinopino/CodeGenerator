@@ -25,6 +25,7 @@ namespace Generator.Core
         private List<string> _exceptTables;
         private Dictionary<string, List<string>> _exceptColumns;
         private List<string> _traceFieldTables;
+        private List<string> _entityTables;
         private Dictionary<string, Tuple<string, string>> _joinedTables;
 
         public SQLMetaData()
@@ -48,6 +49,7 @@ namespace Generator.Core
             _exceptTables = new List<string>();
             _exceptColumns = new Dictionary<string, List<string>>();
             _traceFieldTables = new List<string>();
+            _entityTables = new List<string>();
             _joinedTables = new Dictionary<string, Tuple<string, string>>();
         }
 
@@ -208,6 +210,12 @@ namespace Generator.Core
         {
             set { this._traceFieldTables = value; }
             get { return this._traceFieldTables; }
+        }
+
+        public List<string> EntityTables
+        {
+            set { this._entityTables = value; }
+            get { return this._entityTables; }
         }
 
         public Dictionary<string, Tuple<string, string>> JoinedTables
