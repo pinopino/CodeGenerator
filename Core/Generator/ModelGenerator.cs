@@ -296,7 +296,6 @@ namespace Generator.Core
         public string Get_Entity_Class(string tableName)
         {
             var table_config = _config[tableName];
-
             var sb1 = new StringBuilder();
             var sb2 = new StringBuilder();
             var sb3 = new StringBuilder();
@@ -316,7 +315,7 @@ namespace Generator.Core
                 sb2.AppendLine(string.Format("{0}{0}private int _ver_{1};", '\t', p.Name.ToLower()));
                 sb3.AppendLine($"\t\t\tif (_ver_{p.Name.ToLower()} != 0)");
                 sb3.AppendLine("\t\t\t{");
-                sb3.AppendLine($"\t\t\t\tinfo.Add({p.Name}, _{p.Name.ToLower()});");
+                sb3.AppendLine($"\t\t\t\tinfo.Add(\"{p.Name}\", _{p.Name.ToLower()});");
                 sb5.AppendLine($"\t\t\t_ver_{p.Name.ToLower()} = 0;");
                 sb3.AppendLine("\t\t\t}");
             }
@@ -363,8 +362,6 @@ namespace Generator.Core
                     sb4.AppendLine();
                 }
             }
-            sb4.Append("\t\t}");
-            sb4.AppendLine();
             // GetTraceFields
             sb4.AppendLine();
             sb4.AppendLine($"\t\tpublic Dictionary<string, object> GetTracedInfo()");
@@ -372,9 +369,9 @@ namespace Generator.Core
             sb4.AppendLine("\t\t\tvar info = new Dictionary<string, object>();");
             sb4.AppendLine(sb3.ToString());
             sb4.AppendLine("\t\t\treturn info;");
-            sb4.AppendLine("\t\t}");
+            sb4.Append("\t\t}");
 
-            var str = string.Format(ModelTemplate.CLASS_TEMPLATE,
+            var str = string.Format(ModelTemplate.ENTITY_CLASS_TEMPLATE,
                                     tableName,
                                     table_config.Comment,
                                     _config.Model_ClassNamePrefix,
@@ -383,7 +380,7 @@ namespace Generator.Core
                                     string.IsNullOrWhiteSpace(_config.Model_BaseClass) ? string.Empty : (" : " + _config.Model_BaseClass),
                                     tableName,
                                     Environment.NewLine + sb1.ToString(),
-                                    string.Empty,
+                                    sb2.ToString(),
                                     sb4.ToString());
             return str;
         }
