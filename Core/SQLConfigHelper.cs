@@ -415,6 +415,29 @@ namespace Generator.Core
                 }
             }
 
+            // 如果配置文件指定了EntityTables，那么这里需要生成实现接口IEntity接口的model
+            // 路径：Model\EntityModel
+            if (config.EntityTables.Count > 0)
+            {
+                Directory.CreateDirectory(Path.Combine(path, "EntityModel"));
+                var sb2 = new StringBuilder();
+                foreach (var talbe in config.EntityTables)
+                {
+                    sb2.Append(config.Model_HeaderNote);
+                    sb2.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                    sb.AppendLine($"using {config.DAL_Namespace};");
+                    sb2.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                    sb2.AppendLine();
+                    sb2.AppendLine($"namespace {config.Model_Namespace}.EntityModel");
+                    sb2.AppendLine("{");
+                    sb2.AppendLine(g.Get_Entity_Class(talbe));
+                    sb2.AppendLine("}");
+
+                    File.AppendAllText(Path.Combine(path, "EntityModel", string.Format("{0}.cs", "Entity" + talbe)), sb2.ToString());
+                    sb2.Clear();
+                }
+            }
+
             // 拷贝公用文件到指定目录
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Model"), path);
         }
