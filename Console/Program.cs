@@ -13,7 +13,7 @@ using System.Text;
 namespace Console
 {
     class Program
-    {   aa
+    {  
         static void Main(string[] args)
         {
             var conn_str = ConfigurationManager.AppSettings["DBConn"];
