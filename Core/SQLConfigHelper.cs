@@ -17,7 +17,7 @@ namespace Generator.Core
         private static string _project;
         private static string _outputpath;
         private static readonly string _project_default = "YourProject";
-        private static readonly string _outputpath_default = "c:\\output";
+        private static readonly string _outputpath_default = "E:\\output";
         private static readonly string _headerNode_default = "/*{0} *  {1}{0} *  本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！{0} */{0}";
         private static readonly string _using_default = "using System;using System.Collections.Generic;using System.Linq;using System.Text;{0}";
         private static readonly string _baseClass_default = string.Empty;

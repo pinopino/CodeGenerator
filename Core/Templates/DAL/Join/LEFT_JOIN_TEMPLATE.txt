@@ -24,11 +24,11 @@
 			var orderby_str = string.Empty;
             if (orderBy != null)
             {{
-                orderby_str = $"[{{orderBy.Table}}].[{{orderBy.Name}}] {{orderBy.Asc}}";
+                orderby_str = $"`{{orderBy.Table}}`.`{{orderBy.Name}}` {{orderBy.Asc}}";
             }}
 
             var column_str = new StringBuilder();
-			column_str.Append("[{1}].*, [{2}].*");
+			column_str.Append("`{1}`.*, `{2}`.*");
             if (columns != null && columns.Length > 0)
             {{
                 var has_id1 = false;
@@ -44,7 +44,7 @@
                         {{
                             has_id1 = true;
                         }}
-                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                        col_list1.Add($"`{{col.Table}}`.`{{col.Name}}`");
                     }}
                     else
                     {{
@@ -52,16 +52,16 @@
                         {{
                             has_id2 = true;
                         }}
-                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}]");
+                        col_list2.Add($"`{{col.Table}}`.`{{col.Name}}`");
                     }}
                 }}
                 if (!has_id1)
                 {{
-                    col_list1.Insert(0, "[{1}].[Id]");
+                    col_list1.Insert(0, "`{1}`.`Id`");
                 }}
                 if (!has_id2)
                 {{
-                    col_list2.Insert(0, "[{2}].[Id]");
+                    col_list2.Insert(0, "`{2}`.`Id`");
                 }}
 
                 column_str.Append(string.Join(", ", col_list1.Select(p => p)));
@@ -70,7 +70,7 @@
             }}
 
 			var sql = new StringBuilder();
-			sql.Append($"SELECT {{column_str}} FROM [{1}] LEFT JOIN [{2}] ");
+			sql.Append($"SELECT {{column_str}} FROM `{1}` LEFT JOIN `{2}` ");
             sql.Append("ON " + on_str);
             if (where_str != string.Empty)
                 sql.Append(" WHERE " + where_str);
@@ -121,7 +121,7 @@
             }}
 
             var column_str = new StringBuilder();
-			column_str.Append("[{1}].*, [{2}].*");
+			column_str.Append("`{1}`.*, `{2}`.*");
             if (columns != null && columns.Length > 0)
             {{
                 var has_id1 = false;
@@ -137,7 +137,7 @@
                         {{
                             has_id1 = true;
                         }}
-                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                        col_list1.Add($"`{{col.Table}}`.`{{col.Name}}`");
                     }}
                     else
                     {{
@@ -145,16 +145,16 @@
                         {{
                             has_id2 = true;
                         }}
-                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}]");
+                        col_list2.Add($"`{{col.Table}}`.`{{col.Name}}`");
                     }}
                 }}
                 if (!has_id1)
                 {{
-                    col_list1.Insert(0, "[{1}].[Id]");
+                    col_list1.Insert(0, "`{1}`.`Id`");
                 }}
                 if (!has_id2)
                 {{
-                    col_list2.Insert(0, "[{2}].[Id]");
+                    col_list2.Insert(0, "`{2}`.`Id`");
                 }}
 
                 column_str.Append(string.Join(", ", col_list1.Select(p => p)));
@@ -163,7 +163,7 @@
             }}
 
 			var sql = new StringBuilder();
-			sql.Append($"SELECT {{column_str}} FROM [{1}] LEFT JOIN [{2}] ");
+			sql.Append($"SELECT {{column_str}} FROM `{1}` LEFT JOIN `{2}` ");
             sql.Append("ON " + on_str);
             if (where_str != string.Empty)
                 sql.Append(" WHERE " + where_str);

@@ -7,7 +7,6 @@
         {{
             var sql = new StringBuilder();
             sql.Append("INSERT INTO {4}({5})");
-            sql.Append(" OUTPUT INSERTED.[{6}] ");
             sql.Append("VALUES({7})");
             var ret = {8};
             if (conn != null)
@@ -16,13 +15,13 @@
                 {{
                     throw new ArgumentNullException("transaction");
                 }}
-                ret = conn.ExecuteScalar<{9}>(sql.ToString(), model, transaction);
+                ret = conn.ExecuteScalar<int>(sql.ToString(), model, transaction) > 0;
             }}
             else
             {{
                 using (var conn1 = GetOpenConnection())
                 {{
-                    ret = conn1.ExecuteScalar<{10}>(sql.ToString(), model);
+                    ret = conn1.ExecuteScalar<int>(sql.ToString(), model) > 0;
                 }}
             }}
 

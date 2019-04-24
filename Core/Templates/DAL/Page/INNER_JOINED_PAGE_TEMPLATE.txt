@@ -26,13 +26,13 @@
 			var orderby_str = string.Empty;
             if (orderBy != null)
             {{
-                orderby_str = $"[{{orderBy.Table}}].[{{orderBy.Name}}] {{orderBy.Asc}}";
+                orderby_str = $"`{{orderBy.Table}}`.`{{orderBy.Name}}` {{orderBy.Asc}}";
             }}
 
             var column_str = new StringBuilder();
-            column_str.Append(string.Join(", ", {1}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}]")));
+            column_str.Append(string.Join(", ", {1}Helper.Columns.All.Select(p => $"`{{p.Table}}`.`{{p.Name}}`")));
             column_str.Append(", ");
-            column_str.Append(string.Join(", ", {2}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}] as [{{p.Name}}2]")));
+            column_str.Append(string.Join(", ", {2}Helper.Columns.All.Select(p => $"`{{p.Table}}`.`{{p.Name}}` as `{{p.Name}}2`")));
             if (columns != null && columns.Length > 0)
             {{
                 var has_id1 = false;
@@ -48,7 +48,7 @@
                         {{
                             has_id1 = true;
                         }}
-                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                        col_list1.Add($"`{{col.Table}}`.`{{col.Name}}`");
                     }}
                     else
                     {{
@@ -56,16 +56,16 @@
                         {{
                             has_id2 = true;
                         }}
-                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}] as [{{col.Name}}2]");
+                        col_list2.Add($"`{{col.Table}}`.`{{col.Name}}` as `{{col.Name}}2`");
                     }}
                 }}
                 if (!has_id1)
                 {{
-                    col_list1.Insert(0, "[{1}].[Id]");
+                    col_list1.Insert(0, "`{1}`.`Id`");
                 }}
                 if (!has_id2)
                 {{
-                    col_list2.Insert(0, "[{2}].[Id] as [Id2]");
+                    col_list2.Insert(0, "`{2}`.`Id` as `Id2`");
                 }}
 
                 column_str.Append(string.Join(", ", col_list1.Select(p => p)));
@@ -111,13 +111,13 @@
 			var orderby_str = string.Empty;
             if (orderBy != null && orderBy.Count > 0)
             {{
-                orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Table}}].[{{p.Name}}] {{p.Asc}}"));
+                orderby_str = string.Join(", ", orderBy.Select(p => $"`{{p.Table}}`.`{{p.Name}}` {{p.Asc}}"));
             }}
 
             var column_str = new StringBuilder();
-            column_str.Append(string.Join(", ", {1}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}]")));
+            column_str.Append(string.Join(", ", {1}Helper.Columns.All.Select(p => $"`{{p.Table}}`.`{{p.Name}}`")));
             column_str.Append(", ");
-            column_str.Append(string.Join(", ", {2}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}] as [{{p.Name}}2]")));
+            column_str.Append(string.Join(", ", {2}Helper.Columns.All.Select(p => $"`{{p.Table}}`.`{{p.Name}}` as `{{p.Name}}2`")));
             if (columns != null && columns.Length > 0)
             {{
                 var has_id1 = false;
@@ -133,7 +133,7 @@
                         {{
                             has_id1 = true;
                         }}
-                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                        col_list1.Add($"`{{col.Table}}`.`{{col.Name}}`");
                     }}
                     else
                     {{
@@ -141,16 +141,16 @@
                         {{
                             has_id2 = true;
                         }}
-                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}] as [{{col.Name}}2]");
+                        col_list2.Add($"`{{col.Table}}`.`{{col.Name}}` as `{{col.Name}}2`");
                     }}
                 }}
                 if (!has_id1)
                 {{
-                    col_list1.Insert(0, "[{1}].[Id]");
+                    col_list1.Insert(0, "`{1}`.`Id`");
                 }}
                 if (!has_id2)
                 {{
-                    col_list2.Insert(0, "[{2}].[Id] as [Id2]");
+                    col_list2.Insert(0, "`{2}`.`Id` as `Id2`");
                 }}
 
                 column_str.Append(string.Join(", ", col_list1.Select(p => p)));

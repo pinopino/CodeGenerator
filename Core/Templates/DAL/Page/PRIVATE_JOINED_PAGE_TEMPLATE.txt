@@ -24,7 +24,7 @@
 
             if (string.IsNullOrWhiteSpace(orderBy))
             {{
-                orderBy = "[{1}].[Id] desc";
+                orderBy = "`{1}`.`Id` desc";
             }}
 
             var sql = string.Format("SELECT {{0}} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {{2}}) AS Row, {{1}} FROM {{3}} {{4}} {{5}} ON {{6}} {{7}}) AS Paged ",

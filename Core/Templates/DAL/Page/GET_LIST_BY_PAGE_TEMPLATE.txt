@@ -18,17 +18,17 @@
 			var orderby_str = string.Empty;
             if (orderBy != null)
             {{
-                orderby_str = $"[{{orderBy.Name}}] {{orderBy.Asc}}";
+                orderby_str = $"`{{orderBy.Name}}` {{orderBy.Asc}}";
             }}
 
             var column_str = "*";
             if (columns != null && columns.Length > 0)
             {{
-                column_str = string.Join(", ", columns.Select(p => $"[{{p.Name}}]"));
+                column_str = string.Join(", ", columns.Select(p => $"`{{p.Name}}`"));
             }}
 
 			return Paged<{0}>(
-					"[{0}]", 
+					"`{0}`", 
 					where_str, 
 					orderby_str, 
 					column_str, 
@@ -56,17 +56,17 @@
 			var orderby_str = string.Empty;
             if (orderBy != null && orderBy.Count > 0)
             {{
-                orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Name}}] {{p.Asc}}"));
+                orderby_str = string.Join(", ", orderBy.Select(p => $"`{{p.Name}}` {{p.Asc}}"));
             }}
 
             var column_str = "*";
             if (columns != null && columns.Length > 0)
             {{
-                column_str = string.Join(", ", columns.Select(p => $"[{{p.Name}}]"));
+                column_str = string.Join(", ", columns.Select(p => $"`{{p.Name}}`"));
             }}
 
 			return Paged<{0}>(
-					"[{0}]", 
+					"`{0}`", 
 					where_str, 
 					orderby_str, 
 					column_str, 
