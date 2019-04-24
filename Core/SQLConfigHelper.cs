@@ -1,8 +1,9 @@
 ﻿using Generator.Common;
+using Generator.Core.Config;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -13,17 +14,16 @@ namespace Generator.Core
 {
     public class SQLMetaDataHelper
     {
-        private static readonly string _project = ConfigurationManager.AppSettings["Project"] ?? "LuckyStar";
-        private static readonly string _basePath = ConfigurationManager.AppSettings["OutputBasePath"] ?? "d:\\output";
+        private static string _project;
+        private static string _outputpath;
+        private static readonly string _project_default = "YourProject";
+        private static readonly string _outputpath_default = "c:\\output";
         private static readonly string _headerNode_default = "/*{0} *  {1}{0} *  本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！{0} */{0}";
         private static readonly string _using_default = "using System;using System.Collections.Generic;using System.Linq;using System.Text;{0}";
         private static readonly string _baseClass_default = string.Empty;
         private static readonly string _classPrefix_default = string.Empty;
         private static readonly string _classSuffix_default = string.Empty;
-        private static readonly string _methods_default = "Exists,Insert,Delete,Update,GetModel,GetList,GetRecordCount,GetListByPage";
-        private static readonly string _exceptTables_default = ConfigurationManager.AppSettings["ExceptTables"] ?? string.Empty;
-        private static readonly string _traceFieldTables_default = ConfigurationManager.AppSettings["TraceFieldTabls"] ?? string.Empty;
-        private static readonly string _exceptColumns_default = ConfigurationManager.AppSettings["UpdateExceptColumns"] ?? string.Empty;
+        private static readonly List<string> _methods_default = new List<string> { "Exists", "Insert", "Delete", "Update", "GetModel", "GetList", "GetCount", "GetPage" };
         private static readonly string _partial_check_dal_path = string.Empty;
         private static readonly List<string> _exist_enum = new List<string>();
 
@@ -67,46 +67,65 @@ namespace Generator.Core
             [typeof(TimeSpan?)] = DbType.Time,
             [typeof(object)] = DbType.Object
         };
+        private static GlobalConfig _configuration;
+        public static GlobalConfig Config { get { return _configuration; } }
+
+        static SQLMetaDataHelper()
+        {
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+               .AddJsonFile("appsettings.json");
+            var root = builder.Build();
+            _configuration = new GlobalConfig();
+            root.Bind(_configuration);
+        }
 
         public static void InitConfig(SQLMetaData config)
         {
-            var model_headerNode = ConfigurationManager.AppSettings["Model_HeaderNote"] ?? _headerNode_default;
-            var model_using = ConfigurationManager.AppSettings["Model_Using"] ?? string.Format(_using_default, string.Empty);
-            var model_namespace = ConfigurationManager.AppSettings["Model_Namespace"] ?? "Model";
-            var model_baseClass = ConfigurationManager.AppSettings["Model_BaseClass"] ?? _baseClass_default;
-            var model_classPrefix = ConfigurationManager.AppSettings["Model_ClassPrefix"] ?? _classPrefix_default;
-            var model_classSuffix = ConfigurationManager.AppSettings["Model_ClassSuffix"] ?? _classSuffix_default;
+            _project = _configuration.Project ?? _project_default;
+            _outputpath = _configuration.OutputBasePath ?? _outputpath_default;
 
-            var dal_headerNode = ConfigurationManager.AppSettings["DAL_HeaderNote"] ?? _headerNode_default;
-            var dal_using = ConfigurationManager.AppSettings["DAL_Using"] ?? string.Format(_using_default, "using Dapper;");
+            var model_headerNode = _configuration.ModelConfig.HeaderNote ?? _headerNode_default;
+            var model_using = _configuration.ModelConfig.Using ?? string.Format(_using_default, string.Empty);
+            var model_namespace = _configuration.ModelConfig.Namespace ?? "Model";
+            var model_baseClass = _configuration.ModelConfig.BaseClass ?? _baseClass_default;
+            var model_classPrefix = _configuration.ModelConfig.ClassPrefix ?? _classPrefix_default;
+            var model_classSuffix = _configuration.ModelConfig.ClassSuffix ?? _classSuffix_default;
+
+            var dal_headerNode = _configuration.DALConfig.HeaderNote ?? _headerNode_default;
+            var dal_using = _configuration.DALConfig.Using ?? string.Format(_using_default, "using Dapper;");
             dal_using += string.Format("using {0}.{1};", _project, model_namespace);
-            var dal_namespace = ConfigurationManager.AppSettings["DAL_Namespace"] ?? "DAL";
-            var dal_baseClass = ConfigurationManager.AppSettings["DAL_BaseClass"] ?? _baseClass_default;
-            var dal_classPrefix = ConfigurationManager.AppSettings["DAL_ClassPrefix"] ?? _classPrefix_default;
-            var dal_classSuffix = ConfigurationManager.AppSettings["DAL_ClassSuffix"] ?? _classSuffix_default;
-            var dal_methods = ConfigurationManager.AppSettings["DAL_Methods"] ?? _methods_default;
+            var dal_namespace = _configuration.DALConfig.Namespace ?? "DAL";
+            var dal_baseClass = _configuration.DALConfig.BaseClass ?? _baseClass_default;
+            var dal_classPrefix = _configuration.DALConfig.ClassPrefix ?? _classPrefix_default;
+            var dal_classSuffix = _configuration.DALConfig.ClassSuffix ?? _classSuffix_default;
+            var dal_methods = _configuration.DALConfig.Methods.Select(p => p.Name) ?? _methods_default;
 
-            config.PartialCheck_DAL_Path = ConfigurationManager.AppSettings["PartialCheck_DAL_Path"] ?? _partial_check_dal_path;
-            config.ExceptTables = _exceptTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            config.TraceFieldTables = _traceFieldTables_default.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            config.ExceptColumns = _exceptColumns_default
-                .Replace('；', ';')
-                .Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                .ToDictionary(p => p.Split(':')[0], p => p.Split(':')[1].Split(',').ToList());
             config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
-            config.Model_Namespace = string.Format("namespace {0}.{1}", _project, model_namespace);
+            config.Model_Namespace = string.Format("{0}.{1}", _project, model_namespace);
             config.Model_BaseClass = model_baseClass;
             config.Model_ClassNamePrefix = model_classPrefix;
             config.Model_ClassNameSuffix = model_classSuffix;
 
             config.DAL_HeaderNote = string.Format(dal_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             config.DAL_Using = dal_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
-            config.DAL_Namespace = string.Format("namespace {0}.{1}", _project, dal_namespace);
+            config.DAL_Namespace = string.Format("{0}.{1}", _project, dal_namespace);
             config.DAL_BaseClass = dal_baseClass;
             config.DAL_ClassNamePrefix = dal_classPrefix;
             config.DAL_ClassNameSuffix = dal_classSuffix;
-            config.DAL_Methods = dal_methods.Replace('，', ',').Split(',').ToList();
+            config.DAL_Methods = dal_methods.ToList();
+
+            config.PartialCheck_DAL_Path = _configuration.PartialCheck_DAL_Path ?? _partial_check_dal_path;
+            config.TraceFieldTables = _configuration.TraceFieldTables == null ? Enumerable.Empty<string>().ToList() : _configuration.TraceFieldTables.Select(p => p.Name).ToList();
+            config.EntityTables = _configuration.EntityTables == null ? Enumerable.Empty<string>().ToList() : _configuration.EntityTables.Select(p => p.Name).ToList();
+            config.ExceptTables = _configuration.ExceptTables == null ? Enumerable.Empty<string>().ToList() : _configuration.ExceptTables.Select(p => p.Name).ToList();
+            config.ExceptColumns = _configuration.UpdateExceptColumns == null ?
+                new Dictionary<string, List<string>>() :
+                _configuration.UpdateExceptColumns.ToDictionary(p => p.Key, p => p.Value.Select(k => k.ColumnName).ToList());
+            config.JoinedTables = _configuration.JoinedTables == null ?
+                new Dictionary<string, Tuple<string, string>>() :
+                _configuration.JoinedTables.ToDictionary(p => p.Table_Main.Name, p => Tuple.Create(p.Table_Sub.Name, p.Sub_InnerName));
         }
 
         public static Type MapCommonType(string dbtype)
@@ -199,16 +218,16 @@ namespace Generator.Core
 
         public static void OutputConfig(string content, bool enableProgress = true)
         {
-            if (Directory.Exists(_basePath))
+            if (Directory.Exists(_outputpath))
             {
-                DeleteDirectory(_basePath);
+                DeleteDirectory(_outputpath);
             }
             else
             {
-                Directory.CreateDirectory(_basePath);
+                Directory.CreateDirectory(_outputpath);
             }
 
-            File.AppendAllText(Path.Combine(_basePath, "sql_config.config"), FormatJsonStr(content), Encoding.GetEncoding("gb2312"));
+            File.AppendAllText(Path.Combine(_outputpath, "sql_config.config"), FormatJsonStr(content), Encoding.GetEncoding("gb2312"));
             if (enableProgress)
             {
                 ConsoleProgressBar progress = GetProgressBar();
@@ -218,7 +237,7 @@ namespace Generator.Core
 
         public static void OutputDAL(SQLMetaData config, bool enableProgress = true)
         {
-            var path = Path.Combine(_basePath, "DAL");
+            var path = Path.Combine(_outputpath, "DAL");
             Directory.CreateDirectory(path);
 
             ConsoleProgressBar progress = null;
@@ -238,11 +257,16 @@ namespace Generator.Core
                     continue;
                 }
                 sb.Append(config.DAL_HeaderNote);
-                sb.Append(string.Join(Environment.NewLine, config.DAL_Using));
+                sb.AppendLine(string.Join(Environment.NewLine, config.DAL_Using));
+                sb.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                if (config.JoinedTables.Count > 0)
+                {
+                    sb.AppendLine($"using {config.Model_Namespace}.JoinedViewModel;");
+                }
                 sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine(config.DAL_Namespace);
+                sb.AppendLine($"namespace {config.DAL_Namespace}");
                 sb.AppendLine("{");
+                sb.AppendLine(g.Get_MetaData1(table.Name));
                 sb.AppendLine(string.Format("{0}public partial class {1}{2}{3}{4}",
                         '\t',
                         config.DAL_ClassNamePrefix,
@@ -250,27 +274,11 @@ namespace Generator.Core
                         config.DAL_ClassNameSuffix,
                         string.IsNullOrWhiteSpace(config.DAL_BaseClass) ? string.Empty : (" : " + config.DAL_BaseClass)));
                 sb.AppendLine(string.Format("{0}{{", '\t'));
-                sb.Append(string.Format("{0}{0}private static List<string> _all_fields = new List<string> {{ ", '\t'));
-                for (int j = 0; j < table.Columns.Count; j++)
+                if (config.JoinedTables.ContainsKey(table.Name))
                 {
-                    if (!table.Columns[j].IsIdentity)
-                    {
-                        if (!IsExceptColumn(config, table.Name, table.Columns[j].Name))
-                        {
-                            if (j != table.Columns.Count - 1)
-                            {
-                                sb.Append(string.Format("\"{0}\", ", table.Columns[j].Name));
-                            }
-                            else
-                            {
-                                sb.Append(string.Format("\"{0}\" ", table.Columns[j].Name));
-                            }
-                        }
-                    }
+                    sb.AppendLine(g.Get_MetaData2(table.Name, config.JoinedTables[table.Name]));
                 }
-                sb.Append("};");
-                sb.AppendLine();
-                sb.AppendLine();
+                sb.AppendLine(g.Get_MetaData3(table.Name));
                 // 按方法生成
                 foreach (var item in config.DAL_Methods)
                 {
@@ -312,12 +320,17 @@ namespace Generator.Core
                                 sb.AppendLine(g.Get_Count(table.Name));
                             }
                             break;
-                        case "getlistbypage":
+                        case "getpage":
                             {
                                 sb.Append(g.Get_GetListByPage(table.Name));
                             }
                             break;
                     }
+                }
+                // Joined
+                if (config.JoinedTables.ContainsKey(table.Name))
+                {
+                    sb.Append(g.Get_Joined(table.Name, config.JoinedTables[table.Name]));
                 }
                 sb.AppendLine(string.Format("{0}}}", '\t'));
                 sb.AppendLine("}");
@@ -338,7 +351,7 @@ namespace Generator.Core
 
         public static void OutputModel(SQLMetaData config, bool enableProgress = true)
         {
-            var path = Path.Combine(_basePath, "Model");
+            var path = Path.Combine(_outputpath, "Model");
             Directory.CreateDirectory(path);
 
             ConsoleProgressBar progress = null;
@@ -358,10 +371,11 @@ namespace Generator.Core
                     continue;
                 }
                 sb.Append(config.Model_HeaderNote);
-                sb.Append(string.Join(Environment.NewLine, config.Model_Using));
+                sb.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                sb.AppendLine($"using {config.DAL_Namespace};");
+                sb.AppendLine($"using {config.DAL_Namespace}.Metadata;");
                 sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine(config.Model_Namespace);
+                sb.AppendLine($"namespace {config.Model_Namespace}");
                 sb.AppendLine("{");
                 sb.AppendLine(g.Get_Class(table.Name));
                 sb.AppendLine("}");
@@ -376,13 +390,61 @@ namespace Generator.Core
                 }
             }
 
+            // 如果配置文件指定了JoinedTables，那么这里需要为这些关联表生成额外的包装model，
+            // 路径：Model\JoinedViewModel
+            if (config.JoinedTables.Count > 0)
+            {
+                Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
+                var sb2 = new StringBuilder();
+                foreach (var pair in config.JoinedTables)
+                {
+                    var main_table = pair.Key;
+                    var sub_table = pair.Value;
+                    sb2.Append(config.Model_HeaderNote);
+                    sb2.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                    sb.AppendLine($"using {config.DAL_Namespace};");
+                    sb2.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                    sb2.AppendLine();
+                    sb2.AppendLine($"namespace {config.Model_Namespace}.JoinedViewModel");
+                    sb2.AppendLine("{");
+                    sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
+                    sb2.AppendLine("}");
+
+                    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + main_table)), sb2.ToString());
+                    sb2.Clear();
+                }
+            }
+
+            // 如果配置文件指定了EntityTables，那么这里需要生成实现接口IEntity接口的model
+            // 路径：Model\EntityModel
+            if (config.EntityTables.Count > 0)
+            {
+                Directory.CreateDirectory(Path.Combine(path, "EntityModel"));
+                var sb2 = new StringBuilder();
+                foreach (var talbe in config.EntityTables)
+                {
+                    sb2.Append(config.Model_HeaderNote);
+                    sb2.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
+                    sb.AppendLine($"using {config.DAL_Namespace};");
+                    sb2.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                    sb2.AppendLine();
+                    sb2.AppendLine($"namespace {config.Model_Namespace}.EntityModel");
+                    sb2.AppendLine("{");
+                    sb2.AppendLine(g.Get_Entity_Class(talbe));
+                    sb2.AppendLine("}");
+
+                    File.AppendAllText(Path.Combine(path, "EntityModel", string.Format("{0}.cs", "Entity" + talbe)), sb2.ToString());
+                    sb2.Clear();
+                }
+            }
+
             // 拷贝公用文件到指定目录
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Model"), path);
         }
 
         public static void OutputEnum(SQLMetaData config, bool enableProgress = true)
         {
-            var path = Path.Combine(_basePath, "Enum");
+            var path = Path.Combine(_outputpath, "Enum");
             Directory.CreateDirectory(path);
 
             ConsoleProgressBar progress = null;
@@ -421,7 +483,7 @@ namespace Generator.Core
                             sb.AppendLine();
                             sb.AppendLine(string.Format("namespace {0}.{1}", _project, "GenEnum"));
                             sb.AppendLine("{");
-                            sb.AppendLine(g.Get_Enum(enum_name, arrs));
+                            sb.AppendLine(g.Get_Enum(enum_name, comment, arrs, column.DbType));
                             sb.AppendLine("}");
                             File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", enum_name)), sb.ToString());
                             sb.Clear();
@@ -583,7 +645,7 @@ namespace Generator.Core
 
         private static bool IsExceptColumn(SQLMetaData config, string table, string colunm)
         {
-            return config.ExceptColumns.ContainsKey("*") && config.ExceptColumns["*"].Contains(colunm) || 
+            return config.ExceptColumns.ContainsKey("*") && config.ExceptColumns["*"].Contains(colunm) ||
                 config.ExceptColumns.ContainsKey(table) && config.ExceptColumns[table].Contains(colunm);
         }
     }

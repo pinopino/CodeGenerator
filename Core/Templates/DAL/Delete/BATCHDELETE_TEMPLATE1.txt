@@ -1,9 +1,9 @@
 ﻿		/// <summary>
         /// 批量删除指定的{0}
         /// </summary>
-        /// <param name="ids">{1} id列表</param>
+        /// <param name="Ids">{1}id列表</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Delete(List<{2}> ids)
+        public static bool Delete(List<{2}> Ids)
         {{
             var sql = new StringBuilder();
             sql.Append("DELETE FROM {3} ");
@@ -11,7 +11,7 @@
             var ret = false;
             using (var conn = GetOpenConnection())
             {{
-                ret = conn.Execute(sql.ToString(), new {{ @ids = ids.ToArray() }}) > 0;
+                ret = conn.Execute(sql.ToString(), new {{ @ids = Ids}}) > 0;
             }}
 
             return ret;

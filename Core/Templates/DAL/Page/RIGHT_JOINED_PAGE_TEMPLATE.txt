@@ -1,0 +1,169 @@
+﻿		/// <summary>
+		/// 分页获取RightJoined数据列表
+		/// </summary>
+		public static PageDataView<{0}> GetRightJoinedPage(
+			Expression<Func<{1}, {2}, bool>> on, 
+			Expression<Func<{1}, {2}, bool>> predicate = null, 
+			int pageSize = 20, 
+			int currentPage = 1, 
+			IColumn orderBy = null, 
+			params IColumn[] columns)
+        {{
+			if (on == null)
+                throw new ArgumentNullException("on");
+
+			var on_str = string.Empty;
+			var parser = new PredicateParser();
+			on_str = parser.Parse(on);
+
+            var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				parser.Reset();
+				where_str = parser.Parse(predicate);
+			}}
+
+			var orderby_str = string.Empty;
+            if (orderBy != null)
+            {{
+                orderby_str = $"[{{orderBy.Table}}].[{{orderBy.Name}}] {{orderBy.Asc}}";
+            }}
+
+            var column_str = new StringBuilder();
+            column_str.Append(string.Join(", ", {1}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}]")));
+            column_str.Append(", ");
+            column_str.Append(string.Join(", ", {2}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}] as [{{p.Name}}2]")));
+            if (columns != null && columns.Length > 0)
+            {{
+                var has_id1 = false;
+                var has_id2 = false;
+                var col_list1 = new List<string>();
+                var col_list2 = new List<string>();
+                for (int i = 0; i < columns.Length; i++)
+                {{
+                    var col = columns[i];
+                    if (col.Table == "{1}")
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id1 = true;
+                        }}
+                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                    }}
+                    else
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id2 = true;
+                        }}
+                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}] as [{{col.Name}}2]");
+                    }}
+                }}
+                if (!has_id1)
+                {{
+                    col_list1.Insert(0, "[{1}].[Id]");
+                }}
+                if (!has_id2)
+                {{
+                    col_list2.Insert(0, "[{2}].[Id] as [Id2]");
+                }}
+
+                column_str.Append(string.Join(", ", col_list1.Select(p => p)));
+                column_str.Append(", ");
+                column_str.Append(string.Join(", ", col_list2.Select(p => p)));
+            }}
+
+			return JoinPaged(
+					3, 
+					on_str, 
+					where_str, 
+					orderby_str, 
+					column_str.ToString(), 
+					pageSize, 
+					currentPage);
+        }}
+
+		/// <summary>
+		/// 分页获取RightJoined数据列表
+		/// </summary>
+		public static PageDataView<{0}> GetRightJoinedPage(
+			Expression<Func<{1}, {2}, bool>> on, 
+			Expression<Func<{1}, {2}, bool>> predicate, 
+			int pageSize, 
+			int currentPage, 
+			IList<IColumn> orderBy, 
+			params IColumn[] columns)
+        {{
+			if (on == null)
+                throw new ArgumentNullException("on");
+
+			var on_str = string.Empty;
+			var parser = new PredicateParser();
+			on_str = parser.Parse(on);
+
+            var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				parser.Reset();
+				where_str = parser.Parse(predicate);
+			}}
+
+			var orderby_str = string.Empty;
+            if (orderBy != null && orderBy.Count > 0)
+            {{
+                orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Table}}].[{{p.Name}}] {{p.Asc}}"));
+            }}
+
+            var column_str = new StringBuilder();
+            column_str.Append(string.Join(", ", {1}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}]")));
+            column_str.Append(", ");
+            column_str.Append(string.Join(", ", {2}Helper.Columns.All.Select(p => $"[{{p.Table}}].[{{p.Name}}] as [{{p.Name}}2]")));
+            if (columns != null && columns.Length > 0)
+            {{
+                var has_id1 = false;
+                var has_id2 = false;
+                var col_list1 = new List<string>();
+                var col_list2 = new List<string>();
+                for (int i = 0; i < columns.Length; i++)
+                {{
+                    var col = columns[i];
+                    if (col.Table == "{1}")
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id1 = true;
+                        }}
+                        col_list1.Add($"[{{col.Table}}].[{{col.Name}}]");
+                    }}
+                    else
+                    {{
+                        if (col.Name == "Id")
+                        {{
+                            has_id2 = true;
+                        }}
+                        col_list2.Add($"[{{col.Table}}].[{{col.Name}}] as [{{col.Name}}2]");
+                    }}
+                }}
+                if (!has_id1)
+                {{
+                    col_list1.Insert(0, "[{1}].[Id]");
+                }}
+                if (!has_id2)
+                {{
+                    col_list2.Insert(0, "[{2}].[Id] as [Id2]");
+                }}
+
+                column_str.Append(string.Join(", ", col_list1.Select(p => p)));
+                column_str.Append(", ");
+                column_str.Append(string.Join(", ", col_list2.Select(p => p)));
+            }}
+
+			return JoinPaged(
+					3, 
+					on_str, 
+					where_str, 
+					orderby_str, 
+					column_str.ToString(), 
+					pageSize, 
+					currentPage);
+        }}

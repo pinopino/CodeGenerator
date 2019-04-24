@@ -1,7 +1,7 @@
 ﻿		/// <summary>
-		/// 获取记录总数
-		/// </summary>
-        public static int GetCount(Expression<Func<{0}, bool>> predicate = null)
+        /// 删除指定的{0}
+        /// </summary>
+        public static bool Delete(Expression<Func<{1}, bool>> predicate = null)
         {{
 			var where_str = string.Empty;
 			if (predicate != null)
@@ -9,16 +9,15 @@
 				var parser = new PredicateParser();
 				where_str = parser.Parse(predicate);
 			}}
-
+			
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM {1}");
+            sql.Append("DELETE FROM {2}");
 			if (where_str != string.Empty)
 				sql.Append(" WHERE " + where_str);
-
-            var ret = -1;
+            var ret = false;
             using (var conn = GetOpenConnection())
             {{
-                ret = conn.ExecuteScalar<int>(sql.ToString());
+                ret = conn.Execute(sql.ToString()) > 0;
             }}
 
             return ret;

@@ -1,7 +1,75 @@
 ﻿		/// <summary>
 		/// 分页获取数据列表
 		/// </summary>
-		public static PageDataView<{0}> GetListByPage(string where = "", string orderBy = "", string columns = " * ", int pageSize = 20, int currentPage = 1)
+		public static PageDataView<{0}> GetPage(
+			Expression<Func<{0}, bool>> predicate = null, 
+			int pageSize = 20, 
+			int currentPage = 1, 
+			{0}Column orderBy = null, 
+			params {0}Column[] columns)
         {{
-            return Paged<{1}>("{2}", where, orderBy, columns, pageSize, currentPage);
+			var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}}
+
+			var orderby_str = string.Empty;
+            if (orderBy != null)
+            {{
+                orderby_str = $"[{{orderBy.Name}}] {{orderBy.Asc}}";
+            }}
+
+            var column_str = "*";
+            if (columns != null && columns.Length > 0)
+            {{
+                column_str = string.Join(", ", columns.Select(p => $"[{{p.Name}}]"));
+            }}
+
+			return Paged<{0}>(
+					"[{0}]", 
+					where_str, 
+					orderby_str, 
+					column_str, 
+					pageSize, 
+					currentPage);
+        }}
+
+		/// <summary>
+		/// 分页获取数据列表
+		/// </summary>
+		public static PageDataView<{0}> GetPage(
+			Expression<Func<{0}, bool>> predicate, 
+			int pageSize, 
+			int currentPage, 
+			IList<{0}Column> orderBy, 
+			params {0}Column[] columns)
+        {{
+			var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}}
+
+			var orderby_str = string.Empty;
+            if (orderBy != null && orderBy.Count > 0)
+            {{
+                orderby_str = string.Join(", ", orderBy.Select(p => $"[{{p.Name}}] {{p.Asc}}"));
+            }}
+
+            var column_str = "*";
+            if (columns != null && columns.Length > 0)
+            {{
+                column_str = string.Join(", ", columns.Select(p => $"[{{p.Name}}]"));
+            }}
+
+			return Paged<{0}>(
+					"[{0}]", 
+					where_str, 
+					orderby_str, 
+					column_str, 
+					pageSize, 
+					currentPage);
         }}

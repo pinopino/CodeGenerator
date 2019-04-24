@@ -4,7 +4,6 @@ using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Newtonsoft.Json;
 using System;
-using System.Configuration;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
@@ -16,7 +15,7 @@ namespace Console
     {  
         static void Main(string[] args)
         {
-            var conn_str = ConfigurationManager.AppSettings["DBConn"];
+            var conn_str = SQLMetaDataHelper.Config.DBConn;
             if (string.IsNullOrWhiteSpace(conn_str))
             {
                 System.Console.WriteLine("未设置数据库连接字符串！");
@@ -81,9 +80,9 @@ namespace Console
         // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
         static void ReCreateDB(string connStr, Encoding encoding)
         {
-            var config_path = ConfigurationManager.AppSettings["ReCreateDB_SQLFile"];
-            var db_names = ConfigurationManager.AppSettings["ReCreateDB_Names"];
-            if (string.IsNullOrWhiteSpace(config_path) || string.IsNullOrWhiteSpace(db_names))
+            var config_path = SQLMetaDataHelper.Config.ReCreateDB.SQLFilePath;
+            var db_names = SQLMetaDataHelper.Config.ReCreateDB.DBs;
+            if (string.IsNullOrWhiteSpace(config_path) || db_names == null || db_names.Count == 0)
             {
                 return;
             }
@@ -95,14 +94,13 @@ namespace Console
             }
 
             var files = Directory.GetFiles(config_path, "*.sql", SearchOption.TopDirectoryOnly);
-            var arrs = db_names.Replace('；', ';').Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var item in arrs)
+            foreach (var item in db_names)
             {
-                System.Console.WriteLine("尝试重新生成数据库[" + item + "]...");
+                System.Console.WriteLine("尝试重新生成数据库[" + item.Name + "]...");
                 System.Console.WriteLine("检测是否存在该数据库");
-                if (IsExist(connStr, item))
+                if (IsExist(connStr, item.Name))
                 {
-                    connStr = connStr.Replace(db, item);
+                    connStr = connStr.Replace(db, item.Name);
                     using (var conn = new SqlConnection(connStr))
                     {
                         var svr = new Server(new ServerConnection(conn));
@@ -112,7 +110,7 @@ namespace Console
                             svr.ConnectionContext.ExecuteNonQuery(script);
                         }
                     }
-                    System.Console.WriteLine("存在，重新生成数据库[" + item + "]成功");
+                    System.Console.WriteLine("存在，重新生成数据库[" + item.Name + "]成功");
                 }
                 else
                 {

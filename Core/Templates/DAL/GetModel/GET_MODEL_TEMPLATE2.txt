@@ -1,0 +1,19 @@
+﻿		/// <summary>
+        /// 获取指定的{0}
+        /// </summary>
+        public static {1} GetModel(Expression<Func<{1}, bool>> predicate)
+        {{
+			var parser = new PredicateParser();
+            var where_str = parser.Parse(predicate);
+			
+            var sql = new StringBuilder();
+            sql.Append("SELECT TOP 1 * FROM {2} ");
+            sql.Append(" WHERE " + where_str);
+            {1} ret = null;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.QueryFirstOrDefault<{1}>(sql.ToString());
+            }}
+			
+            return ret;
+        }}
