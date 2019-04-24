@@ -26,7 +26,7 @@ namespace Console
                 Environment.Exit(0);
             }
 
-            ReCreateDB(conn_str, Encoding.GetEncoding("gb2312"));
+            //ReCreateDB(conn_str, Encoding.GetEncoding("gb2312"));
 
             var dbcode = FindDBName(conn_str);
             Print("解析数据库元数据...");

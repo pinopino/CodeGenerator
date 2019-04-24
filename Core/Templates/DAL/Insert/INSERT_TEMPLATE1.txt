@@ -3,7 +3,7 @@
         /// </summary>
         /// <param name="model">{1}</param>
         /// <returns>新插入数据的id</returns>
-        public static {2} Insert({3} model, SqlConnection conn = null, SqlTransaction transaction = null)
+        public static {2} Insert({3} model, MySqlConnection conn = null)
         {{
             var sql = new StringBuilder();
             sql.Append("INSERT INTO {4}({5})");
@@ -11,11 +11,7 @@
             var ret = {8};
             if (conn != null)
             {{
-                if (transaction == null)
-                {{
-                    throw new ArgumentNullException("transaction");
-                }}
-                ret = conn.ExecuteScalar<int>(sql.ToString(), model, transaction) > 0;
+                ret = conn.ExecuteScalar<int>(sql.ToString(), model) > 0;
             }}
             else
             {{

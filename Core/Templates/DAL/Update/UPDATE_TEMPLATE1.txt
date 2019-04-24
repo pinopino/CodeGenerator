@@ -5,7 +5,7 @@
 		/// <param name="fields">需要更新的字段名字</param>
 		/// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, bool reverse, SqlConnection conn, SqlTransaction transaction, params {2}Column[] fields)
+        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, bool reverse, MySqlConnection conn, params {2}Column[] fields)
         {{
 			var where_str = string.Empty;
 			if (predicate != null)
@@ -53,11 +53,7 @@
             var ret = false;
             if (conn != null)
             {{
-                if (transaction == null)
-                {{
-                    throw new ArgumentNullException("transaction");
-                }}
-                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+                ret = conn.Execute(sql.ToString(), model) > 0;
             }}
             else
             {{

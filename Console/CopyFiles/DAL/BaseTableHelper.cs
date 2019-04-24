@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -268,7 +268,7 @@ namespace DataLayer.Base
 
                 if (node.Expression.NodeType == ExpressionType.Parameter)
                 {
-                    sb.Append($"[{node.Expression.Type.Name}].[{node.Member.Name}]");
+                    sb.Append($"`{node.Expression.Type.Name}`.`{node.Member.Name}`");
                     if (node.Type == typeof(bool))
                     {
                         boolean = true;
@@ -372,9 +372,9 @@ namespace DataLayer.Base
     {
         public static string ConnectionString { get; }
 
-        private static SqlConnection _connection;
+        private static MySqlConnection _connection;
 
-        protected static SqlConnection connection => _connection ?? (_connection = GetOpenConnection());
+        protected static MySqlConnection connection => _connection ?? (_connection = GetOpenConnection());
 
         static BaseTableHelper()
         {
@@ -388,28 +388,25 @@ namespace DataLayer.Base
 #endif
             // 创建配置根对象
             var configurationRoot = builder.Build();
-            ConnectionString = configurationRoot.GetSection("DbConnect:ConnectString_SilverPay").Value;
+            ConnectionString = configurationRoot.GetSection("DbConnect:ConnectString").Value;
         }
 
-        protected static SqlConnection GetOpenConnection(bool mars = false)
+        protected static MySqlConnection GetOpenConnection(bool mars = false)
         {
             var cs = ConnectionString;
             if (mars)
             {
-                var scsb = new SqlConnectionStringBuilder(cs)
-                {
-                    MultipleActiveResultSets = true
-                };
+                var scsb = new MySqlConnectionStringBuilder(cs);
                 cs = scsb.ConnectionString;
             }
-            var connection = new SqlConnection(cs);
+            var connection = new MySqlConnection(cs);
             connection.Open();
             return connection;
         }
 
-        protected static SqlConnection GetClosedConnection()
+        protected static MySqlConnection GetClosedConnection()
         {
-            var conn = new SqlConnection(ConnectionString);
+            var conn = new MySqlConnection(ConnectionString);
             if (conn.State != ConnectionState.Closed) throw new InvalidOperationException("should be closed!");
             return conn;
         }
