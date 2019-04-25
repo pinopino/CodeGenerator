@@ -1,9 +1,9 @@
 ﻿		/// <summary>
         /// 添加{0}
         /// </summary>
-        /// <param name="model">{1}</param>
+        /// <param name="List<model>">{1}</param>
         /// <returns>新插入数据的id</returns>
-        public static {2} Insert({3} model, MySqlConnection conn = null)
+        public static {2} InsertMany(List<{3}> model, MySqlConnection conn = null)
         {{
             var sql = new StringBuilder();
             sql.Append("INSERT INTO {4}({5})");

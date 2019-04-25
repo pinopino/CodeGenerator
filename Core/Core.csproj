@@ -149,6 +149,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Templates\DAL\Insert\INSERT_TEMPLATE2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Templates\DAL\Page\PRIVATE_JOINED_PAGE_TEMPLATE.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

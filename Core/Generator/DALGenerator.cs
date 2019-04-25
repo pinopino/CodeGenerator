@@ -199,6 +199,49 @@ namespace Generator.Core
         #region Insert
         public string Get_Insert(string tableName)
         {
+            var str1 = Get_Insert1(tableName);
+            var str2 = Get_Insert2(tableName);
+            return str1 + Environment.NewLine + str2;
+        }
+        public string Get_Insert1(string tableName)
+        {
+            var table_config = _config[tableName];
+            var primaryKey = table_config.PrimaryKey[0];
+            var sb1 = new StringBuilder();
+            table_config.Columns.ForEach(p =>
+            {
+                if (!p.IsIdentity)
+                {
+                    sb1.Append(string.Format("`{0}`, ", p.Name));
+                }
+            });
+
+            var sb2 = new StringBuilder();
+            table_config.Columns.ForEach(p =>
+            {
+                if (!p.IsIdentity)
+                {
+                    sb2.Append(string.Format("@{0}, ", p.Name));
+                }
+            });
+
+            var str = string.Format(DALTemplate.INSERT_TEMPLATE1,
+                                    $"新{tableName}记录",
+                                    tableName + "实体对象",
+                                    "bool",
+                                    tableName,
+                                    string.Format("`{0}`", tableName),
+                                    sb1.ToString().TrimEnd(", ".ToCharArray()),
+                                    primaryKey.Name,
+                                    sb2.ToString().TrimEnd(", ".ToCharArray()),
+                                    "false",
+                                    primaryKey.DbType,
+                                    primaryKey.DbType);
+
+            return str;
+        }
+        public string Get_Insert2(string tableName)
+        {
             var table_config = _config[tableName];
             var primaryKey = table_config.PrimaryKey[0];
 
@@ -220,7 +263,7 @@ namespace Generator.Core
                 }
             });
 
-            var str = string.Format(DALTemplate.INSERT_TEMPLATE1,
+            var str = string.Format(DALTemplate.INSERT_TEMPLATE2,
                                     $"新{tableName}记录",
                                     tableName + "实体对象",
                                     "bool",
@@ -443,11 +486,11 @@ namespace Generator.Core
             return str;
         }
 
-        public string Get_GetListByPage(string tableName)
+        public string Get_GetListByPage(string tableName,string primaryKey)
         {
             var table_config = _config[tableName];
             var str = string.Format(DALTemplate.GET_LIST_BY_PAGE_TEMPLATE,
-                                    tableName);
+                                    tableName,primaryKey);
             return str;
         }
         #endregion

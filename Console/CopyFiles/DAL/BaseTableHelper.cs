@@ -417,7 +417,7 @@ namespace DataLayer.Base
             string orderBy,
             string columns,
             int pageSize,
-            int currentPage)
+            int currentPage,string primaryKey)
         {
             var result = new PageDataView<T>();
             var count_sql = string.Format("SELECT COUNT(1) FROM {0}", tableName);
@@ -433,10 +433,8 @@ namespace DataLayer.Base
                 }
                 where = " WHERE " + where;
             }
-
-            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged ", columns, orderBy, tableName, where);
             var pageStart = (currentPage - 1) * pageSize;
-            sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
+            var sql = string.Format("SELECT {0} FROM {2} where {6} >=(select {6} from {2} {3}  ORDER BY {1} limit {4},1) limit {5}; ", columns, orderBy, tableName, where, pageStart,pageSize, primaryKey);
             count_sql += where;
             using (var conn = GetOpenConnection())
             {

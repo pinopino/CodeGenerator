@@ -322,7 +322,7 @@ namespace Generator.Core
                             break;
                         case "getpage":
                             {
-                                sb.Append(g.Get_GetListByPage(table.Name));
+                                sb.Append(g.Get_GetListByPage(table.Name,table.PrimaryKey.Last().Name));
                             }
                             break;
                     }

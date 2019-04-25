@@ -14,6 +14,7 @@ namespace Generator.Template
         #region Insert
         // Insert_SingleId
         public readonly static string INSERT_TEMPLATE1 = GetTemplateFile("INSERT_TEMPLATE1");
+        public readonly static string INSERT_TEMPLATE2 = GetTemplateFile("INSERT_TEMPLATE2");
         #endregion
 
         #region Delete
