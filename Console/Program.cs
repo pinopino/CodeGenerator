@@ -4,6 +4,7 @@ using Generator.Core;
 using Generator.Core.Config;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -29,38 +30,74 @@ namespace Console
             }
         }
 
+        class fecthinfo_mysql
+        {
+            public void fetch(string conn_str)
+            {
+                using (MySqlConnection connection = new MySqlConnection(conn_str))
+                {
+                    //var CommandText = "SHOW TABLES;";
+                    //connection.Open();
+                    //List<string> TableNames = connection.Query<string>(CommandText).ToList();
+                }
+            }
+        }
+
+        abstract class parser_base
+        {
+            private ConsoleProgressBar _progress;
+            public parser_base(bool enableProgress = true)
+            {
+                if (enableProgress)
+                    _progress = new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
+            }
+
+            public abstract void FetchMetadata(string conn_str);
+            protected abstract TableMetaData ParseTable(Table table);
+        }
+
         class parser_sqlserver
         {
-            private ConsoleProgressBar progress;
+            private ConsoleProgressBar _progress;
             public parser_sqlserver(bool enableProgress = true)
             {
                 if (enableProgress)
-                    progress = new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
+                    _progress = new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
             }
 
-            public List<TableMetaData> Parse(TableCollection data)
+            /// <summary>
+            /// 解析数据库元数据
+            /// </summary>
+            public List<TableMetaData> FetchMetadata(string conn_str)
             {
-                var ret = new List<TableMetaData>();
-                // 解析表
-                var i = 0;
-                for (i = 0; i < data.Count;)
+                using (SQLServerManagement manage = new SQLServerManagement(conn_str))
                 {
-                    var table = data[i];
-                    var meta_table = ParseTable(table);
-                    // 解析行
-                    foreach (Column col in table.Columns)
+                    var db_key = FindDBName(conn_str);
+                    var tables = manage.Databases[db_key].Tables;
+                    
+                    var ret = new List<TableMetaData>();
+                    // 解析表
+                    var i = 0;
+                    for (i = 0; i < tables.Count;)
                     {
-                        ParseColumn(meta_table, col);
+                        var table = tables[i];
+                        var meta_table = ParseTable(table);
+                        // 解析行
+                        foreach (Column col in table.Columns)
+                        {
+                            ParseColumn(meta_table, col);
+                        }
+                        ret.Add(meta_table);
+
+                        // 打印进度
+                        ProgressPrint(_progress, ++i, tables.Count + 1);
                     }
-                    ret.Add(meta_table);
 
                     // 打印进度
-                    ProgressPrint(progress, ++i, data.Count + 1);
-                }
+                    ProgressPrint(_progress, ++i, tables.Count + 1);
 
-                // 打印进度
-                ProgressPrint(progress, ++i, data.Count + 1);
-                return ret;
+                    return ret;
+                }
             }
 
             private TableMetaData ParseTable(Table table)
@@ -104,6 +141,32 @@ namespace Console
                 if (progress != null)
                     progress.Dispaly(Convert.ToInt32((index / (total * 1.0)) * 100));
             }
+
+            private string FindDBName(string connStr)
+            {
+                var db_name = string.Empty;
+                var cb = new DbConnectionStringBuilder(false);
+                cb.ConnectionString = connStr;
+                object database;
+                if (cb.TryGetValue("Initial Catalog", out database))
+                {
+                    db_name = database.ToString();
+                }
+                else
+                {
+                    if (cb.TryGetValue("Database", out database))
+                    {
+                        db_name = database.ToString();
+                    }
+                }
+
+                return db_name;
+            }
+        }
+
+        class parser_mysql
+        {
+
         }
 
         static void Main(string[] args)
