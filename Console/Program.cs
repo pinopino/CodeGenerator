@@ -1,9 +1,12 @@
 ﻿using Dapper;
+using Generator.Common;
 using Generator.Core;
+using Generator.Core.Config;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
@@ -13,9 +16,102 @@ namespace Console
 {
     class Program
     {
+        class fetchinfo_sqlserver
+        {
+            public void fetch(string conn_str)
+            {
+                using (SQLServerManagement manage = new SQLServerManagement(conn_str))
+                {
+                    //var data = manage.Databases[dbcode].Tables;
+                    //// 解析数据库元数据
+                    //var parser = new MetaDataParser(config);
+                }
+            }
+        }
+
+        class parser_sqlserver
+        {
+            private ConsoleProgressBar progress;
+            public parser_sqlserver(bool enableProgress = true)
+            {
+                if (enableProgress)
+                    progress = new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
+            }
+
+            public List<TableMetaData> Parse(TableCollection data)
+            {
+                var ret = new List<TableMetaData>();
+                // 解析表
+                var i = 0;
+                for (i = 0; i < data.Count;)
+                {
+                    var table = data[i];
+                    var meta_table = ParseTable(table);
+                    // 解析行
+                    foreach (Column col in table.Columns)
+                    {
+                        ParseColumn(meta_table, col);
+                    }
+                    ret.Add(meta_table);
+
+                    // 打印进度
+                    ProgressPrint(progress, ++i, data.Count + 1);
+                }
+
+                // 打印进度
+                ProgressPrint(progress, ++i, data.Count + 1);
+                return ret;
+            }
+
+            private TableMetaData ParseTable(Table table)
+            {
+                var meta_table = new TableMetaData();
+                meta_table.Name = table.Name;
+                meta_table.Comment = table.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();
+
+                return meta_table;
+            }
+
+            private void ParseColumn(TableMetaData metaTable, Column column)
+            {
+                var meta_col = new ColumnMetaData();
+                meta_col.Name = column.Name;
+                meta_col.DbType = SQLMetaDataHelper.MapCsharpType(column.DataType.ToString());
+                meta_col.Comment = column.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();
+                meta_col.IsPrimaryKey = column.InPrimaryKey;
+                meta_col.IsIdentity = column.Identity;
+                meta_col.Nullable = column.Nullable;
+                meta_col.HasDefaultValue = column.DefaultConstraint != null && !string.IsNullOrWhiteSpace(column.DefaultConstraint.Text);
+                metaTable.Columns.Add(meta_col);
+
+                // 主键
+                if (column.InPrimaryKey)
+                {
+                    metaTable.PrimaryKey.Add(meta_col);
+                    metaTable.ExistPredicate.Add(meta_col);
+                    metaTable.WherePredicate.Add(meta_col);
+                }
+
+                // 标识
+                if (column.Identity)
+                {
+                    metaTable.Identity = meta_col;
+                }
+            }
+
+            private void ProgressPrint(ConsoleProgressBar progress, long index, long total)
+            {
+                if (progress != null)
+                    progress.Dispaly(Convert.ToInt32((index / (total * 1.0)) * 100));
+            }
+        }
+
         static void Main(string[] args)
         {
-            var conn_str = SQLMetaDataHelper.Config.DBConn;
+            var config1 = new GlobalConfiguration();
+            config1.Init();
+
+            var conn_str = config1.DBConn;
             if (string.IsNullOrWhiteSpace(conn_str))
             {
                 System.Console.WriteLine("未设置数据库连接字符串！");

@@ -1,12 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 
 namespace Generator.Core.Config
 {
     // links：
     // https://andrewlock.net/how-to-use-the-ioptions-pattern-for-configuration-in-asp-net-core-rc2/
     // https://stackoverflow.com/questions/53166201/converting-iconfigurationsection-to-ioptions
-    public class GlobalConfig
+    public sealed class GlobalConfiguration
     {
+        public void Init(string path = "")
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                path = AppDomain.CurrentDomain.BaseDirectory;
+
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(path)
+               .AddJsonFile("appsettings.json");
+            var root = builder.Build();
+            root.Bind(this);
+        }
+
         /// <summary>
         /// 连接数据库
         /// </summary>
