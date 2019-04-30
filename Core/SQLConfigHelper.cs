@@ -67,18 +67,8 @@ namespace Generator.Core
             [typeof(TimeSpan?)] = DbType.Time,
             [typeof(object)] = DbType.Object
         };
-        private static GlobalConfig _configuration;
-        public static GlobalConfig Config { get { return _configuration; } }
-
-        static SQLMetaDataHelper()
-        {
-            var builder = new ConfigurationBuilder()
-               .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-               .AddJsonFile("appsettings.json");
-            var root = builder.Build();
-            _configuration = new GlobalConfig();
-            root.Bind(_configuration);
-        }
+        private static GlobalConfiguration _configuration;
+        public static GlobalConfiguration Config { get { return _configuration; } }
 
         public static void InitConfig(SQLMetaData config)
         {
