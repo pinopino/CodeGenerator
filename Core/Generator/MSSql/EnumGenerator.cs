@@ -1,18 +1,17 @@
-﻿using Generator.Template;
+﻿using Generator.Core.Config;
+using Generator.Template;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Generator.Core.MSSql
 {
-    public class EnumGenerator
+    public class EnumGenerator : BaseGenerator_Enum
     {
-        private SQLMetaData _config;
+        public EnumGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
+            : base(config, tables)
+        { }
 
-        public EnumGenerator(SQLMetaData config)
-        {
-            this._config = config;
-        }
-
-        public string Get_Enum(string enumName, string comment, string[] values, string type)
+        public override string Get_Enum(string enumName, string comment, string[] values, string type)
         {
             var sb1 = new StringBuilder();
             for (int i = 0; i < values.Length; i += 2)

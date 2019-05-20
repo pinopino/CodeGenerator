@@ -155,4 +155,13 @@ namespace Generator.Core
 
         public abstract string Get_Entity_Class(string tableName);
     }
+
+    public abstract class BaseGenerator_Enum : BaseGenerator
+    {
+        public BaseGenerator_Enum(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
+            : base(config, tables)
+        { }
+
+        public abstract string Get_Enum(string enumName, string comment, string[] values, string type);
+    }
 }
