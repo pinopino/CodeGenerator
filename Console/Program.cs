@@ -256,7 +256,7 @@ namespace Console
 
                     // 生成Model最终文件
                     Print("生成Model...");
-                    //SQLMetaDataHelper.OutputModel(config);
+                    SQLMetaDataHelper.OutputModel(config1, meta_data);
 
                     // 生成Enum最终文件
                     Print("生成Enum...");
