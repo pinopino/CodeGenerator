@@ -260,7 +260,7 @@ namespace Console
 
                     // 生成Enum最终文件
                     Print("生成Enum...");
-                    //SQLMetaDataHelper.OutputEnum(config);
+                    SQLMetaDataHelper.OutputEnum(config1, meta_data);
 
                     // 检测partial字段有效性
                     Print("检测partial字段有效性...");
