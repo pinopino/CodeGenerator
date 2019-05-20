@@ -7,16 +7,14 @@ using System.Text;
 
 namespace Generator.Core.MSSql
 {
-    public class DALGenerator : BaseGenerator
+    public class DALGenerator : BaseGenerator_DAL
     {
-        private List<string> _keywords = new List<string> { "Type" };
-
         public DALGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }
 
         #region 元数据
-        public string Get_MetaData1(string tableName)
+        public override string Get_MetaData1(string tableName)
         {
             var sb1 = new StringBuilder();
             sb1.AppendLine($"\tnamespace Metadata");
@@ -60,7 +58,7 @@ namespace Generator.Core.MSSql
             return sb1.ToString();
         }
 
-        public string Get_MetaData2(JoinMapping join_info)
+        public override string Get_MetaData2(JoinMapping join_info)
         {
             var subTable = join_info.Table_Sub.Name;
             var columns = _tables[subTable].Columns;
@@ -99,7 +97,7 @@ namespace Generator.Core.MSSql
             return sb.ToString();
         }
 
-        public string Get_MetaData3(string tableName)
+        public override string Get_MetaData3(string tableName)
         {
             var table_config = _tables[tableName];
             var sb1 = new StringBuilder();
@@ -142,22 +140,10 @@ namespace Generator.Core.MSSql
 
             return sb1.ToString();
         }
-
-        private bool IsKeyword(string colunm)
-        {
-            return _keywords.Contains(colunm);
-        }
         #endregion
 
         #region Exists
-        public string Get_Exists(string tableName)
-        {
-            var str1 = Get_Exists1(tableName);
-            var str2 = Get_Exists2(tableName);
-            return str1 + Environment.NewLine + str2;
-        }
-
-        private string Get_Exists1(string tableName)
+        protected override string Get_Exists1(string tableName)
         {
             var table_config = _tables[tableName];
 
@@ -183,7 +169,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        private string Get_Exists2(string tableName)
+        protected override string Get_Exists2(string tableName)
         {
             var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.EXISTS_TEMPLATE2,
@@ -195,7 +181,7 @@ namespace Generator.Core.MSSql
         #endregion
 
         #region Insert
-        public string Get_Insert(string tableName)
+        public override string Get_Insert(string tableName)
         {
             var table_config = _tables[tableName];
             var primaryKey = table_config.PrimaryKey[0];
@@ -233,38 +219,10 @@ namespace Generator.Core.MSSql
 
             return str;
         }
-
-        private string GetReturnStr(string keyType)
-        {
-            switch (keyType.ToLower())
-            {
-                case "int":
-                    {
-                        return "0";
-                    }
-                case "long":
-                    {
-                        return "0L";
-                    }
-                case "string":
-                    {
-                        return "string.Empty";
-                    }
-            }
-
-            return string.Empty;
-        }
         #endregion
 
         #region Delete
-        public string Get_Delete(string tableName)
-        {
-            var str1 = Get_Delete1(tableName);
-            var str2 = Get_Delete2(tableName);
-            return str1 + Environment.NewLine + str2;
-        }
-
-        private string Get_Delete1(string tableName)
+        protected override string Get_Delete1(string tableName)
         {
             var table_config = _tables[tableName];
 
@@ -291,7 +249,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        private string Get_Delete2(string tableName)
+        protected override string Get_Delete2(string tableName)
         {
             var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.DELETE_TEMPLATE2,
@@ -303,7 +261,7 @@ namespace Generator.Core.MSSql
         #endregion
 
         #region BatchDelete
-        public string Get_BatchDelete(string tableName)
+        public override string Get_BatchDelete(string tableName)
         {
             var table_config = _tables[tableName];
             var primaryKey = table_config.PrimaryKey[0];
@@ -320,14 +278,7 @@ namespace Generator.Core.MSSql
         #endregion
 
         #region Update
-        public string Get_Update(string tableName)
-        {
-            var str1 = Get_Update1(tableName);
-            var str2 = Get_Update2(tableName);
-            return str2 + Environment.NewLine + str1;
-        }
-
-        private string Get_Update1(string tableName)
+        protected override string Get_Update1(string tableName)
         {
             var table_config = _tables[tableName];
 
@@ -337,7 +288,7 @@ namespace Generator.Core.MSSql
             var sb2 = new StringBuilder();
             table_config.Columns.ForEach(p =>
             {
-                if (!p.IsIdentity && !IsExceptColumn(tableName, p.Name))
+                if (!p.IsIdentity && !IsUpdateExceptColumn(tableName, p.Name))
                     sb2.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name));
             });
 
@@ -350,7 +301,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        private string Get_Update2(string tableName)
+        protected override string Get_Update2(string tableName)
         {
             var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE2,
@@ -359,24 +310,10 @@ namespace Generator.Core.MSSql
                                     tableName);
             return str;
         }
-
-        private bool IsExceptColumn(string table, string colunm)
-        {
-            return false;
-            //return _config.ExceptColumns.ContainsKey("*") && _config.ExceptColumns["*"].Contains(colunm) ||
-            //    _config.ExceptColumns.ContainsKey(table) && _config.ExceptColumns[table].Contains(colunm);
-        }
         #endregion
 
         #region Select
-        public string Get_GetModel(string tableName)
-        {
-            var str1 = Get_GetModel1(tableName);
-            var str2 = Get_GetModel2(tableName);
-            return str1 + Environment.NewLine + str2;
-        }
-
-        private string Get_GetModel1(string tableName)
+        protected override string Get_GetModel1(string tableName)
         {
             var table_config = _tables[tableName];
 
@@ -411,7 +348,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        private string Get_GetModel2(string tableName)
+        protected override string Get_GetModel2(string tableName)
         {
             var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_MODEL_TEMPLATE2,
@@ -421,7 +358,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        public string Get_GetList(string tableName)
+        public override string Get_GetList(string tableName)
         {
             var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_LIST_TEMPLATE1,
@@ -433,7 +370,7 @@ namespace Generator.Core.MSSql
         #endregion
 
         #region Page
-        public string Get_Count(string tableName)
+        public override string Get_Count(string tableName)
         {
             var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_COUNT_TEMPLATE,
@@ -442,7 +379,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        public string Get_GetListByPage(string tableName)
+        public override string Get_GetListByPage(string tableName)
         {
             var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_LIST_BY_PAGE_TEMPLATE,
@@ -452,20 +389,7 @@ namespace Generator.Core.MSSql
         #endregion
 
         #region Joined
-        public string Get_Joined(JoinMapping join_info)
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine();
-            sb.Append(Get_JoinedPage(join_info));
-            sb.AppendLine();
-            sb.AppendLine(Get_Joined1(join_info));
-            sb.AppendLine(Get_Joined2(join_info));
-            sb.Append(Get_Joined3(join_info));
-
-            return sb.ToString();
-        }
-
-        private string Get_Joined1(JoinMapping join_info)
+        protected override string Get_Joined1(JoinMapping join_info)
         {
             var mainTable = join_info.Table_Main.Name;
             var subTable = join_info.Table_Sub.Name;
@@ -478,7 +402,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        private string Get_Joined2(JoinMapping join_info)
+        protected override string Get_Joined2(JoinMapping join_info)
         {
             var mainTable = join_info.Table_Main.Name;
             var subTable = join_info.Table_Sub.Name;
@@ -491,7 +415,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        private string Get_Joined3(JoinMapping join_info)
+        protected override string Get_Joined3(JoinMapping join_info)
         {
             var mainTable = join_info.Table_Main.Name;
             var subTable = join_info.Table_Sub.Name;
@@ -504,7 +428,7 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        private string Get_JoinedPage(JoinMapping join_info)
+        protected override string Get_JoinedPage(JoinMapping join_info)
         {
             var mainTable = join_info.Table_Main.Name;
             var subTable = join_info.Table_Sub.Name;
