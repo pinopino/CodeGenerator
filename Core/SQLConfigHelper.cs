@@ -1,6 +1,6 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
-using Microsoft.Extensions.Configuration;
+using Generator.Core.MSSql;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -225,123 +225,120 @@ namespace Generator.Core
             }
         }
 
-        public static void OutputDAL(Dictionary<string, TableMetaData> tables, bool enableProgress = true)
+        public static void OutputDAL(GlobalConfiguration config, Dictionary<string, TableMetaData> tables, bool enableProgress = true)
         {
-            //var path = Path.Combine(_outputpath, "DAL");
-            //Directory.CreateDirectory(path);
+            var path = Path.Combine(_outputpath, "DAL");
+            Directory.CreateDirectory(path);
 
-            //ConsoleProgressBar progress = null;
-            //if (enableProgress)
-            //{
-            //    progress = GetProgressBar();
-            //}
+            ConsoleProgressBar progress = null;
+            if (enableProgress)
+            {
+                progress = GetProgressBar();
+            }
 
-            //var sb = new StringBuilder();
-            //var g = new DALGenerator(tables);
-            //// 解析
-            //var i = 0;
-            //foreach(var key in tables.Keys)
-            //{
-            //    var table = tables[key];
-            //    if (GlobalConfiguration.ExceptTables.Contains(table.Name))
-            //    {
-            //        continue;
-            //    }
-            //    sb.Append(config.DAL_HeaderNote);
-            //    sb.AppendLine(string.Join(Environment.NewLine, config.DAL_Using));
-            //    sb.AppendLine($"using {config.DAL_Namespace}.Metadata;");
-            //    if (config.JoinedTables.Count > 0)
-            //    {
-            //        sb.AppendLine($"using {config.Model_Namespace}.JoinedViewModel;");
-            //    }
-            //    sb.AppendLine();
-            //    sb.AppendLine($"namespace {config.DAL_Namespace}");
-            //    sb.AppendLine("{");
-            //    sb.AppendLine(g.Get_MetaData1(table.Name));
-            //    sb.AppendLine(string.Format("{0}public partial class {1}{2}{3}{4}",
-            //            '\t',
-            //            config.DAL_ClassNamePrefix,
-            //            table.Name,
-            //            config.DAL_ClassNameSuffix,
-            //            string.IsNullOrWhiteSpace(config.DAL_BaseClass) ? string.Empty : (" : " + config.DAL_BaseClass)));
-            //    sb.AppendLine(string.Format("{0}{{", '\t'));
-            //    if (config.JoinedTables.ContainsKey(table.Name))
-            //    {
-            //        sb.AppendLine(g.Get_MetaData2(table.Name, config.JoinedTables[table.Name]));
-            //    }
-            //    sb.AppendLine(g.Get_MetaData3(table.Name));
-            //    // 按方法生成
-            //    foreach (var item in config.DAL_Methods)
-            //    {
-            //        switch (item.ToLower())
-            //        {
-            //            case "exists":
-            //                {
-            //                    sb.AppendLine(g.Get_Exists(table.Name));
-            //                }
-            //                break;
-            //            case "insert":
-            //                {
-            //                    sb.AppendLine(g.Get_Insert(table.Name));
-            //                }
-            //                break;
-            //            case "delete":
-            //                {
-            //                    sb.AppendLine(g.Get_Delete(table.Name));
-            //                    sb.AppendLine(g.Get_BatchDelete(table.Name));
-            //                }
-            //                break;
-            //            case "update":
-            //                {
-            //                    sb.AppendLine(g.Get_Update(table.Name));
-            //                }
-            //                break;
-            //            case "getmodel":
-            //                {
-            //                    sb.AppendLine(g.Get_GetModel(table.Name));
-            //                }
-            //                break;
-            //            case "getlist":
-            //                {
-            //                    sb.AppendLine(g.Get_GetList(table.Name));
-            //                }
-            //                break;
-            //            case "getcount":
-            //                {
-            //                    sb.AppendLine(g.Get_Count(table.Name));
-            //                }
-            //                break;
-            //            case "getpage":
-            //                {
-            //                    sb.Append(g.Get_GetListByPage(table.Name));
-            //                }
-            //                break;
-            //        }
-            //    }
-            //    // Joined
-            //    if (config.JoinedTables.ContainsKey(table.Name))
-            //    {
-            //        sb.Append(g.Get_Joined(table.Name, config.JoinedTables[table.Name]));
-            //    }
-            //    sb.AppendLine(string.Format("{0}}}", '\t'));
-            //    sb.AppendLine("}");
+            var sb = new StringBuilder();
+            var g = new DALGenerator(config, tables);
+            // 解析
+            var i = 0;
+            foreach (var key in tables.Keys)
+            {
+                var table = tables[key];
+                if (config.ExceptTables.Any(p => p.Name == table.Name))
+                {
+                    continue;
+                }
+                sb.Append(config.DALConfig.HeaderNote);
+                sb.AppendLine(string.Join(Environment.NewLine, config.DALConfig.Using));
+                sb.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
+                if (config.JoinedTables.Count > 0)
+                {
+                    sb.AppendLine($"using {config.ModelConfig.Namespace}.JoinedViewModel;");
+                }
+                sb.AppendLine();
+                sb.AppendLine($"namespace {config.DALConfig.Namespace}");
+                sb.AppendLine("{");
+                sb.AppendLine(g.Get_MetaData1(table.Name));
+                sb.AppendLine(string.Format("{0}public partial class {1}{2}{3}{4}",
+                        '\t',
+                        config.DALConfig.ClassPrefix,
+                        table.Name,
+                        config.DALConfig.ClassSuffix,
+                        string.IsNullOrWhiteSpace(config.DALConfig.BaseClass) ? string.Empty : (" : " + config.DALConfig.BaseClass)));
+                sb.AppendLine(string.Format("{0}{{", '\t'));
+                var join_info = config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
+                if (join_info != null)
+                {
+                    sb.AppendLine(g.Get_MetaData2(join_info));
+                }
+                sb.AppendLine(g.Get_MetaData3(table.Name));
+                // 按方法生成
+                foreach (var item in config.DALConfig.Methods)
+                {
+                    switch (item.Name.ToLower())
+                    {
+                        case "exists":
+                            {
+                                sb.AppendLine(g.Get_Exists(table.Name));
+                            }
+                            break;
+                        case "insert":
+                            {
+                                sb.AppendLine(g.Get_Insert(table.Name));
+                            }
+                            break;
+                        case "delete":
+                            {
+                                sb.AppendLine(g.Get_Delete(table.Name));
+                                sb.AppendLine(g.Get_BatchDelete(table.Name));
+                            }
+                            break;
+                        case "update":
+                            {
+                                sb.AppendLine(g.Get_Update(table.Name));
+                            }
+                            break;
+                        case "getmodel":
+                            {
+                                sb.AppendLine(g.Get_GetModel(table.Name));
+                            }
+                            break;
+                        case "getlist":
+                            {
+                                sb.AppendLine(g.Get_GetList(table.Name));
+                            }
+                            break;
+                        case "getcount":
+                            {
+                                sb.AppendLine(g.Get_Count(table.Name));
+                            }
+                            break;
+                        case "getpage":
+                            {
+                                sb.Append(g.Get_GetListByPage(table.Name));
+                            }
+                            break;
+                    }
+                }
+                // Joined
+                if (join_info != null)
+                {
+                    sb.Append(g.Get_Joined(join_info));
+                }
+                sb.AppendLine(string.Format("{0}}}", '\t'));
+                sb.AppendLine("}");
 
-            //    File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
-            //    sb.Clear();
+                File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
+                sb.Clear();
 
-            //    if (progress != null)
-            //    {
-            //        // 打印进度
-            //        ProgressPrint(progress, (i + 1), config.Tables.Count);
-            //    }
-            //}
-            ////for (int i = 0; i < tables.Count; i++)
-            ////{
-                
-            ////}
+                if (progress != null)
+                {
+                    // 打印进度
+                    ProgressPrint(progress, (i + 1), tables.Count);
+                }
+            }
 
             // 拷贝公用文件到指定目录
-            //DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);
+            DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);
         }
 
         public static void OutputModel(SQLMetaData config, bool enableProgress = true)
