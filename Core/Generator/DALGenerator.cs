@@ -9,12 +9,12 @@ namespace Generator.Core
 {
     public class DALGenerator
     {
-        private SQLMetaData _config;
+        private Dictionary<string, TableMetaData> _tables;
         private List<string> _keywords = new List<string> { "Type" };
 
-        public DALGenerator(SQLMetaData config)
+        public DALGenerator(Dictionary<string, TableMetaData> tables)
         {
-            this._config = config;
+            this._tables = tables;
         }
 
         #region 元数据
@@ -65,7 +65,7 @@ namespace Generator.Core
         public string Get_MetaData2(string mainTable, Tuple<string, string> subInfo)
         {
             var subTable = subInfo.Item1;
-            var columns = _config[subTable].Columns;
+            var columns = _tables[subTable].Columns;
             var sb = new StringBuilder();
             sb.AppendLine("\t\tstatic Dictionary<string, string> col_map = new Dictionary<string, string>");
             sb.AppendLine("\t\t{");
@@ -103,7 +103,7 @@ namespace Generator.Core
 
         public string Get_MetaData3(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var sb1 = new StringBuilder();
             var sb2 = new StringBuilder();
             sb1.AppendLine($"\t\tpublic static readonly {tableName}Table Table = new {tableName}Table(\"{tableName}\");");
@@ -161,7 +161,7 @@ namespace Generator.Core
 
         private string Get_Exists1(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
 
             var sb1 = new StringBuilder();
             table_config.ExistPredicate.ForEach(p => sb1.AppendLine(string.Format("{0}{0}/// <param name=\"{1}\">{2}</param>", '\t', p.Name, p.Comment)));
@@ -187,7 +187,7 @@ namespace Generator.Core
 
         private string Get_Exists2(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.EXISTS_TEMPLATE2,
                                     tableName + "实体对象",
                                     tableName,
@@ -199,7 +199,7 @@ namespace Generator.Core
         #region Insert
         public string Get_Insert(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var primaryKey = table_config.PrimaryKey[0];
 
             var sb1 = new StringBuilder();
@@ -268,7 +268,7 @@ namespace Generator.Core
 
         private string Get_Delete1(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
 
             var sb1 = new StringBuilder();
             table_config.PrimaryKey.ForEach(p => sb1.AppendLine(string.Format("{0}{0}/// <param name=\"{1}\">{2}</param>", '\t', p.Name, p.Comment)));
@@ -295,7 +295,7 @@ namespace Generator.Core
 
         private string Get_Delete2(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.DELETE_TEMPLATE2,
                                     tableName + "数据记录",
                                     tableName,
@@ -307,7 +307,7 @@ namespace Generator.Core
         #region BatchDelete
         public string Get_BatchDelete(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var primaryKey = table_config.PrimaryKey[0];
 
             var str = string.Format(DALTemplate.BATCHDELETE_TEMPLATE1,
@@ -331,7 +331,7 @@ namespace Generator.Core
 
         private string Get_Update1(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
 
             var sb1 = new StringBuilder();
             table_config.PrimaryKey.ForEach(p => sb1.Append(string.Format("[{0}] = @{1}, ", p.Name, p.Name)));
@@ -354,7 +354,7 @@ namespace Generator.Core
 
         private string Get_Update2(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.UPDATE_TEMPLATE2,
                                     tableName + "数据记录",
                                     tableName + "实体对象",
@@ -364,8 +364,9 @@ namespace Generator.Core
 
         private bool IsExceptColumn(string table, string colunm)
         {
-            return _config.ExceptColumns.ContainsKey("*") && _config.ExceptColumns["*"].Contains(colunm) ||
-                _config.ExceptColumns.ContainsKey(table) && _config.ExceptColumns[table].Contains(colunm);
+            return false;
+            //return _config.ExceptColumns.ContainsKey("*") && _config.ExceptColumns["*"].Contains(colunm) ||
+            //    _config.ExceptColumns.ContainsKey(table) && _config.ExceptColumns[table].Contains(colunm);
         }
         #endregion
 
@@ -379,7 +380,7 @@ namespace Generator.Core
 
         private string Get_GetModel1(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
 
             var sb1 = new StringBuilder();
             table_config.PrimaryKey.ForEach(p => sb1.AppendLine(string.Format("{0}{0}/// <param name=\"{1}\">{2}</param>", '\t', p.Name, p.Comment)));
@@ -414,7 +415,7 @@ namespace Generator.Core
 
         private string Get_GetModel2(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_MODEL_TEMPLATE2,
                                     tableName + "实体对象",
                                     tableName,
@@ -424,7 +425,7 @@ namespace Generator.Core
 
         public string Get_GetList(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_LIST_TEMPLATE1,
                                     tableName + "实体对象",
                                     tableName,
@@ -436,7 +437,7 @@ namespace Generator.Core
         #region Page
         public string Get_Count(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_COUNT_TEMPLATE,
                                     tableName,
                                     $"[{tableName}]");
@@ -445,7 +446,7 @@ namespace Generator.Core
 
         public string Get_GetListByPage(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var str = string.Format(DALTemplate.GET_LIST_BY_PAGE_TEMPLATE,
                                     tableName);
             return str;
