@@ -142,4 +142,17 @@ namespace Generator.Core
                 _config.UpdateExceptColumns.ContainsKey(table) && _config.UpdateExceptColumns[table].Any(p => p.ColumnName == colunm);
         }
     }
+
+    public abstract class BaseGenerator_Model : BaseGenerator
+    {
+        public BaseGenerator_Model(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
+            : base(config, tables)
+        { }
+
+        public abstract string Get_Class(string tableName);
+
+        public abstract string Get_Joined_Class(JoinMapping join_info);
+
+        public abstract string Get_Entity_Class(string tableName);
+    }
 }

@@ -1,22 +1,22 @@
-﻿using Generator.Template;
+﻿using Generator.Core.Config;
+using Generator.Template;
 using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Generator.Core.MSSql
 {
-    public class ModelGenerator
+    public class ModelGenerator : BaseGenerator_Model
     {
-        private SQLMetaData _config;
+        public ModelGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
+            : base(config, tables)
+        { }
 
-        public ModelGenerator(SQLMetaData config)
+        public override string Get_Class(string tableName)
         {
-            this._config = config;
-        }
-
-        public string Get_Class(string tableName)
-        {
-            var table_config = _config[tableName];
-            var trace = _config.TraceFieldTables.Contains("*") || _config.TraceFieldTables.Contains(tableName);
+            var table_config = _tables[tableName];
+            var trace = _config.TraceFieldTables.Any(p => p.Name == "*") || _config.TraceFieldTables.Any(p => p.Name == tableName);
 
             var sb1 = new StringBuilder();
             var sb2 = new StringBuilder();
@@ -131,10 +131,10 @@ namespace Generator.Core.MSSql
             var str = string.Format(ModelTemplate.CLASS_TEMPLATE,
                                     tableName,
                                     table_config.Comment,
-                                    _config.Model_ClassNamePrefix,
+                                    _config.ModelConfig.ClassPrefix,
                                     tableName,
-                                    _config.Model_ClassNameSuffix,
-                                    string.IsNullOrWhiteSpace(_config.Model_BaseClass) ? string.Empty : (" : " + _config.Model_BaseClass),
+                                    _config.ModelConfig.ClassSuffix,
+                                    string.IsNullOrWhiteSpace(_config.ModelConfig.BaseClass) ? string.Empty : (" : " + _config.ModelConfig.BaseClass),
                                     tableName,
                                     Environment.NewLine + sb1.ToString(),
                                     trace ? Environment.NewLine + "\t\tprivate bool _____flag;" + Environment.NewLine + sb2.ToString() : string.Empty,
@@ -142,10 +142,14 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        public string Get_Joined_Class(string mainTable, Tuple<string, string> subTable)
+        public override string Get_Joined_Class(JoinMapping join_info)
         {
-            var table_config = _config[mainTable];
+            var mainTable = join_info.Table_Main.Name;
+            var subTable = join_info.Table_Sub.Name;
+            var alias = join_info.Sub_InnerName;
+            
             var sb1 = new StringBuilder();
+            var table_config = _tables[mainTable];
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var p = table_config.Columns[i];
@@ -158,7 +162,7 @@ namespace Generator.Core.MSSql
                     sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
             }
-            sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', subTable.Item1, subTable.Item1.ToLower()));
+            sb1.AppendLine(string.Format("{0}{0}private {1} _{2};", '\t', subTable, subTable.ToLower()));
 
             var sb2 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
@@ -182,10 +186,10 @@ namespace Generator.Core.MSSql
                     sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
                     sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
                     sb2.AppendLine();
-                    sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', subTable.Item1, subTable.Item2));
+                    sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', subTable, alias));
                     sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', subTable.Item1.ToLower()));
-                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', subTable.Item1.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', subTable.ToLower()));
+                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', subTable.ToLower()));
                     sb2.Append(string.Format("{0}{0}}}", '\t'));
                 }
                 else
@@ -209,7 +213,7 @@ namespace Generator.Core.MSSql
                 }
             }
 
-            table_config = _config[subTable.Item1];
+            table_config = _tables[subTable];
             var sb3 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
@@ -285,7 +289,7 @@ namespace Generator.Core.MSSql
             var str = string.Format(ModelTemplate.JOINED_CLASS_TEMPLATE,
                                     "Joined" + mainTable,
                                     "Joined" + mainTable,
-                                    subTable.Item1,
+                                    subTable,
                                     sb3.ToString(),
                                     sb4.ToString(),
                                     Environment.NewLine + sb1.ToString(),
@@ -293,9 +297,9 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        public string Get_Entity_Class(string tableName)
+        public override string Get_Entity_Class(string tableName)
         {
-            var table_config = _config[tableName];
+            var table_config = _tables[tableName];
             var sb1 = new StringBuilder();
             var sb2 = new StringBuilder();
             var sb3 = new StringBuilder();
@@ -374,10 +378,10 @@ namespace Generator.Core.MSSql
             var str = string.Format(ModelTemplate.ENTITY_CLASS_TEMPLATE,
                                     tableName,
                                     table_config.Comment,
-                                    _config.Model_ClassNamePrefix,
+                                    _config.ModelConfig.ClassPrefix,
                                     tableName,
-                                    _config.Model_ClassNameSuffix,
-                                    string.IsNullOrWhiteSpace(_config.Model_BaseClass) ? string.Empty : (" : " + _config.Model_BaseClass),
+                                    _config.ModelConfig.ClassSuffix,
+                                    string.IsNullOrWhiteSpace(_config.ModelConfig.BaseClass) ? string.Empty : (" : " + _config.ModelConfig.BaseClass),
                                     tableName,
                                     Environment.NewLine + sb1.ToString(),
                                     sb2.ToString(),

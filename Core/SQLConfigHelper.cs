@@ -341,7 +341,7 @@ namespace Generator.Core
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);
         }
 
-        public static void OutputModel(SQLMetaData config, bool enableProgress = true)
+        public static void OutputModel(GlobalConfiguration config, Dictionary<string, TableMetaData> tables, bool enableProgress = true)
         {
             var path = Path.Combine(_outputpath, "Model");
             Directory.CreateDirectory(path);
@@ -353,21 +353,22 @@ namespace Generator.Core
             }
 
             var sb = new StringBuilder();
-            var g = new ModelGenerator(config);
+            var g = new ModelGenerator(config, tables);
             // 解析
-            for (int i = 0; i < config.Tables.Count; i++)
+            var i = 0;
+            foreach (var key in tables.Keys)
             {
-                var table = config.Tables[i];
-                if (config.ExceptTables.Contains(table.Name))
+                var table = tables[key];
+                if (config.ExceptTables.Any(p => p.Name == table.Name))
                 {
                     continue;
                 }
-                sb.Append(config.Model_HeaderNote);
-                sb.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
-                sb.AppendLine($"using {config.DAL_Namespace};");
-                sb.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                sb.Append(config.ModelConfig.HeaderNote);
+                sb.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
+                sb.AppendLine($"using {config.DALConfig.Namespace};");
+                sb.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
                 sb.AppendLine();
-                sb.AppendLine($"namespace {config.Model_Namespace}");
+                sb.AppendLine($"namespace {config.ModelConfig.Namespace}");
                 sb.AppendLine("{");
                 sb.AppendLine(g.Get_Class(table.Name));
                 sb.AppendLine("}");
@@ -378,7 +379,7 @@ namespace Generator.Core
                 if (progress != null)
                 {
                     // 打印进度
-                    ProgressPrint(progress, (i + 1), config.Tables.Count);
+                    ProgressPrint(progress, (i + 1), tables.Count);
                 }
             }
 
@@ -388,21 +389,19 @@ namespace Generator.Core
             {
                 Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
                 var sb2 = new StringBuilder();
-                foreach (var pair in config.JoinedTables)
+                foreach (var map in config.JoinedTables)
                 {
-                    var main_table = pair.Key;
-                    var sub_table = pair.Value;
-                    sb2.Append(config.Model_HeaderNote);
-                    sb2.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
-                    sb.AppendLine($"using {config.DAL_Namespace};");
-                    sb2.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                    sb2.Append(config.ModelConfig.HeaderNote);
+                    sb2.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
+                    sb.AppendLine($"using {config.DALConfig.Namespace};");
+                    sb2.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
                     sb2.AppendLine();
-                    sb2.AppendLine($"namespace {config.Model_Namespace}.JoinedViewModel");
+                    sb2.AppendLine($"namespace {config.ModelConfig.Namespace}.JoinedViewModel");
                     sb2.AppendLine("{");
-                    sb2.AppendLine(g.Get_Joined_Class(main_table, sub_table));
+                    sb2.AppendLine(g.Get_Joined_Class(map));
                     sb2.AppendLine("}");
 
-                    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + main_table)), sb2.ToString());
+                    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + map.Table_Main.Name)), sb2.ToString());
                     sb2.Clear();
                 }
             }
@@ -415,14 +414,14 @@ namespace Generator.Core
                 var sb2 = new StringBuilder();
                 foreach (var talbe in config.EntityTables)
                 {
-                    sb2.Append(config.Model_HeaderNote);
-                    sb2.AppendLine(string.Join(Environment.NewLine, config.Model_Using));
-                    sb.AppendLine($"using {config.DAL_Namespace};");
-                    sb2.AppendLine($"using {config.DAL_Namespace}.Metadata;");
+                    sb2.Append(config.ModelConfig.HeaderNote);
+                    sb2.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
+                    sb.AppendLine($"using {config.DALConfig.Namespace};");
+                    sb2.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
                     sb2.AppendLine();
-                    sb2.AppendLine($"namespace {config.Model_Namespace}.EntityModel");
+                    sb2.AppendLine($"namespace {config.ModelConfig.Namespace}.EntityModel");
                     sb2.AppendLine("{");
-                    sb2.AppendLine(g.Get_Entity_Class(talbe));
+                    sb2.AppendLine(g.Get_Entity_Class(talbe.Name));
                     sb2.AppendLine("}");
 
                     File.AppendAllText(Path.Combine(path, "EntityModel", string.Format("{0}.cs", "Entity" + talbe)), sb2.ToString());
