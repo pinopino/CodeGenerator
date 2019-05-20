@@ -1,7 +1,7 @@
 ﻿using Generator.Template;
 using System.Text;
 
-namespace Generator.Core
+namespace Generator.Core.MSSql
 {
     public class EnumGenerator
     {

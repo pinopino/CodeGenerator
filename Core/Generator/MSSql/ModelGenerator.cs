@@ -2,7 +2,7 @@
 using System;
 using System.Text;
 
-namespace Generator.Core
+namespace Generator.Core.MSSql
 {
     public class ModelGenerator
     {

@@ -131,11 +131,12 @@
     <Compile Include="Common\ConsoleProgress.cs" />
     <Compile Include="Common\DirectoryHelper.cs" />
     <Compile Include="Common\StringExtension.cs" />
-    <Compile Include="Config\TypedConfiguration.cs" />
-    <Compile Include="Generator\EnumGenerator.cs" />
-    <Compile Include="Generator\ModelGenerator.cs" />
-    <Compile Include="Generator\DALGenerator.cs" />
-    <Compile Include="Generator\MetaDataParser.cs" />
+    <Compile Include="Config\GlobalConfiguration.cs" />
+    <Compile Include="Generator\BaseGenerator.cs" />
+    <Compile Include="Generator\MSSql\EnumGenerator.cs" />
+    <Compile Include="Generator\MSSql\ModelGenerator.cs" />
+    <Compile Include="Generator\MSSql\DALGenerator.cs" />
+    <Compile Include="Generator\MSSql\MetaDataParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLConfig.cs" />
     <Compile Include="SQLConfigHelper.cs" />
@@ -223,6 +224,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Generator\MySql\" />
     <Folder Include="Templates\BLL\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,21 +1,19 @@
 ﻿using Generator.Common;
+using Generator.Core.Config;
 using Generator.Template;
 using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 
-namespace Generator.Core
+namespace Generator.Core.MSSql
 {
-    public class DALGenerator
+    public class DALGenerator : BaseGenerator
     {
-        private Dictionary<string, TableMetaData> _tables;
         private List<string> _keywords = new List<string> { "Type" };
 
-        public DALGenerator(Dictionary<string, TableMetaData> tables)
-        {
-            this._tables = tables;
-        }
+        public DALGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
+            : base(config, tables)
+        { }
 
         #region 元数据
         public string Get_MetaData1(string tableName)
@@ -62,9 +60,9 @@ namespace Generator.Core
             return sb1.ToString();
         }
 
-        public string Get_MetaData2(string mainTable, Tuple<string, string> subInfo)
+        public string Get_MetaData2(JoinMapping join_info)
         {
-            var subTable = subInfo.Item1;
+            var subTable = join_info.Table_Sub.Name;
             var columns = _tables[subTable].Columns;
             var sb = new StringBuilder();
             sb.AppendLine("\t\tstatic Dictionary<string, string> col_map = new Dictionary<string, string>");
@@ -96,7 +94,7 @@ namespace Generator.Core
             sb.AppendLine("\t\t\t}");
             sb.AppendLine("\t\t};");
             sb.AppendLine();
-            sb.AppendLine($"\t\tstatic CustomPropertyTypeMap type_map = new CustomPropertyTypeMap(typeof(Joined{mainTable}.{subTable}), (t, col) => mapper(t, col));");
+            sb.AppendLine($"\t\tstatic CustomPropertyTypeMap type_map = new CustomPropertyTypeMap(typeof(Joined{join_info.Table_Main.Name}.{subTable}), (t, col) => mapper(t, col));");
 
             return sb.ToString();
         }
@@ -454,23 +452,24 @@ namespace Generator.Core
         #endregion
 
         #region Joined
-        public string Get_Joined(string mainTable, Tuple<string, string> subInfo)
+        public string Get_Joined(JoinMapping join_info)
         {
             var sb = new StringBuilder();
             sb.AppendLine();
-            sb.Append(Get_JoinedPage(mainTable, subInfo));
+            sb.Append(Get_JoinedPage(join_info));
             sb.AppendLine();
-            sb.AppendLine(Get_Joined1(mainTable, subInfo));
-            sb.AppendLine(Get_Joined2(mainTable, subInfo));
-            sb.Append(Get_Joined3(mainTable, subInfo));
+            sb.AppendLine(Get_Joined1(join_info));
+            sb.AppendLine(Get_Joined2(join_info));
+            sb.Append(Get_Joined3(join_info));
 
             return sb.ToString();
         }
 
-        private string Get_Joined1(string mainTable, Tuple<string, string> subInfo)
+        private string Get_Joined1(JoinMapping join_info)
         {
-            var subTable = subInfo.Item1;
-            var alias = subInfo.Item2;
+            var mainTable = join_info.Table_Main.Name;
+            var subTable = join_info.Table_Sub.Name;
+            var alias = join_info.Sub_InnerName;
             var str = string.Format(DALTemplate.INNER_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     mainTable,
@@ -479,10 +478,11 @@ namespace Generator.Core
             return str;
         }
 
-        private string Get_Joined2(string mainTable, Tuple<string, string> subInfo)
+        private string Get_Joined2(JoinMapping join_info)
         {
-            var subTable = subInfo.Item1;
-            var alias = subInfo.Item2;
+            var mainTable = join_info.Table_Main.Name;
+            var subTable = join_info.Table_Sub.Name;
+            var alias = join_info.Sub_InnerName;
             var str = string.Format(DALTemplate.LEFT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     mainTable,
@@ -491,10 +491,11 @@ namespace Generator.Core
             return str;
         }
 
-        private string Get_Joined3(string mainTable, Tuple<string, string> subInfo)
+        private string Get_Joined3(JoinMapping join_info)
         {
-            var subTable = subInfo.Item1;
-            var alias = subInfo.Item2;
+            var mainTable = join_info.Table_Main.Name;
+            var subTable = join_info.Table_Sub.Name;
+            var alias = join_info.Sub_InnerName;
             var str = string.Format(DALTemplate.RIGHT_JOIN_TEMPLATE,
                                     $"Joined{mainTable}",
                                     mainTable,
@@ -503,10 +504,11 @@ namespace Generator.Core
             return str;
         }
 
-        private string Get_JoinedPage(string mainTable, Tuple<string, string> subInfo)
+        private string Get_JoinedPage(JoinMapping join_info)
         {
-            var subTable = subInfo.Item1;
-            var alias = subInfo.Item2;
+            var mainTable = join_info.Table_Main.Name;
+            var subTable = join_info.Table_Sub.Name;
+            var alias = join_info.Sub_InnerName;
             var str1 = string.Format(DALTemplate.JOINED_PAGE_TEMPLATE1,
                                     $"Joined{mainTable}",
                                     mainTable,

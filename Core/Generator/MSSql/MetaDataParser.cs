@@ -3,7 +3,7 @@ using Microsoft.SqlServer.Management.Smo;
 using System;
 using System.Collections.Generic;
 
-namespace Generator.Core
+namespace Generator.Core.MSSql
 {
     public class MetaDataParser
     {

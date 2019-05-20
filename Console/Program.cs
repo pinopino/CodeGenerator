@@ -252,7 +252,7 @@ namespace Console
                 {
                     // 生成DAL最终文件
                     Print("生成DAL...");
-                    //SQLMetaDataHelper.OutputDAL(config);
+                    SQLMetaDataHelper.OutputDAL(config1, meta_data);
 
                     // 生成Model最终文件
                     Print("生成Model...");
