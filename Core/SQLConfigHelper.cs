@@ -433,7 +433,7 @@ namespace Generator.Core
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Model"), path);
         }
 
-        public static void OutputEnum(SQLMetaData config, bool enableProgress = true)
+        public static void OutputEnum(GlobalConfiguration config, Dictionary<string, TableMetaData> tables, bool enableProgress = true)
         {
             var path = Path.Combine(_outputpath, "Enum");
             Directory.CreateDirectory(path);
@@ -445,13 +445,14 @@ namespace Generator.Core
             }
 
             var sb = new StringBuilder();
-            var g = new EnumGenerator(config);
+            var g = new EnumGenerator(config, tables);
             // 解析
             var regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            for (int i = 0; i < config.Tables.Count; i++)
+            var i = 0;
+            foreach (var key in tables.Keys)
             {
-                var table = config.Tables[i];
-                if (config.ExceptTables.Contains(table.Name))
+                var table = tables[key];
+                if (config.ExceptTables.Any(p => p.Name == table.Name))
                 {
                     continue;
                 }
@@ -468,8 +469,8 @@ namespace Generator.Core
                             var enum_name = string.Format("{0}_{1}_{2}", tempname, column.Name, "Enum");
                             if (_exist_enum.Contains(enum_name)) continue;
                             var arrs = comment.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                            sb.Append(config.Model_HeaderNote);
-                            sb.Append(string.Join(Environment.NewLine, config.Model_Using));
+                            sb.Append(config.ModelConfig.HeaderNote);
+                            sb.Append(string.Join(Environment.NewLine, config.ModelConfig.Using));
                             sb.AppendLine();
                             sb.AppendLine();
                             sb.AppendLine(string.Format("namespace {0}.{1}", _project, "GenEnum"));
@@ -486,7 +487,7 @@ namespace Generator.Core
                 if (progress != null)
                 {
                     // 打印进度
-                    ProgressPrint(progress, (i + 1), config.Tables.Count);
+                    ProgressPrint(progress, (i + 1), tables.Count);
                 }
             }
 
