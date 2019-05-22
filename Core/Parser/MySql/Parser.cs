@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Generator.Common;
+using Generator.Core.Config;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -21,8 +23,8 @@ namespace Generator.Core.MySql
             public string Comment { get; set; }
         }
 
-        public Parser(string connStr, bool enableProgress = true)
-            : base(connStr, enableProgress)
+        public Parser(GlobalConfiguration config, IProgressBar progress)
+            : base(config, progress)
         { }
 
         public override Dictionary<string, TableMetaData> ParseMetadata()

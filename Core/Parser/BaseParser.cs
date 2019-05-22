@@ -1,4 +1,5 @@
 ﻿using Generator.Common;
+using Generator.Core.Config;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -7,16 +8,15 @@ namespace Generator.Core
 {
     public abstract class BaseParser
     {
-        private readonly string _connstr;
-        private ConsoleProgressBar _progress;
+        private IProgressBar _progress;
+        private GlobalConfiguration _config;
 
-        public string ConnStr { get { return this._connstr; } }
+        public string ConnStr { get { return this._config.DBConn; } }
 
-        public BaseParser(string connStr, bool enableProgress = true)
+        public BaseParser(GlobalConfiguration config, IProgressBar progress)
         {
-            _connstr = connStr;
-            if (enableProgress)
-                _progress = new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
+            _config = config;
+            _progress = progress;
         }
 
         public abstract Dictionary<string, TableMetaData> ParseMetadata();

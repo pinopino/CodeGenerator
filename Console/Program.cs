@@ -1,7 +1,7 @@
 ﻿using Dapper;
+using Generator.Common;
 using Generator.Core;
 using Generator.Core.Config;
-using Generator.Core.MSSql;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Newtonsoft.Json;
@@ -32,13 +32,23 @@ namespace Console
             // todo...
 
             Print("解析数据库元数据...");
-            var parser = new Parser(conn_str);
+            IProgressBar progress = GetProgressBar();
+            BaseParser parser = null;
+            switch (config1.DBType)
+            {
+                case "mssql":
+                    parser = new Generator.Core.MSSql.Parser(config1, progress);
+                    break;
+                case "mysql":
+                    parser = new Generator.Core.MySql.Parser(config1, progress);
+                    break;
+            }
             var meta_data = parser.ParseMetadata();
 
             Print("解析完毕，生成中间配置文件...");
             // 生成中间配置文件
-            var config_json_str = JsonConvert.SerializeObject(meta_data);
-            SQLMetaDataHelper.OutputConfig(config_json_str);
+            var meta_json = JsonConvert.SerializeObject(meta_data);
+            SQLMetaDataHelper.OutputConfig(meta_json);
 
             // 生成最终文件
             Print("按 'y/Y' 继续生成最终操作类文件...");
@@ -169,6 +179,11 @@ namespace Console
             System.Console.WriteLine();
             System.Console.WriteLine();
             System.Console.WriteLine(message);
+        }
+
+        static ConsoleProgressBar GetProgressBar()
+        {
+            return new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
         }
     }
 }

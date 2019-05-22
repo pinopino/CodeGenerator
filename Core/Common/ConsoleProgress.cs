@@ -21,7 +21,12 @@ namespace Generator.Common
         ColorBrush
     }
 
-    public class ConsoleProgressBar
+    public interface IProgressBar
+    {
+        int Dispaly(int value);
+    }
+
+    public class ConsoleProgressBar : IProgressBar
     {
         /// <summary>
         /// 光标的列位置。将从 0 开始从左到右对列进行编号。
