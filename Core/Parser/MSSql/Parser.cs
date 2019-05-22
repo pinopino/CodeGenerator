@@ -2,6 +2,7 @@
 using Generator.Core.Config;
 using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Generic;
+using System.Data.Common;
 
 namespace Generator.Core.MSSql
 {
@@ -56,7 +57,7 @@ namespace Generator.Core.MSSql
         {
             var meta_col = new ColumnMetaData();
             meta_col.Name = column.Name;
-            meta_col.DbType = SQLMetaDataHelper.MapCsharpType(column.DataType.ToString());
+            meta_col.DbType = OutputHelper.MapCsharpType(column.DataType.ToString());
             meta_col.Comment = column.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();
             meta_col.IsPrimaryKey = column.InPrimaryKey;
             meta_col.IsIdentity = column.Identity;
@@ -77,6 +78,27 @@ namespace Generator.Core.MSSql
             {
                 metaTable.Identity = meta_col;
             }
+        }
+
+        protected override string FindDBName(string connStr)
+        {
+            var db_name = string.Empty;
+            var cb = new DbConnectionStringBuilder(false);
+            cb.ConnectionString = connStr;
+            object database;
+            if (cb.TryGetValue("Initial Catalog", out database))
+            {
+                db_name = database.ToString();
+            }
+            else
+            {
+                if (cb.TryGetValue("Database", out database))
+                {
+                    db_name = database.ToString();
+                }
+            }
+
+            return db_name;
         }
     }
 }

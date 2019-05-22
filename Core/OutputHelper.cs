@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,21 +13,9 @@ using System.Text.RegularExpressions;
 
 namespace Generator.Core
 {
-    public class SQLMetaDataHelper
+    public class OutputHelper
     {
-        private static string _project;
-        private static string _outputpath;
-        private static readonly string _project_default = "YourProject";
-        private static readonly string _outputpath_default = "c:\\output";
-        private static readonly string _headerNode_default = "/*{0} *  {1}{0} *  本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！{0} */{0}";
-        private static readonly string _using_default = "using System;using System.Collections.Generic;using System.Linq;using System.Text;{0}";
-        private static readonly string _baseClass_default = string.Empty;
-        private static readonly string _classPrefix_default = string.Empty;
-        private static readonly string _classSuffix_default = string.Empty;
-        private static readonly List<string> _methods_default = new List<string> { "Exists", "Insert", "Delete", "Update", "GetModel", "GetList", "GetCount", "GetPage" };
-        private static readonly string _partial_check_dal_path = string.Empty;
         private static readonly List<string> _exist_enum = new List<string>();
-
         private static Dictionary<Type, DbType> typeMap = new Dictionary<Type, DbType>
         {
             [typeof(byte)] = DbType.Byte,
@@ -67,56 +56,6 @@ namespace Generator.Core
             [typeof(TimeSpan?)] = DbType.Time,
             [typeof(object)] = DbType.Object
         };
-        private static GlobalConfiguration _configuration;
-        public static GlobalConfiguration Config { get { return _configuration; } }
-
-        public static void InitConfig(SQLMetaData config)
-        {
-            _project = _configuration.Project ?? _project_default;
-            _outputpath = _configuration.OutputBasePath ?? _outputpath_default;
-
-            var model_headerNode = _configuration.ModelConfig.HeaderNote ?? _headerNode_default;
-            var model_using = _configuration.ModelConfig.Using ?? string.Format(_using_default, string.Empty);
-            var model_namespace = _configuration.ModelConfig.Namespace ?? "Model";
-            var model_baseClass = _configuration.ModelConfig.BaseClass ?? _baseClass_default;
-            var model_classPrefix = _configuration.ModelConfig.ClassPrefix ?? _classPrefix_default;
-            var model_classSuffix = _configuration.ModelConfig.ClassSuffix ?? _classSuffix_default;
-
-            var dal_headerNode = _configuration.DALConfig.HeaderNote ?? _headerNode_default;
-            var dal_using = _configuration.DALConfig.Using ?? string.Format(_using_default, "using Dapper;");
-            dal_using += string.Format("using {0}.{1};", _project, model_namespace);
-            var dal_namespace = _configuration.DALConfig.Namespace ?? "DAL";
-            var dal_baseClass = _configuration.DALConfig.BaseClass ?? _baseClass_default;
-            var dal_classPrefix = _configuration.DALConfig.ClassPrefix ?? _classPrefix_default;
-            var dal_classSuffix = _configuration.DALConfig.ClassSuffix ?? _classSuffix_default;
-            var dal_methods = _configuration.DALConfig.Methods.Select(p => p.Name) ?? _methods_default;
-
-            config.Model_HeaderNote = string.Format(model_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            config.Model_Using = model_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
-            config.Model_Namespace = string.Format("{0}.{1}", _project, model_namespace);
-            config.Model_BaseClass = model_baseClass;
-            config.Model_ClassNamePrefix = model_classPrefix;
-            config.Model_ClassNameSuffix = model_classSuffix;
-
-            config.DAL_HeaderNote = string.Format(dal_headerNode, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            config.DAL_Using = dal_using.Replace('；', ';').Split(";".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(p => p + ";").ToList();
-            config.DAL_Namespace = string.Format("{0}.{1}", _project, dal_namespace);
-            config.DAL_BaseClass = dal_baseClass;
-            config.DAL_ClassNamePrefix = dal_classPrefix;
-            config.DAL_ClassNameSuffix = dal_classSuffix;
-            config.DAL_Methods = dal_methods.ToList();
-
-            config.PartialCheck_DAL_Path = _configuration.PartialCheck_DAL_Path ?? _partial_check_dal_path;
-            config.TraceFieldTables = _configuration.TraceFieldTables == null ? Enumerable.Empty<string>().ToList() : _configuration.TraceFieldTables.Select(p => p.Name).ToList();
-            config.EntityTables = _configuration.EntityTables == null ? Enumerable.Empty<string>().ToList() : _configuration.EntityTables.Select(p => p.Name).ToList();
-            config.ExceptTables = _configuration.ExceptTables == null ? Enumerable.Empty<string>().ToList() : _configuration.ExceptTables.Select(p => p.Name).ToList();
-            config.ExceptColumns = _configuration.UpdateExceptColumns == null ?
-                new Dictionary<string, List<string>>() :
-                _configuration.UpdateExceptColumns.ToDictionary(p => p.Key, p => p.Value.Select(k => k.ColumnName).ToList());
-            config.JoinedTables = _configuration.JoinedTables == null ?
-                new Dictionary<string, Tuple<string, string>>() :
-                _configuration.JoinedTables.ToDictionary(p => p.Table_Main.Name, p => Tuple.Create(p.Table_Sub.Name, p.Sub_InnerName));
-        }
 
         public static Type MapCommonType(string dbtype)
         {
@@ -230,7 +169,17 @@ namespace Generator.Core
             Directory.CreateDirectory(path);
 
             var sb = new StringBuilder();
-            var g = new DALGenerator(config, tables);
+            BaseGenerator_DAL g = null;
+            // todo: 有点丑陋，可以考虑走ioc
+            switch (config.DBType)
+            {
+                case "mssql":
+                    g = new Generator.Core.MSSql.DALGenerator(config, tables);
+                    break;
+                case "mysql":
+                    throw new NotImplementedException();
+                    break;
+            }
             // 解析
             var i = 0;
             foreach (var key in tables.Keys)
@@ -340,7 +289,17 @@ namespace Generator.Core
             Directory.CreateDirectory(path);
 
             var sb = new StringBuilder();
-            var g = new ModelGenerator(config, tables);
+            BaseGenerator_Model g = null;
+            // todo: 有点丑陋，可以考虑走ioc
+            switch (config.DBType)
+            {
+                case "mssql":
+                    g = new Generator.Core.MSSql.ModelGenerator(config, tables);
+                    break;
+                case "mysql":
+                    throw new NotImplementedException();
+                    break;
+            }
             // 解析
             var i = 0;
             foreach (var key in tables.Keys)
@@ -426,7 +385,17 @@ namespace Generator.Core
             Directory.CreateDirectory(path);
 
             var sb = new StringBuilder();
-            var g = new EnumGenerator(config, tables);
+            BaseGenerator_Enum g = null;
+            // todo: 有点丑陋，可以考虑走ioc
+            switch (config.DBType)
+            {
+                case "mssql":
+                    g = new Generator.Core.MSSql.EnumGenerator(config, tables);
+                    break;
+                case "mysql":
+                    throw new NotImplementedException();
+                    break;
+            }
             // 解析
             var regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
             var i = 0;
@@ -454,7 +423,7 @@ namespace Generator.Core
                             sb.Append(string.Join(Environment.NewLine, config.ModelConfig.Using));
                             sb.AppendLine();
                             sb.AppendLine();
-                            sb.AppendLine(string.Format("namespace {0}.{1}", _project, "GenEnum"));
+                            sb.AppendLine(string.Format("namespace {0}.{1}", config.Project, "GenEnum"));
                             sb.AppendLine("{");
                             sb.AppendLine(g.Get_Enum(enum_name, comment, arrs, column.DbType));
                             sb.AppendLine("}");
@@ -474,6 +443,23 @@ namespace Generator.Core
 
             // 拷贝公用文件到指定目录
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Enum"), path);
+        }
+
+        // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
+        public static void ReCreateDB(GlobalConfiguration config, IProgressBar progress = null)
+        {
+            IReCreateDB c = null;
+            // todo: 有点丑陋，可以考虑走ioc
+            switch (config.DBType)
+            {
+                case "mssql":
+                    c = new Generator.Core.MSSql.ReCreator(config);
+                    break;
+                case "mysql":
+                    throw new NotImplementedException();
+                    break;
+            }
+            c.ReCreate();
         }
 
         public static void DoPartialCheck(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
