@@ -206,35 +206,28 @@ namespace Generator.Core
             return csharpType;
         }
 
-        public static void OutputConfig(string content, bool enableProgress = true)
+        public static void OutputConfig(string content, GlobalConfiguration config, IProgressBar progress = null)
         {
-            if (Directory.Exists(_outputpath))
+            if (Directory.Exists(config.OutputBasePath))
             {
-                DeleteDirectory(_outputpath);
+                DeleteDirectory(config.OutputBasePath);
             }
             else
             {
-                Directory.CreateDirectory(_outputpath);
+                Directory.CreateDirectory(config.OutputBasePath);
             }
 
-            File.AppendAllText(Path.Combine(_outputpath, "sql_config.config"), FormatJsonStr(content), Encoding.GetEncoding("gb2312"));
-            if (enableProgress)
+            File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), FormatJsonStr(content), Encoding.GetEncoding("gb2312"));
+            if (progress != null)
             {
-                ConsoleProgressBar progress = GetProgressBar();
                 ProgressPrint(progress, 100, 100);
             }
         }
 
-        public static void OutputDAL(GlobalConfiguration config, Dictionary<string, TableMetaData> tables, bool enableProgress = true)
+        public static void OutputDAL(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
-            var path = Path.Combine(_outputpath, "DAL");
+            var path = Path.Combine(config.OutputBasePath, "DAL");
             Directory.CreateDirectory(path);
-
-            ConsoleProgressBar progress = null;
-            if (enableProgress)
-            {
-                progress = GetProgressBar();
-            }
 
             var sb = new StringBuilder();
             var g = new DALGenerator(config, tables);
@@ -341,16 +334,10 @@ namespace Generator.Core
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);
         }
 
-        public static void OutputModel(GlobalConfiguration config, Dictionary<string, TableMetaData> tables, bool enableProgress = true)
+        public static void OutputModel(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
-            var path = Path.Combine(_outputpath, "Model");
+            var path = Path.Combine(config.OutputBasePath, "Model");
             Directory.CreateDirectory(path);
-
-            ConsoleProgressBar progress = null;
-            if (enableProgress)
-            {
-                progress = GetProgressBar();
-            }
 
             var sb = new StringBuilder();
             var g = new ModelGenerator(config, tables);
@@ -433,16 +420,10 @@ namespace Generator.Core
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Model"), path);
         }
 
-        public static void OutputEnum(GlobalConfiguration config, Dictionary<string, TableMetaData> tables, bool enableProgress = true)
+        public static void OutputEnum(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
-            var path = Path.Combine(_outputpath, "Enum");
+            var path = Path.Combine(config.OutputBasePath, "Enum");
             Directory.CreateDirectory(path);
-
-            ConsoleProgressBar progress = null;
-            if (enableProgress)
-            {
-                progress = GetProgressBar();
-            }
 
             var sb = new StringBuilder();
             var g = new EnumGenerator(config, tables);
@@ -495,7 +476,7 @@ namespace Generator.Core
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Enum"), path);
         }
 
-        public static void DoPartialCheck(SQLMetaData config)
+        public static void DoPartialCheck(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
             if (string.IsNullOrWhiteSpace(config.PartialCheck_DAL_Path))
             {
@@ -503,7 +484,7 @@ namespace Generator.Core
             }
             var partial_path = Path.Combine(config.PartialCheck_DAL_Path, "partial");
             var partial_files = Directory.GetFiles(partial_path);
-            var list = InnerCheckPartial(config, partial_files);
+            var list = InnerCheckPartial(tables, partial_files, config);
             if (list.Count > 0)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -517,14 +498,65 @@ namespace Generator.Core
             }
         }
 
-        public static ConsoleProgressBar GetProgressBar()
+        private static List<string> InnerCheckPartial(Dictionary<string, TableMetaData> tables, string[] partial_file_names, GlobalConfiguration config)
         {
-            return new ConsoleProgressBar(Console.CursorLeft, Console.CursorTop, 50, ProgressBarType.Character);
-        }
+            var ret = new List<string>();
+            var regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static void ProgressPrint(ConsoleProgressBar progress, long index, long total)
-        {
-            progress.Dispaly(Convert.ToInt32((index / (total * 1.0)) * 100));
+            // 先检测一波表是否能对应
+            for (int i = 0; i < partial_file_names.Length; i++)
+            {
+                var file1 = partial_file_names[i];
+                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs", "");
+                var exist = tables.ContainsKey(tmp_file_name);
+                if (!exist)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("partial文件对应的表 [" + tmp_file_name + "] 不存在于当前数据库中，这极有可能是因为连接到错误的数据库引起的!");
+                    Console.ResetColor();
+                    return ret;
+                }
+            }
+
+            for (int i = 0; i < partial_file_names.Length; i++)
+            {
+                var file1 = partial_file_names[i];
+                var content1 = File.ReadAllText(file1);
+                var matches1 = regex.Matches(content1);
+                var key_words1 = new List<string>();
+                foreach (Match item in matches1)
+                {
+                    if (item.Success)
+                    {
+                        if (key_words1.Find(p => p.ToLower() == item.Value.ToLower()) == null)
+                        {
+                            key_words1.Add(item.Value);
+                        }
+                    }
+                }
+
+                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs", "");
+                var table = tables[tmp_file_name];
+                var key_words2 = table.Columns.Select(p => p.Name.ToLower()).ToList();
+                key_words2.Add(table.Name.ToLower());
+
+                var sb = new StringBuilder();
+                foreach (var item in key_words1)
+                {
+                    if (key_words2.Find(p => p == item.ToLower()) == null)
+                    {
+                        sb.Append(string.Format("{0}, ", item));
+                    }
+                }
+
+                var str = sb.ToString().TrimEnd(", ");
+                if (!string.IsNullOrWhiteSpace(str))
+                {
+                    ret.Add("[" + table.Name + "]: \r\n" + str);
+                }
+            }
+
+            return ret;
         }
 
         private static void DeleteDirectory(string target_dir, bool del_self = false)
@@ -574,71 +606,9 @@ namespace Generator.Core
             }
         }
 
-        private static List<string> InnerCheckPartial(SQLMetaData config, string[] partial_file_names)
+        private static void ProgressPrint(IProgressBar progress, long index, long total)
         {
-            var ret = new List<string>();
-            var regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-            // 先检测一波表是否能对应
-            for (int i = 0; i < partial_file_names.Length; i++)
-            {
-                var file1 = partial_file_names[i];
-                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs", "");
-                var table = config.Tables.Find(p => p.Name == tmp_file_name);
-                if (table == null)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("partial文件对应的表 [" + tmp_file_name + "] 不存在于当前数据库中，这极有可能是因为连接到错误的数据库引起的!");
-                    Console.ResetColor();
-                    return ret;
-                }
-            }
-
-            for (int i = 0; i < partial_file_names.Length; i++)
-            {
-                var file1 = partial_file_names[i];
-                var content1 = File.ReadAllText(file1);
-                var matches1 = regex.Matches(content1);
-                var key_words1 = new List<string>();
-                foreach (Match item in matches1)
-                {
-                    if (item.Success)
-                    {
-                        if (key_words1.Find(p => p.ToLower() == item.Value.ToLower()) == null)
-                        {
-                            key_words1.Add(item.Value);
-                        }
-                    }
-                }
-
-                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs", "");
-                var table = config.Tables.Find(p => p.Name == tmp_file_name);
-                var key_words2 = table.Columns.Select(p => p.Name.ToLower()).ToList();
-                key_words2.Add(table.Name.ToLower());
-
-                var sb = new StringBuilder();
-                foreach (var item in key_words1)
-                {
-                    if (key_words2.Find(p => p == item.ToLower()) == null)
-                    {
-                        sb.Append(string.Format("{0}, ", item));
-                    }
-                }
-
-                var str = sb.ToString().TrimEnd(", ");
-                if (!string.IsNullOrWhiteSpace(str))
-                {
-                    ret.Add("[" + table.Name + "]: \r\n" + str);
-                }
-            }
-
-            return ret;
-        }
-
-        private static bool IsExceptColumn(SQLMetaData config, string table, string colunm)
-        {
-            return config.ExceptColumns.ContainsKey("*") && config.ExceptColumns["*"].Contains(colunm) ||
-                config.ExceptColumns.ContainsKey(table) && config.ExceptColumns[table].Contains(colunm);
+            progress.Dispaly(Convert.ToInt32((index / (total * 1.0)) * 100));
         }
     }
 }

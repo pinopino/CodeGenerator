@@ -48,7 +48,7 @@ namespace Console
             Print("解析完毕，生成中间配置文件...");
             // 生成中间配置文件
             var meta_json = JsonConvert.SerializeObject(meta_data);
-            SQLMetaDataHelper.OutputConfig(meta_json);
+            SQLMetaDataHelper.OutputConfig(meta_json, config1, progress);
 
             // 生成最终文件
             Print("按 'y/Y' 继续生成最终操作类文件...");
@@ -60,19 +60,19 @@ namespace Console
                 {
                     // 生成DAL最终文件
                     Print("生成DAL...");
-                    SQLMetaDataHelper.OutputDAL(config1, meta_data);
+                    SQLMetaDataHelper.OutputDAL(meta_data, config1, progress);
 
                     // 生成Model最终文件
                     Print("生成Model...");
-                    SQLMetaDataHelper.OutputModel(config1, meta_data);
+                    SQLMetaDataHelper.OutputModel(meta_data, config1, progress);
 
                     // 生成Enum最终文件
                     Print("生成Enum...");
-                    SQLMetaDataHelper.OutputEnum(config1, meta_data);
+                    SQLMetaDataHelper.OutputEnum(meta_data, config1, progress);
 
                     // 检测partial字段有效性
                     Print("检测partial字段有效性...");
-                    //SQLMetaDataHelper.DoPartialCheck(config);
+                    SQLMetaDataHelper.DoPartialCheck(meta_data, config1, progress);
 
                     Print("生成完毕！");
                     break;
