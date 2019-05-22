@@ -1,12 +1,14 @@
-﻿using Microsoft.SqlServer.Management.Smo;
+﻿using Generator.Common;
+using Generator.Core.Config;
+using Microsoft.SqlServer.Management.Smo;
 using System.Collections.Generic;
 
 namespace Generator.Core.MSSql
 {
     public class Parser : BaseParser
     {
-        public Parser(string connStr, bool enableProgress = true)
-            : base(connStr, enableProgress)
+        public Parser(GlobalConfiguration config, IProgressBar progress)
+            : base(config, progress)
         { }
 
         public override Dictionary<string, TableMetaData> ParseMetadata()

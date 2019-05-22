@@ -22,6 +22,11 @@ namespace Generator.Core.Config
         }
 
         /// <summary>
+        /// 数据库类型: mssql, mysql
+        /// </summary>
+        public string DBType { set; get; }
+
+        /// <summary>
         /// 连接数据库
         /// </summary>
         public string DBConn { set; get; }
