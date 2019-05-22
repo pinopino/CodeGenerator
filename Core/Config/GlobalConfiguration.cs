@@ -104,6 +104,7 @@ namespace Generator.Core.Config
     public class ReCreateDBInfo
     {
         public string SQLFilePath { set; get; }
+        public string Encoding { set; get; }
         public List<DBInfo> DBs { set; get; }
     }
 

@@ -2,7 +2,6 @@
 using Generator.Core.Config;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 
 namespace Generator.Core
 {
@@ -21,26 +20,7 @@ namespace Generator.Core
 
         public abstract Dictionary<string, TableMetaData> ParseMetadata();
 
-        protected string FindDBName(string connStr)
-        {
-            var db_name = string.Empty;
-            var cb = new DbConnectionStringBuilder(false);
-            cb.ConnectionString = connStr;
-            object database;
-            if (cb.TryGetValue("Initial Catalog", out database))
-            {
-                db_name = database.ToString();
-            }
-            else
-            {
-                if (cb.TryGetValue("Database", out database))
-                {
-                    db_name = database.ToString();
-                }
-            }
-
-            return db_name;
-        }
+        protected abstract string FindDBName(string connStr);
 
         protected void ProgressPrint(long index, long total)
         {

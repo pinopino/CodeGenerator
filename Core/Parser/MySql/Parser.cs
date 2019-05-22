@@ -4,6 +4,7 @@ using Generator.Core.Config;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 
 namespace Generator.Core.MySql
@@ -61,7 +62,7 @@ namespace Generator.Core.MySql
                         var ColumData = new ColumnMetaData
                         {
                             Comment = item.Comment,
-                            DbType = SQLMetaDataHelper.MapCsharpType(item.Type),
+                            DbType = OutputHelper.MapCsharpType(item.Type),
                             HasDefaultValue = item.Default != null ? true : false,
                             IsIdentity = item.Key == "PRI" ? true : false,
                             IsPrimaryKey = item.Key == "PRI" ? true : false,
@@ -85,6 +86,20 @@ namespace Generator.Core.MySql
             }
 
             return new Dictionary<string, TableMetaData>();
+        }
+
+        protected override string FindDBName(string connStr)
+        {
+            var db_name = string.Empty;
+            var cb = new DbConnectionStringBuilder(false);
+            cb.ConnectionString = connStr;
+            object database;
+            if (cb.TryGetValue("Database", out database))
+            {
+                db_name = database.ToString();
+            }
+
+            return db_name;
         }
     }
 }
