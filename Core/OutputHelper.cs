@@ -323,7 +323,7 @@ namespace Generator.Core
                 sb.AppendLine();
                 sb.AppendLine($"namespace {config.ModelConfig.Namespace}");
                 sb.AppendLine("{");
-                sb.AppendLine(g.Get_Class(table.Name));
+                sb.AppendLine(config.TraceFieldTables != null && config.TraceFieldTables.Count > 0 ? g.Get_Class_With_Trace(table) : g.Get_Class(table));
                 sb.AppendLine("}");
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", table.Name)), sb.ToString());
@@ -370,7 +370,7 @@ namespace Generator.Core
                     sb2.AppendLine();
                     sb2.AppendLine($"namespace {config.ModelConfig.Namespace}.EntityModel");
                     sb2.AppendLine("{");
-                    sb2.AppendLine(g.Get_Entity_Class(talbe.Name));
+                    //sb2.AppendLine(g.Get_Entity_Class(talbe));
                     sb2.AppendLine("}");
 
                     File.AppendAllText(Path.Combine(path, "EntityModel", string.Format("{0}.cs", "Entity" + talbe)), sb2.ToString());
