@@ -1,15 +1,8 @@
-﻿using Dapper;
-using Generator.Common;
+﻿using Generator.Common;
 using Generator.Core;
 using Generator.Core.Config;
-using Microsoft.SqlServer.Management.Common;
-using Microsoft.SqlServer.Management.Smo;
 using Newtonsoft.Json;
 using System;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.IO;
-using System.Text;
 
 namespace Console
 {
@@ -22,7 +15,7 @@ namespace Console
 
             if (string.IsNullOrWhiteSpace(config.DBType))
             {
-                System.Console.WriteLine("未设置要连接的数据库类型！");
+                System.Console.WriteLine("未设置要连接的数据库类型（目前支持mssql，mysql）！");
                 System.Console.Read();
                 Environment.Exit(0);
             }
@@ -40,12 +33,15 @@ namespace Console
             // todo: 有点丑陋，可以考虑走ioc
             switch (config.DBType)
             {
+                case "sqlserver":
                 case "mssql":
                     parser = new Generator.Core.MSSql.Parser(config, progress);
                     break;
                 case "mysql":
                     parser = new Generator.Core.MySql.Parser(config, progress);
                     break;
+                default:
+                    throw new NotSupportedException("不支持的数据库类型");
             }
             var meta_data = parser.ParseMetadata();
             Print("解析完毕，生成中间配置文件...");

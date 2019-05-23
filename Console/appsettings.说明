@@ -1,4 +1,5 @@
 ﻿{
+  "DBType": "数据库类型，目前支持mssql（sqlserver）、mysql",
   "DBConn": "数据库连接字符串",
   "OutputBasePath": "输出的文件位置",
   "Project": "项目名称",
@@ -18,11 +19,12 @@
     { // 需要生成join方法的表，目前只支持两张表的join
       "Table_Main": { "Name": "" },
       "Table_Sub": { "Name": "" },
-      "Sub_InnerName": "为sub生成的类型会嵌套在生成的main类型里面，这里可以指定该sub类型的名字"
+      "Sub_InnerName": "为sub生成的类型会嵌套在生成的main类型里面，为避免命名冲突，这里可以指定该sub类型的名字"
     }
   ],
   "ReCreateDB": { // 如果需要在数据库定义文档更新时重建sql server中的数据库，请指定该字段值
     "SQLFilePath": "用于重建的数据库定义sql文件的路径",
+    "Encoding": "上述file文件的编码格式",
     "DBs": [
       { "Name": " 需要重建的数据库名称" }
     ]
