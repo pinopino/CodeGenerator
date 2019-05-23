@@ -171,8 +171,6 @@ namespace Generator.Core
             : base(config, tables)
         { }
 
-        public abstract bool Validate(string str, out string comment);
-
-        public abstract string Get_Enum(string enumName, string comment, string type);
+        public abstract string Get_Enum(string enumName, string enumStr, ColumnMetaData column);
     }
 }
