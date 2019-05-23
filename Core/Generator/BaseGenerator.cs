@@ -158,11 +158,23 @@ namespace Generator.Core
             : base(config, tables)
         { }
 
-        public abstract string Get_Class(string tableName);
+        public abstract string Get_Class(TableMetaData table);
+
+        public abstract string Get_Class_With_Trace(TableMetaData table);
 
         public abstract string Get_Joined_Class(JoinMapping join_info);
 
-        public abstract string Get_Entity_Class(string tableName);
+        public abstract string Get_Entity_Class(TableMetaData table);
+
+        protected string Get_Trace_Field()
+        {
+            return string.Empty;
+        }
+
+        protected string Get_Trace_Field2()
+        {
+            return string.Empty;
+        }
     }
 
     public abstract class BaseGenerator_Enum : BaseGenerator
