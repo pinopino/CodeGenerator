@@ -24,7 +24,7 @@
   ],
   "ReCreateDB": { // 如果需要在数据库定义文档更新时重建sql server中的数据库，请指定该字段值
     "SQLFilePath": "用于重建的数据库定义sql文件的路径",
-    "Encoding": "上述file文件的编码格式",
+    "Encoding": "上述file文件的编码格式，不指定时默认为utf-8",
     "DBs": [
       { "Name": " 需要重建的数据库名称" }
     ]

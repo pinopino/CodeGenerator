@@ -16,7 +16,8 @@ namespace Generator.Core.MSSql
         public override string Get_Class(string tableName)
         {
             var table_config = _tables[tableName];
-            var trace = _config.TraceFieldTables.Any(p => p.Name == "*") || _config.TraceFieldTables.Any(p => p.Name == tableName);
+            var trace = _config.TraceFieldTables == null ? false : 
+                _config.TraceFieldTables.Any(p => p.Name == "*") || _config.TraceFieldTables.Any(p => p.Name == tableName);
 
             var sb1 = new StringBuilder();
             var sb2 = new StringBuilder();
