@@ -9,61 +9,48 @@ namespace Generator.Core.MSSql
 {
     public class EnumGenerator : BaseGenerator_Enum
     {
-        private Regex _regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
         public EnumGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }
 
-        public override bool Validate(string str, out string comment)
+        public override string Get_Enum(string enumName, string enumStr, ColumnMetaData column)
         {
-            comment = string.Empty;
-            var match = _regex.Match(str);
-            if (match.Success)
+            var sb = new StringBuilder();
+            var arrs = enumStr.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < arrs.Length; i += 2)
             {
-                comment = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");
-            }
-            return match.Success;
-        }
-
-        public override string Get_Enum(string enumName, string comment, string type)
-        {
-            var values = comment.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            var sb1 = new StringBuilder();
-            for (int i = 0; i < values.Length; i += 2)
-            {
-                var is_number = int.TryParse(values[i], out _);
-                if (i + 2 == values.Length)
+                var is_number = int.TryParse(arrs[i], out _);
+                if (i + 2 == arrs.Length)
                 {
-                    sb1.AppendLine("\t\t/// <summary>");
-                    sb1.AppendLine($"\t\t/// {values[i + 1]} {values[i]}");
-                    sb1.AppendLine("\t\t/// </summary>");
-                    sb1.Append($"\t\tpublic static readonly {type} {values[i + 1]} = {(is_number ? values[i] : "\"" + values[i] + "\"")};");
+                    sb.AppendLine("\t\t/// <summary>");
+                    sb.AppendLine($"\t\t/// {arrs[i + 1]} {arrs[i]}");
+                    sb.AppendLine("\t\t/// </summary>");
+                    sb.Append($"\t\tpublic static readonly {column.DbType} {arrs[i + 1]} = {(is_number ? arrs[i] : "\"" + arrs[i] + "\"")};");
                 }
                 else
                 {
                     if (i == 0)
                     {
-                        sb1.AppendLine("\t\t/// <summary>");
-                        sb1.AppendLine($"\t\t/// {values[i + 1]} {values[i]}");
-                        sb1.AppendLine("\t\t/// </summary>");
-                        sb1.AppendLine($"\t\tpublic static readonly {type} {values[i + 1]} = {(is_number ? values[i] : "\"" + values[i] + "\"")};");
+                        sb.AppendLine("\t\t/// <summary>");
+                        sb.AppendLine($"\t\t/// {arrs[i + 1]} {arrs[i]}");
+                        sb.AppendLine("\t\t/// </summary>");
+                        sb.AppendLine($"\t\tpublic static readonly {column.DbType} {arrs[i + 1]} = {(is_number ? arrs[i] : "\"" + arrs[i] + "\"")};");
                     }
                     else
                     {
-                        sb1.AppendLine("\t\t/// <summary>");
-                        sb1.AppendLine($"\t\t/// {values[i + 1]} {values[i]}");
-                        sb1.AppendLine("\t\t/// </summary>");
-                        sb1.AppendLine($"\t\tpublic static readonly {type} {values[i + 1]} = {(is_number ? values[i] : "\"" + values[i] + "\"")};");
+                        sb.AppendLine("\t\t/// <summary>");
+                        sb.AppendLine($"\t\t/// {arrs[i + 1]} {arrs[i]}");
+                        sb.AppendLine("\t\t/// </summary>");
+                        sb.AppendLine($"\t\tpublic static readonly {column.DbType} {arrs[i + 1]} = {(is_number ? arrs[i] : "\"" + arrs[i] + "\"")};");
                     }
                 }
             }
 
             var str = string.Format(EnumTemplate.Enum_TEMPLATE,
                                     enumName,
-                                    comment,
+                                    enumStr,
                                     enumName,
-                                    sb1.ToString());
+                                    sb.ToString());
             return str;
         }
     }

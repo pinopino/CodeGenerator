@@ -52,6 +52,7 @@ namespace Generator.Core.MSSql
         private void ParseColumn(TableMetaData metaTable, Column column)
         {
             var meta_col = new ColumnMetaData();
+            meta_col.TableName = metaTable.Name;
             meta_col.Name = column.Name;
             meta_col.DbType = OutputHelper.MapCsharpType(column.DataType.ToString());
             meta_col.Comment = column.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();

@@ -66,6 +66,7 @@ namespace Generator.Core.MySql
                             HasDefaultValue = item.Default != null ? true : false,
                             IsIdentity = item.Key == "PRI" ? true : false,
                             IsPrimaryKey = item.Key == "PRI" ? true : false,
+                            TableName = table.Name,
                             Name = item.Field,
                             Nullable = item.Null == "YES" ? true : false
                         };

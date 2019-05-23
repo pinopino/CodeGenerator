@@ -154,6 +154,7 @@ namespace Generator.Core
 
     public class ColumnMetaData
     {
+        private string _tableName;
         private string _name;
         private string _dbType;
         private string _comment;
@@ -164,9 +165,19 @@ namespace Generator.Core
 
         public ColumnMetaData()
         {
+            _tableName = string.Empty;
             _name = string.Empty;
             _dbType = string.Empty;
             _comment = string.Empty;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string TableName
+        {
+            set { this._tableName = value; }
+            get { return this._tableName; }
         }
 
         /// <summary>

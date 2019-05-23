@@ -14,6 +14,7 @@ namespace Generator.Core
     public class OutputHelper
     {
         private static readonly List<string> _exist_enum = new List<string>();
+        private static Regex _regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static Dictionary<Type, DbType> typeMap = new Dictionary<Type, DbType>
         {
             [typeof(byte)] = DbType.Byte,
@@ -417,8 +418,8 @@ namespace Generator.Core
                 {
                     if (!string.IsNullOrWhiteSpace(column.Comment))
                     {
-                        var comment_str = string.Empty;
-                        if (g.Validate(column.Comment, out comment_str))
+                        var enum_str = string.Empty;
+                        if (ValidateEnum(column, out enum_str))
                         {
                             var tempname = Regex.Replace(table.Name, @"\d", "").Replace("_", "");
                             var enum_name = string.Format("{0}_{1}_{2}", tempname, column.Name, "Enum");
@@ -429,7 +430,7 @@ namespace Generator.Core
                             sb.AppendLine();
                             sb.AppendLine(string.Format("namespace {0}.{1}", config.Project, "GenEnum"));
                             sb.AppendLine("{");
-                            sb.AppendLine(g.Get_Enum(enum_name, comment_str, column.DbType));
+                            sb.AppendLine(g.Get_Enum(enum_name, enum_str, column));
                             sb.AppendLine("}");
                             File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", enum_name)), sb.ToString());
                             sb.Clear();
@@ -550,6 +551,17 @@ namespace Generator.Core
             }
 
             return ret;
+        }
+
+        private static bool ValidateEnum(ColumnMetaData column, out string enumStr)
+        {
+            enumStr = string.Empty;
+            var match = _regex.Match(column.Comment);
+            if (match.Success)
+            {
+                enumStr = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");
+            }
+            return match.Success;
         }
 
         private static void DeleteDirectory(string target_dir, bool del_self = false)
