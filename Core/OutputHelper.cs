@@ -1,11 +1,9 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
-using Generator.Core.MSSql;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -156,7 +154,7 @@ namespace Generator.Core
                 Directory.CreateDirectory(config.OutputBasePath);
             }
 
-            File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), FormatJsonStr(content), Encoding.GetEncoding("gb2312"));
+            File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), FormatJsonStr(content), Encoding.UTF8);
             if (progress != null)
             {
                 progress.Reset();
@@ -185,6 +183,7 @@ namespace Generator.Core
                     throw new NotImplementedException();
                     break;
             }
+
             // 解析
             var i = 0;
             foreach (var key in tables.Keys)
@@ -275,7 +274,7 @@ namespace Generator.Core
                 if (progress != null)
                 {
                     // 打印进度
-                    ProgressPrint(progress, (i + 1), tables.Count);
+                    ProgressPrint(progress, ++i, tables.Count);
                 }
             }
 
@@ -308,6 +307,7 @@ namespace Generator.Core
                     throw new NotImplementedException();
                     break;
             }
+
             // 解析
             var i = 0;
             foreach (var key in tables.Keys)
@@ -319,8 +319,6 @@ namespace Generator.Core
                 }
                 sb.Append(config.ModelConfig.HeaderNote);
                 sb.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
-                sb.AppendLine($"using {config.DALConfig.Namespace};");
-                sb.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
                 sb.AppendLine();
                 sb.AppendLine($"namespace {config.ModelConfig.Namespace}");
                 sb.AppendLine("{");
@@ -333,7 +331,7 @@ namespace Generator.Core
                 if (progress != null)
                 {
                     // 打印进度
-                    ProgressPrint(progress, (i + 1), tables.Count);
+                    ProgressPrint(progress, ++i, tables.Count);
                 }
             }
 
@@ -347,8 +345,6 @@ namespace Generator.Core
                 {
                     sb2.Append(config.ModelConfig.HeaderNote);
                     sb2.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
-                    sb.AppendLine($"using {config.DALConfig.Namespace};");
-                    sb2.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
                     sb2.AppendLine();
                     sb2.AppendLine($"namespace {config.ModelConfig.Namespace}.JoinedViewModel");
                     sb2.AppendLine("{");
@@ -370,8 +366,6 @@ namespace Generator.Core
                 {
                     sb2.Append(config.ModelConfig.HeaderNote);
                     sb2.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
-                    sb.AppendLine($"using {config.DALConfig.Namespace};");
-                    sb2.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
                     sb2.AppendLine();
                     sb2.AppendLine($"namespace {config.ModelConfig.Namespace}.EntityModel");
                     sb2.AppendLine("{");
@@ -408,8 +402,8 @@ namespace Generator.Core
                     throw new NotImplementedException();
                     break;
             }
+
             // 解析
-            var regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
             var i = 0;
             foreach (var key in tables.Keys)
             {
@@ -423,21 +417,19 @@ namespace Generator.Core
                 {
                     if (!string.IsNullOrWhiteSpace(column.Comment))
                     {
-                        var match = regex.Match(column.Comment);
-                        if (match.Success)
+                        var comment_str = string.Empty;
+                        if (g.Validate(column.Comment, out comment_str))
                         {
-                            var comment = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");
                             var tempname = Regex.Replace(table.Name, @"\d", "").Replace("_", "");
                             var enum_name = string.Format("{0}_{1}_{2}", tempname, column.Name, "Enum");
-                            if (_exist_enum.Contains(enum_name)) continue;
-                            var arrs = comment.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (_exist_enum.Contains(enum_name)) continue;                            
                             sb.Append(config.ModelConfig.HeaderNote);
                             sb.Append(string.Join(Environment.NewLine, config.ModelConfig.Using));
                             sb.AppendLine();
                             sb.AppendLine();
                             sb.AppendLine(string.Format("namespace {0}.{1}", config.Project, "GenEnum"));
                             sb.AppendLine("{");
-                            sb.AppendLine(g.Get_Enum(enum_name, comment, arrs, column.DbType));
+                            sb.AppendLine(g.Get_Enum(enum_name, comment_str, column.DbType));
                             sb.AppendLine("}");
                             File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", enum_name)), sb.ToString());
                             sb.Clear();
@@ -449,7 +441,7 @@ namespace Generator.Core
                 if (progress != null)
                 {
                     // 打印进度
-                    ProgressPrint(progress, (i + 1), tables.Count);
+                    ProgressPrint(progress, ++i, tables.Count);
                 }
             }
 
