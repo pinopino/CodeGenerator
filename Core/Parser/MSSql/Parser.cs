@@ -21,8 +21,7 @@ namespace Generator.Core.MSSql
 
                 var ret = new Dictionary<string, TableMetaData>();
                 // 解析表
-                var i = 0;
-                for (i = 0; i < tables.Count;)
+                for (var i = 0; i < tables.Count;)
                 {
                     var table = tables[i];
                     var meta_table = ParseTable(table);
@@ -34,11 +33,8 @@ namespace Generator.Core.MSSql
                     ret.Add(table.Name, meta_table);
 
                     // 打印进度
-                    ProgressPrint(++i, tables.Count + 1);
+                    ProgressPrint(++i, tables.Count);
                 }
-
-                // 打印进度
-                ProgressPrint(++i, tables.Count + 1);
 
                 return ret;
             }

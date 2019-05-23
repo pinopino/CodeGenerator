@@ -24,6 +24,7 @@ namespace Generator.Common
     public interface IProgressBar
     {
         int Dispaly(int value);
+        void Reset();
     }
 
     public class ConsoleProgressBar : IProgressBar
@@ -127,6 +128,18 @@ namespace Generator.Common
             }
 
             return value;
+        }
+
+        public void Reset()
+        {
+            this.Left = Console.CursorLeft;
+            this.Top = Console.CursorTop;
+            Console.SetCursorPosition(this.Left, this.Top);
+            Console.Write("[");
+            Console.SetCursorPosition(this.Left + this.Width - 1, this.Top);
+            Console.Write("]");
+            this.Width = 50;
+            this.Value = 0;
         }
     }
 }

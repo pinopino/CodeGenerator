@@ -159,12 +159,17 @@ namespace Generator.Core
             File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), FormatJsonStr(content), Encoding.GetEncoding("gb2312"));
             if (progress != null)
             {
+                progress.Reset();
                 ProgressPrint(progress, 100, 100);
             }
         }
 
         public static void OutputDAL(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
+            if (progress != null)
+            {
+                progress.Reset();
+            }
             var path = Path.Combine(config.OutputBasePath, "DAL");
             Directory.CreateDirectory(path);
 
@@ -185,14 +190,14 @@ namespace Generator.Core
             foreach (var key in tables.Keys)
             {
                 var table = tables[key];
-                if (config.ExceptTables.Any(p => p.Name == table.Name))
+                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
                 {
                     continue;
                 }
                 sb.Append(config.DALConfig.HeaderNote);
                 sb.AppendLine(string.Join(Environment.NewLine, config.DALConfig.Using));
                 sb.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
-                if (config.JoinedTables.Count > 0)
+                if (config.JoinedTables != null && config.JoinedTables.Count > 0)
                 {
                     sb.AppendLine($"using {config.ModelConfig.Namespace}.JoinedViewModel;");
                 }
@@ -207,7 +212,7 @@ namespace Generator.Core
                         config.DALConfig.ClassSuffix,
                         string.IsNullOrWhiteSpace(config.DALConfig.BaseClass) ? string.Empty : (" : " + config.DALConfig.BaseClass)));
                 sb.AppendLine(string.Format("{0}{{", '\t'));
-                var join_info = config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
+                var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
                 if (join_info != null)
                 {
                     sb.AppendLine(g.Get_MetaData2(join_info));
@@ -285,6 +290,10 @@ namespace Generator.Core
 
         public static void OutputModel(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
+            if (progress != null)
+            {
+                progress.Reset();
+            }
             var path = Path.Combine(config.OutputBasePath, "Model");
             Directory.CreateDirectory(path);
 
@@ -305,7 +314,7 @@ namespace Generator.Core
             foreach (var key in tables.Keys)
             {
                 var table = tables[key];
-                if (config.ExceptTables.Any(p => p.Name == table.Name))
+                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
                 {
                     continue;
                 }
@@ -331,7 +340,7 @@ namespace Generator.Core
 
             // 如果配置文件指定了JoinedTables，那么这里需要为这些关联表生成额外的包装model，
             // 路径：Model\JoinedViewModel
-            if (config.JoinedTables.Count > 0)
+            if (config.JoinedTables != null && config.JoinedTables.Count > 0)
             {
                 Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
                 var sb2 = new StringBuilder();
@@ -354,7 +363,7 @@ namespace Generator.Core
 
             // 如果配置文件指定了EntityTables，那么这里需要生成实现接口IEntity接口的model
             // 路径：Model\EntityModel
-            if (config.EntityTables.Count > 0)
+            if (config.EntityTables != null && config.EntityTables.Count > 0)
             {
                 Directory.CreateDirectory(Path.Combine(path, "EntityModel"));
                 var sb2 = new StringBuilder();
@@ -381,6 +390,10 @@ namespace Generator.Core
 
         public static void OutputEnum(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
+            if (progress != null)
+            {
+                progress.Reset();
+            }
             var path = Path.Combine(config.OutputBasePath, "Enum");
             Directory.CreateDirectory(path);
 
@@ -402,7 +415,7 @@ namespace Generator.Core
             foreach (var key in tables.Keys)
             {
                 var table = tables[key];
-                if (config.ExceptTables.Any(p => p.Name == table.Name))
+                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
                 {
                     continue;
                 }
@@ -448,6 +461,9 @@ namespace Generator.Core
         // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
         public static void ReCreateDB(GlobalConfiguration config, IProgressBar progress = null)
         {
+            if (string.IsNullOrWhiteSpace(config.ReCreateDB.SQLFilePath) || config.ReCreateDB.DBs == null)
+                return;
+
             IReCreateDB c = null;
             // todo: 有点丑陋，可以考虑走ioc
             switch (config.DBType)

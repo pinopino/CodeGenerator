@@ -138,6 +138,9 @@ namespace Generator.Core
 
         protected bool IsUpdateExceptColumn(string table, string colunm)
         {
+            if (_config.UpdateExceptColumns == null)
+                return false;
+
             return _config.UpdateExceptColumns.ContainsKey("*") && _config.UpdateExceptColumns["*"].Any(p => p.ColumnName == colunm) ||
                 _config.UpdateExceptColumns.ContainsKey(table) && _config.UpdateExceptColumns[table].Any(p => p.ColumnName == colunm);
         }
