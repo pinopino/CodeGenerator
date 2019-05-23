@@ -196,11 +196,6 @@ namespace Generator.Core
                 }
                 sb.Append(config.DALConfig.HeaderNote);
                 sb.AppendLine(string.Join(Environment.NewLine, config.DALConfig.Using));
-                sb.AppendLine($"using {config.DALConfig.Namespace}.Metadata;");
-                if (config.JoinedTables != null && config.JoinedTables.Count > 0)
-                {
-                    sb.AppendLine($"using {config.ModelConfig.Namespace}.JoinedViewModel;");
-                }
                 sb.AppendLine();
                 sb.AppendLine($"namespace {config.DALConfig.Namespace}");
                 sb.AppendLine("{");
@@ -283,6 +278,10 @@ namespace Generator.Core
                     ProgressPrint(progress, (i + 1), tables.Count);
                 }
             }
+
+            // 生成BaseTableHelper、PageDataView
+            File.AppendAllText(Path.Combine(path, "BaseTableHelper.cs"), g.Get_BaseTableHelper());
+            File.AppendAllText(Path.Combine(path, "PageDataView.cs"), g.Get_PageDataView());
 
             // 拷贝公用文件到指定目录
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);

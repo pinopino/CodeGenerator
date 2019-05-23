@@ -33,7 +33,6 @@ namespace Console
             // todo: 有点丑陋，可以考虑走ioc
             switch (config.DBType)
             {
-                case "sqlserver":
                 case "mssql":
                     parser = new Generator.Core.MSSql.Parser(config, progress);
                     break;

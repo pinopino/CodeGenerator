@@ -167,6 +167,12 @@
     <Compile Include="SQLServerManagement.cs" />
     <Compile Include="Templates\BLLTemplate.cs" />
     <Compile Include="Templates\DALTemplate.cs" />
+    <Content Include="Templates\DAL\Base\BaseTableHelper.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\DAL\Base\PageDataView.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Templates\EnumTemplate.cs" />
     <Compile Include="Templates\ModelTemplate.cs" />
   </ItemGroup>

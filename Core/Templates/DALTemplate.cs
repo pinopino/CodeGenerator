@@ -5,6 +5,15 @@ namespace Generator.Template
 {
     public class DALTemplate
     {
+        #region 元数据
+        #endregion
+
+        #region Base
+        public readonly static string BASE_TABLE_HELPER_TEMPLATE = GetTemplateFile("BaseTableHelper");
+
+        public readonly static string PAGE_VIEW_DATA_TEMPLATE = GetTemplateFile("PageDataView");
+        #endregion
+
         #region Exists
         public readonly static string EXISTS_TEMPLATE1 = GetTemplateFile("EXISTS_TEMPLATE1");
         // Exists_With_Predicate
