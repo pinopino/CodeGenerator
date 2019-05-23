@@ -32,6 +32,12 @@ namespace Generator.Core
         public abstract string Get_MetaData3(string tableName);
         #endregion
 
+        #region Base
+        public abstract string Get_BaseTableHelper();
+
+        public abstract string Get_PageDataView();
+        #endregion
+
         #region Exists
         public string Get_Exists(string tableName)
         {

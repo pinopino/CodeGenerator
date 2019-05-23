@@ -31,6 +31,9 @@ namespace Generator.Core.Config
             if (string.IsNullOrWhiteSpace(this.ModelConfig.HeaderNote))
                 this.ModelConfig.HeaderNote = "/*{0} *  {1}{0} *  本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！{0} */{0}";
             this.ModelConfig.HeaderNote = string.Format(this.ModelConfig.HeaderNote, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            if (string.IsNullOrWhiteSpace(this.ModelConfig.Namespace))
+                this.ModelConfig.Namespace = "Model";
+            this.ModelConfig.Namespace = string.Format("{0}.{1}", this.Project, this.ModelConfig.Namespace);
             if (this.ModelConfig.Using == null || this.ModelConfig.Using.Count == 0)
                 this.ModelConfig.Using = new List<string> {
                     "using System;",
@@ -38,14 +41,14 @@ namespace Generator.Core.Config
                     "using System.Linq;",
                     "using System.Text;"
                 };
-            if (string.IsNullOrWhiteSpace(this.ModelConfig.Namespace))
-                this.ModelConfig.Namespace = "Model";
-            this.ModelConfig.Namespace = string.Format("{0}.{1}", this.Project, this.ModelConfig.Namespace);
 
             // dal
             if (string.IsNullOrWhiteSpace(this.DALConfig.HeaderNote))
                 this.DALConfig.HeaderNote = "/*{0} *  {1}{0} *  本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！{0} */{0}";
             this.DALConfig.HeaderNote = string.Format(this.DALConfig.HeaderNote, Environment.NewLine, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            if (string.IsNullOrWhiteSpace(this.DALConfig.Namespace))
+                this.DALConfig.Namespace = "DAL";
+            this.DALConfig.Namespace = string.Format("{0}.{1}", this.Project, this.DALConfig.Namespace);
             if (this.DALConfig.Using == null || this.DALConfig.Using.Count == 0)
                 this.DALConfig.Using = new List<string> {
                     "using System;",
@@ -54,10 +57,11 @@ namespace Generator.Core.Config
                     "using System.Text;",
                     "using Dapper",
                 };
-            this.DALConfig.Using.Add(string.Format("using {0}.{1};", this.Project, this.ModelConfig.Namespace));
-            if (string.IsNullOrWhiteSpace(this.DALConfig.Namespace))
-                this.DALConfig.Namespace = "DAL";
-            this.DALConfig.Namespace = string.Format("{0}.{1}", this.Project, this.DALConfig.Namespace);
+            this.DALConfig.Using.Add(string.Format("using {0};", this.ModelConfig.Namespace));
+            this.DALConfig.Using.Add(string.Format("using {0}.{1};", this.DALConfig.Namespace, "Metadata"));
+            this.DALConfig.Using.Add(string.Format("using {0}.{1};", this.DALConfig.Namespace, "Base"));
+            if (this.JoinedTables != null && this.JoinedTables.Count > 0)
+                this.DALConfig.Using.Add(string.Format("using {0}.{1}", this.ModelConfig.Namespace, "JoinedViewModel"));
         }
 
         /// <summary>

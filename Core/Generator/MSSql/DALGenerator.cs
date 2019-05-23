@@ -142,6 +142,57 @@ namespace Generator.Core.MSSql
         }
         #endregion
 
+        #region Base
+        public override string Get_BaseTableHelper()
+        {
+            var sb1 = new StringBuilder();
+            sb1.Append("IDbConnection connection = new SqlConnection(ConnectionString);");
+
+            var sb2 = new StringBuilder();
+            sb2.AppendLine("var count_sql = string.Format(\"SELECT COUNT(1) FROM {0}\", tableName);");
+            sb2.AppendLine("\t\t\tif (string.IsNullOrWhiteSpace(orderBy))");
+            sb2.AppendLine("\t\t\t{");
+            sb2.AppendLine("\t\t\t\torderBy = \"id desc\";");
+            sb2.AppendLine("\t\t\t}");
+            sb2.AppendLine("\t\t\tif (!string.IsNullOrWhiteSpace(where))");
+            sb2.AppendLine("\t\t\t{");
+            sb2.AppendLine("\t\t\t\tif (where.ToLower().Contains(\"where\"))");
+            sb2.AppendLine("\t\t\t\t{");
+            sb2.AppendLine("\t\t\t\tthrow new ArgumentException(\"where子句不需要带where关键字\");");
+            sb2.AppendLine("\t\t\t\t}");
+            sb2.AppendLine("\t\t\t\twhere = \" WHERE \" + where;");
+            sb2.AppendLine("\t\t\t}");
+            sb2.AppendLine();
+            sb2.AppendLine("\t\t\tvar sql = string.Format(\"SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged \", columns, orderBy, tableName, where);");
+            sb2.AppendLine("\t\t\tvar pageStart = (currentPage - 1) * pageSize;");
+            sb2.AppendLine("\t\t\tsql += string.Format(\" WHERE Row >{0} AND Row <={1}\", pageStart, pageStart + pageSize);");
+            sb2.AppendLine("\t\t\tcount_sql += where;");
+            sb2.AppendLine("\t\t\tusing (var conn = GetOpenConnection())");
+            sb2.AppendLine("\t\t\t{");
+            sb2.AppendLine("\t\t\t\tresult.TotalRecords = connection.ExecuteScalar<int>(count_sql);");
+            sb2.AppendLine("\t\t\t\tresult.TotalPages = result.TotalRecords / pageSize;");
+            sb2.AppendLine("\t\t\t\tif (result.TotalRecords % pageSize > 0)");
+            sb2.AppendLine("\t\t\t\t\tresult.TotalPages += 1;");
+            sb2.AppendLine("\t\t\t\tvar list = connection.Query<T>(sql);");
+            sb2.AppendLine("\t\t\t\tresult.Items = list.Count() == 0 ? (new List<T>()) : list.ToList();");
+            sb2.Append("\t\t\t}");
+
+            var str = string.Format(DALTemplate.BASE_TABLE_HELPER_TEMPLATE,
+                                    _config.DALConfig.Namespace,
+                                    _config.DBConn,
+                                    sb1.ToString(),
+                                    sb2.ToString());
+            return str;
+        }
+
+        public override string Get_PageDataView()
+        {
+            var str = string.Format(DALTemplate.PAGE_VIEW_DATA_TEMPLATE,
+                                    _config.DALConfig.Namespace);
+            return str;
+        }
+        #endregion
+
         #region Exists
         protected override string Get_Exists1(string tableName)
         {
