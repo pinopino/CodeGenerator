@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 
 namespace Generator.Core.Config
 {
@@ -10,6 +9,8 @@ namespace Generator.Core.Config
     // https://stackoverflow.com/questions/53166201/converting-iconfigurationsection-to-ioptions
     public sealed class GlobalConfiguration
     {
+        private IConfigurationRoot _root;
+
         public void Init(string path = "")
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -18,8 +19,8 @@ namespace Generator.Core.Config
             var builder = new ConfigurationBuilder()
                .SetBasePath(path)
                .AddJsonFile("appsettings.json");
-            var root = builder.Build();
-            root.Bind(this);
+            _root = builder.Build();
+            _root.Bind(this);
 
             // 修正某些字段保证初始化效果
             if (string.IsNullOrWhiteSpace(this.Project))
@@ -66,6 +67,11 @@ namespace Generator.Core.Config
             this.DALConfig.Using.Add(string.Format("using {0}.{1};", this.DALConfig.Namespace, "Base"));
             if (this.JoinedTables != null && this.JoinedTables.Count > 0)
                 this.DALConfig.Using.Add(string.Format("using {0}.{1}", this.ModelConfig.Namespace, "JoinedViewModel"));
+        }
+
+        public T GetValue<T>(string key)
+        {
+            return _root.GetValue<T>(key);
         }
 
         /// <summary>

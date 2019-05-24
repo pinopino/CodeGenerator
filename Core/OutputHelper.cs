@@ -1,11 +1,13 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
+using Generator.Core.Inject;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -55,6 +57,7 @@ namespace Generator.Core
             [typeof(TimeSpan?)] = DbType.Time,
             [typeof(object)] = DbType.Object
         };
+        private static List<IInjector> _plugins = new List<IInjector>();
 
         public static Type MapCommonType(string dbtype)
         {
@@ -142,6 +145,22 @@ namespace Generator.Core
                 default: csharpType = "object"; break;
             }
             return csharpType;
+        }
+
+        public static void LoadPlugin(GlobalConfiguration config)
+        {
+            // links: https://stackoverflow.com/questions/10732933/can-i-use-activator-createinstance-with-an-interface
+            var plugin_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CopyFiles");
+            foreach (var dll in Directory.GetFiles(plugin_path, "*.dll"))
+            {
+                Type[] load_types = (from t in Assembly.LoadFile(dll).GetExportedTypes()
+                                     where !t.IsInterface && !t.IsAbstract
+                                     where typeof(IInjector).IsAssignableFrom(t)
+                                     select t).ToArray();
+                IInjector[] objs = load_types.Select(t => (IInjector)Activator.CreateInstance(t, config)).ToArray();
+
+                _plugins.AddRange(objs);
+            }
         }
 
         public static void OutputConfig(string content, GlobalConfiguration config, IProgressBar progress = null)
@@ -323,10 +342,18 @@ namespace Generator.Core
                 sb.AppendLine();
                 sb.AppendLine($"namespace {config.ModelConfig.Namespace}");
                 sb.AppendLine("{");
-                sb.AppendLine(config.TraceFieldTables != null && config.TraceFieldTables.Count > 0 ? g.Get_Class_With_Trace(table) : g.Get_Class(table));
+                sb.AppendLine(g.Get_Class(table));
                 sb.AppendLine("}");
 
-                File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", table.Name)), sb.ToString());
+                var new_str = sb.ToString();
+                foreach (var plug in _plugins)
+                {
+                    if (!typeof(IModelInjector).IsAssignableFrom(plug.GetType()))
+                        continue;
+                    new_str = plug.Inject(sb.ToString());
+                }
+
+                File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", table.Name)), new_str);
                 sb.Clear();
 
                 if (progress != null)
@@ -423,7 +450,7 @@ namespace Generator.Core
                         {
                             var tempname = Regex.Replace(table.Name, @"\d", "").Replace("_", "");
                             var enum_name = string.Format("{0}_{1}_{2}", tempname, column.Name, "Enum");
-                            if (_exist_enum.Contains(enum_name)) continue;                            
+                            if (_exist_enum.Contains(enum_name)) continue;
                             sb.Append(config.ModelConfig.HeaderNote);
                             sb.Append(string.Join(Environment.NewLine, config.ModelConfig.Using));
                             sb.AppendLine();

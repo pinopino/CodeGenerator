@@ -56,6 +56,9 @@ namespace Console
                 key = System.Console.ReadLine();
                 if (key == "Y" || key == "y")
                 {
+                    // 手动加载插件
+                    OutputHelper.LoadPlugin(config);
+
                     // 生成DAL最终文件
                     Print("生成DAL...");
                     OutputHelper.OutputDAL(meta_data, config, progress);

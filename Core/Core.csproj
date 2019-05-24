@@ -158,6 +158,8 @@
     <Compile Include="Generator\MSSql\ModelGenerator.cs" />
     <Compile Include="Generator\MSSql\DALGenerator.cs" />
     <Compile Include="Generator\MSSql\ReCreator.cs" />
+    <Compile Include="Inject\DALInjector.cs" />
+    <Compile Include="Inject\IInjector.cs" />
     <Compile Include="Parser\BaseParser.cs" />
     <Compile Include="Parser\MSSql\Parser.cs" />
     <Compile Include="Parser\MySql\Parser.cs" />
