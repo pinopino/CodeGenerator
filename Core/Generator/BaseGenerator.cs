@@ -161,12 +161,12 @@ namespace Generator.Core
 
         public abstract string Get_Class(TableMetaData table);
 
-        public abstract string Get_Joined_Class(JoinMapping join_info);
-
         // 此虚方法中对于join的实现是用嵌套类来表达的，你如果觉得不满足也可以重载掉
         // 填入自己的逻辑
-        public virtual string Get_Joined_Class2(TableMetaData table1, TableMetaData table2, JoinMapping join_info)
+        public virtual string Get_Joined_Class(JoinMapping join_info)
         {
+            var table1 = _tables[join_info.Table_Main.Name];
+            var table2 = _tables[join_info.Table_Sub.Name];
             // 生成外层
             var out_class = Get_Class(table1);
             // 生成内层
