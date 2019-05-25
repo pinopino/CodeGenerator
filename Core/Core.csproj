@@ -158,7 +158,7 @@
     <Compile Include="Generator\MSSql\ModelGenerator.cs" />
     <Compile Include="Generator\MSSql\DALGenerator.cs" />
     <Compile Include="Generator\MSSql\ReCreator.cs" />
-    <Compile Include="Inject\DALInjector.cs" />
+    <Compile Include="Inject\BaseInjector.cs" />
     <Compile Include="Inject\IInjector.cs" />
     <Compile Include="Parser\BaseParser.cs" />
     <Compile Include="Parser\MSSql\Parser.cs" />
@@ -258,9 +258,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\Model\CLASS.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\Model\JOINED_CLASS.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Templates\Model\ENTITY_CLASS.txt">

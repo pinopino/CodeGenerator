@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Generator.Core.Inject
 {
-    public abstract class BaseInjector : IInjector
+    public class BaseInjector : IInjector
     {
         protected static readonly string _mark_head = "//@_head__@";
         protected static readonly string _mark_tail = "//@_tail__@";
@@ -34,7 +34,10 @@ namespace Generator.Core.Inject
             return ret.ToString();
         }
 
-        public abstract string Inject(string originContent);
+        public virtual string Inject(string originContent)
+        {
+            return originContent;
+        }
 
         public string InjectTail(string originContent, string injectContent)
         {
