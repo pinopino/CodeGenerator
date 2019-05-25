@@ -1,9 +1,9 @@
 ﻿using Generator.Core.Config;
+using Generator.Core.Inject;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using Generator.Core.Inject;
+using System.Text;
 
 namespace Generator.Core
 {
@@ -185,10 +185,30 @@ namespace Generator.Core
 
     public abstract class BaseGenerator_Enum : BaseGenerator
     {
+        public abstract string EnumName { get; }
+
         public BaseGenerator_Enum(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }
 
-        public abstract string Get_Enum(string enumName, string enumStr, ColumnMetaData column);
+        public virtual string Get_Head(ColumnMetaData column)
+        {
+            var sb = new StringBuilder();
+            sb.Append(_config.ModelConfig.HeaderNote);
+            sb.Append(string.Join(Environment.NewLine, _config.ModelConfig.Using));
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine(string.Format("namespace {0}.{1}", _config.Project, "GenEnum"));
+            sb.Append("{");
+
+            return sb.ToString();
+        }
+
+        public abstract string Get_Enum(ColumnMetaData column);
+
+        public virtual string Get_Tail(ColumnMetaData column)
+        {
+            return "}";
+        }
     }
 }

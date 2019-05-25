@@ -3,19 +3,27 @@ using Generator.Template;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Generator.Core.MSSql
 {
     public class EnumGenerator : BaseGenerator_Enum
     {
+        private string _enum_name;
+        public override string EnumName { get { return this._enum_name; } }
+
         public EnumGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }
 
-        public override string Get_Enum(string enumName, string enumStr, ColumnMetaData column)
+        public override string Get_Enum(ColumnMetaData column)
         {
+            var enum_str = GetStrFromComment(column);
+            var tempname = Regex.Replace(column.TableName, @"\d", "").Replace("_", "");
+            _enum_name = string.Format("{0}_{1}_{2}", tempname, column.Name, "Enum");
+
             var sb = new StringBuilder();
-            var arrs = enumStr.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var arrs = enum_str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < arrs.Length; i += 2)
             {
                 var is_number = int.TryParse(arrs[i], out _);
@@ -46,11 +54,24 @@ namespace Generator.Core.MSSql
             }
 
             var str = string.Format(EnumTemplate.Enum_TEMPLATE,
-                                    enumName,
-                                    enumStr,
-                                    enumName,
+                                    _enum_name,
+                                    enum_str,
+                                    _enum_name,
                                     sb.ToString());
             return str;
+        }
+
+        private string GetStrFromComment(ColumnMetaData column)
+        {
+            var enumStr = string.Empty;
+            var _regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase);
+            var match = _regex.Match(column.Comment);
+            if (match.Success)
+            {
+                enumStr = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");
+            }
+
+            return enumStr;
         }
     }
 }
