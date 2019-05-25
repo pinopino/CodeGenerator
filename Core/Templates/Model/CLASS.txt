@@ -2,7 +2,6 @@
 	/// {0}实体
 	/// {1}
 	/// </summary>
-	[Serializable]
 	public class {2}{3}{4}{5}
 	{{
 		//@_head__@

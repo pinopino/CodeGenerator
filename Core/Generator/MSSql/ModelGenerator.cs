@@ -8,12 +8,16 @@ namespace Generator.Core.MSSql
 {
     public class ModelGenerator : BaseGenerator_Model
     {
+        private string _table_name;
+        public override string FileName { get { return this._table_name; } }
+
         public ModelGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }
 
         public override string Get_Class(TableMetaData table)
         {
+            _table_name = table.Name;
             var sb1 = new StringBuilder();
             for (int i = 0; i < table.Columns.Count; i++)
             {

@@ -9,6 +9,8 @@ namespace Generator.Core.MSSql
 {
     public class DALGenerator : BaseGenerator_DAL
     {
+        public override string FileName => throw new NotImplementedException();
+
         public DALGenerator(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }

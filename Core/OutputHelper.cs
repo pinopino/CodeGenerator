@@ -313,7 +313,6 @@ namespace Generator.Core
             var path = Path.Combine(config.OutputBasePath, "Model");
             Directory.CreateDirectory(path);
 
-            var sb = new StringBuilder();
             BaseGenerator_Model g = null;
             // todo: 有点丑陋，可以考虑走ioc
             switch (config.DBType)
@@ -328,6 +327,7 @@ namespace Generator.Core
 
             // 解析
             var i = 0;
+            var sb = new StringBuilder();
             foreach (var key in tables.Keys)
             {
                 var table = tables[key];
@@ -335,13 +335,9 @@ namespace Generator.Core
                 {
                     continue;
                 }
-                sb.Append(config.ModelConfig.HeaderNote);
-                sb.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
-                sb.AppendLine();
-                sb.AppendLine($"namespace {config.ModelConfig.Namespace}");
-                sb.AppendLine("{");
+                sb.AppendLine(g.Get_Head(table));
                 sb.AppendLine(g.Get_Class(table));
-                sb.AppendLine("}");
+                sb.AppendLine(g.Get_Tail(table));
 
                 var new_str = sb.ToString();
                 foreach (var plug in _plugins)
@@ -351,7 +347,7 @@ namespace Generator.Core
                     new_str = plug.Inject(sb.ToString());
                 }
 
-                File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", table.Name)), new_str);
+                File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), new_str);
                 sb.Clear();
 
                 if (progress != null)
@@ -369,36 +365,11 @@ namespace Generator.Core
                 var sb2 = new StringBuilder();
                 foreach (var map in config.JoinedTables)
                 {
-                    sb2.Append(config.ModelConfig.HeaderNote);
-                    sb2.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
-                    sb2.AppendLine();
-                    sb2.AppendLine($"namespace {config.ModelConfig.Namespace}.JoinedViewModel");
-                    sb2.AppendLine("{");
+                    sb2.AppendLine(g.Get_Join_Head(map));
                     sb2.AppendLine(g.Get_Joined_Class(map));
-                    sb2.AppendLine("}");
+                    sb2.AppendLine(g.Get_Join_Tail(map));
 
-                    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + map.Table_Main.Name)), sb2.ToString());
-                    sb2.Clear();
-                }
-            }
-
-            // 如果配置文件指定了EntityTables，那么这里需要生成实现接口IEntity接口的model
-            // 路径：Model\EntityModel
-            if (config.EntityTables != null && config.EntityTables.Count > 0)
-            {
-                Directory.CreateDirectory(Path.Combine(path, "EntityModel"));
-                var sb2 = new StringBuilder();
-                foreach (var talbe in config.EntityTables)
-                {
-                    sb2.Append(config.ModelConfig.HeaderNote);
-                    sb2.AppendLine(string.Join(Environment.NewLine, config.ModelConfig.Using));
-                    sb2.AppendLine();
-                    sb2.AppendLine($"namespace {config.ModelConfig.Namespace}.EntityModel");
-                    sb2.AppendLine("{");
-                    //sb2.AppendLine(g.Get_Entity_Class(talbe));
-                    sb2.AppendLine("}");
-
-                    File.AppendAllText(Path.Combine(path, "EntityModel", string.Format("{0}.cs", "Entity" + talbe)), sb2.ToString());
+                    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + g.FileName)), sb2.ToString());
                     sb2.Clear();
                 }
             }
@@ -416,7 +387,6 @@ namespace Generator.Core
             var path = Path.Combine(config.OutputBasePath, "Enum");
             Directory.CreateDirectory(path);
 
-            var sb = new StringBuilder();
             BaseGenerator_Enum g = null;
             // todo: 有点丑陋，可以考虑走ioc
             switch (config.DBType)
@@ -431,6 +401,7 @@ namespace Generator.Core
 
             // 解析
             var i = 0;
+            var sb = new StringBuilder();
             foreach (var key in tables.Keys)
             {
                 var table = tables[key];
@@ -446,7 +417,7 @@ namespace Generator.Core
                         sb.AppendLine(g.Get_Head(column));
                         sb.AppendLine(g.Get_Enum(column));
                         sb.AppendLine(g.Get_Tail(column));
-                        File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.EnumName)), sb.ToString());
+                        File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), sb.ToString());
                         sb.Clear();
                     }
                 }
