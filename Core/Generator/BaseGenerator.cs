@@ -2,13 +2,15 @@
 using Generator.Core.Inject;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace Generator.Core
 {
-    public class BaseGenerator
+    public abstract class BaseGenerator
     {
+        public abstract string FileName { get; }
         protected readonly GlobalConfiguration _config;
         protected readonly Dictionary<string, TableMetaData> _tables;
 
@@ -155,11 +157,63 @@ namespace Generator.Core
 
     public abstract class BaseGenerator_Model : BaseGenerator
     {
+        class join_inject : BaseInjector, IModelInjector
+        {
+            public join_inject(BaseGenerator_Model _g)
+                : base(_g._config)
+            { }
+
+            public override string Inject(string originContent)
+            {
+                var ret = new StringBuilder();
+                using (StringReader sr = new StringReader(originContent))
+                {
+                    while (sr.Peek() > 0)
+                    {
+                        var line = sr.ReadLine();
+                        line = "\t" + line;
+                        ret.AppendLine(line);
+                    }
+                }
+
+                return ret.ToString();
+            }
+        }
+
         public BaseGenerator_Model(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }
 
+        public virtual string Get_Head(TableMetaData table)
+        {
+            var sb = new StringBuilder();
+            sb.Append(_config.ModelConfig.HeaderNote);
+            sb.AppendLine(string.Join(Environment.NewLine, _config.ModelConfig.Using));
+            sb.AppendLine();
+            sb.AppendLine($"namespace {_config.ModelConfig.Namespace}");
+            sb.Append("{");
+
+            return sb.ToString();
+        }
+
         public abstract string Get_Class(TableMetaData table);
+
+        public virtual string Get_Tail(TableMetaData table)
+        {
+            return "}";
+        }
+
+        public virtual string Get_Join_Head(JoinMapping join_info)
+        {
+            var sb = new StringBuilder();
+            sb.Append(_config.ModelConfig.HeaderNote);
+            sb.AppendLine(string.Join(Environment.NewLine, _config.ModelConfig.Using));
+            sb.AppendLine();
+            sb.AppendLine($"namespace {_config.ModelConfig.Namespace}.JoinedViewModel");
+            sb.AppendLine("{");
+
+            return sb.ToString();
+        }
 
         // 此虚方法中对于join的实现是用嵌套类来表达的，你如果觉得不满足也可以重载掉
         // 填入自己的逻辑
@@ -177,16 +231,19 @@ namespace Generator.Core
             table2.Name = join_info.Table_Sub.Name;
             // 通过逐行更改的方式混合在一起
             var inject = new BaseInjector(_config);
-            var ret = inject.InjectHead(out_class, inner_class);
+            var ret = inject.InjectHead(out_class, new join_inject(this).Inject(inner_class));
 
             return ret;
+        }
+
+        public virtual string Get_Join_Tail(JoinMapping join_info)
+        {
+            return "}";
         }
     }
 
     public abstract class BaseGenerator_Enum : BaseGenerator
     {
-        public abstract string EnumName { get; }
-
         public BaseGenerator_Enum(GlobalConfiguration config, Dictionary<string, TableMetaData> tables)
             : base(config, tables)
         { }
