@@ -4,7 +4,7 @@
 	/// </summary>
 	public static class {2}
 	{{
-	//@_head__@
+		//@_head__@
 {3}
-	//@_tail__@
+		//@_tail__@
 	}}
