@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Generator.Core.Inject;
 
 namespace Generator.Core
 {
@@ -161,6 +162,25 @@ namespace Generator.Core
         public abstract string Get_Class(TableMetaData table);
 
         public abstract string Get_Joined_Class(JoinMapping join_info);
+
+        // 此虚方法中对于join的实现是用嵌套类来表达的，你如果觉得不满足也可以重载掉
+        // 填入自己的逻辑
+        public virtual string Get_Joined_Class2(TableMetaData table1, TableMetaData table2, JoinMapping join_info)
+        {
+            // 生成外层
+            var out_class = Get_Class(table1);
+            // 生成内层
+            //  保证表名正常
+            if (join_info.Sub_InnerName != join_info.Table_Sub.Name)
+                table2.Name = join_info.Sub_InnerName;
+            var inner_class = Get_Class(table2);
+            table2.Name = join_info.Table_Sub.Name;
+            // 通过逐行更改的方式混合在一起
+            var inject = new BaseInjector(_config);
+            var ret = inject.InjectHead(out_class, inner_class);
+
+            return ret;
+        }
     }
 
     public abstract class BaseGenerator_Enum : BaseGenerator

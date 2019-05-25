@@ -50,7 +50,7 @@ namespace Generator.Core.MSSql
                 sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
                 sb2.AppendLine();
             }
-            
+
             var str = string.Format(ModelTemplate.CLASS,
                                     table.Name,
                                     table.Comment,
@@ -90,49 +90,21 @@ namespace Generator.Core.MSSql
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var p = table_config.Columns[i];
-                if (i == table_config.Columns.Count - 1)
+                sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
+                sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
+                sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
+                if (p.Nullable && p.DbType != "string")
                 {
-                    sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
-                    sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
-                    }
-                    else
-                    {
-                        sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
-                    }
-                    sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
-                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
-                    sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
-                    sb2.AppendLine();
-                    sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', subTable, alias));
-                    sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', subTable.ToLower()));
-                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', subTable.ToLower()));
-                    sb2.Append(string.Format("{0}{0}}}", '\t'));
+                    sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
                 }
                 else
                 {
-                    sb2.AppendLine(string.Format("{0}{0}/// <summary>", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}/// {1}", '\t', p.Comment));
-                    sb2.AppendLine(string.Format("{0}{0}/// </summary>", '\t'));
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb2.AppendLine(string.Format("{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
-                    }
-                    else
-                    {
-                        sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
-                    }
-                    sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
-                    sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
-                    sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
-                    sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
-                    sb2.AppendLine();
+                    sb2.AppendLine(string.Format("{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                 }
+                sb2.AppendLine(string.Format("{0}{0}{{", '\t'));
+                sb2.AppendLine(string.Format("{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
+                sb2.AppendLine(string.Format("{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
+                sb2.AppendLine(string.Format("{0}{0}}}", '\t'));
             }
 
             table_config = _tables[subTable];
@@ -140,72 +112,35 @@ namespace Generator.Core.MSSql
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var p = table_config.Columns[i];
-                if (i == table_config.Columns.Count - 1)
+                if (p.Nullable && p.DbType != "string")
                 {
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb3.Append(string.Format("{0}{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
-                    else
-                    {
-                        sb3.Append(string.Format("{0}{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
+                    sb3.AppendLine(string.Format("{0}{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
                 else
                 {
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb3.AppendLine(string.Format("{0}{0}{0}private {1}? _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
-                    else
-                    {
-                        sb3.AppendLine(string.Format("{0}{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
-                    }
+                    sb3.AppendLine(string.Format("{0}{0}{0}private {1} _{2};", '\t', p.DbType, p.Name.ToLower()));
                 }
             }
-            sb3.AppendLine();
 
             var sb4 = new StringBuilder();
             for (int i = 0; i < table_config.Columns.Count; i++)
             {
                 var p = table_config.Columns[i];
-                if (i == table_config.Columns.Count - 1)
+                sb4.AppendLine(string.Format("{0}{0}{0}/// <summary>", '\t'));
+                sb4.AppendLine(string.Format("{0}{0}{0}/// {1}", '\t', p.Comment));
+                sb4.AppendLine(string.Format("{0}{0}{0}/// </summary>", '\t'));
+                if (p.Nullable && p.DbType != "string")
                 {
-                    sb4.AppendLine(string.Format("{0}{0}{0}/// <summary>", '\t'));
-                    sb4.AppendLine(string.Format("{0}{0}{0}/// {1}", '\t', p.Comment));
-                    sb4.AppendLine(string.Format("{0}{0}{0}/// </summary>", '\t'));
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb4.AppendLine(string.Format("{0}{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
-                    }
-                    else
-                    {
-                        sb4.AppendLine(string.Format("{0}{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
-                    }
-                    sb4.AppendLine(string.Format("{0}{0}{0}{{", '\t'));
-                    sb4.AppendLine(string.Format("{0}{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
-                    sb4.AppendLine(string.Format("{0}{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
-                    sb4.Append(string.Format("{0}{0}{0}}}", '\t'));
+                    sb4.AppendLine(string.Format("{0}{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
                 }
                 else
                 {
-                    sb4.AppendLine(string.Format("{0}{0}{0}/// <summary>", '\t'));
-                    sb4.AppendLine(string.Format("{0}{0}{0}/// {1}", '\t', p.Comment));
-                    sb4.AppendLine(string.Format("{0}{0}{0}/// </summary>", '\t'));
-                    if (p.Nullable && p.DbType != "string")
-                    {
-                        sb4.AppendLine(string.Format("{0}{0}{0}public {1}? {2}", '\t', p.DbType, p.Name));
-                    }
-                    else
-                    {
-                        sb4.AppendLine(string.Format("{0}{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
-                    }
-                    sb4.AppendLine(string.Format("{0}{0}{0}{{", '\t'));
-                    sb4.AppendLine(string.Format("{0}{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
-                    sb4.AppendLine(string.Format("{0}{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
-                    sb4.AppendLine(string.Format("{0}{0}{0}}}", '\t'));
-                    sb4.AppendLine();
+                    sb4.AppendLine(string.Format("{0}{0}{0}public {1} {2}", '\t', p.DbType, p.Name));
                 }
+                sb4.AppendLine(string.Format("{0}{0}{0}{{", '\t'));
+                sb4.AppendLine(string.Format("{0}{0}{0}{0}set {{ _{1} = value; }}", '\t', p.Name.ToLower()));
+                sb4.AppendLine(string.Format("{0}{0}{0}{0}get {{ return _{1}; }}", '\t', p.Name.ToLower()));
+                sb4.AppendLine(string.Format("{0}{0}{0}}}", '\t'));
             }
 
             var str = string.Format(ModelTemplate.JOINED_CLASS,
