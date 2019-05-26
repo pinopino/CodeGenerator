@@ -160,10 +160,10 @@ namespace Generator.Core
         class join_inject : BaseInjector, IModelInjector
         {
             public join_inject(BaseGenerator_Model _g)
-                : base(_g._config)
+                : base(_g._tables, _g._config)
             { }
 
-            public override string Inject(string originContent)
+            public override string Inject(string originContent, string tableName = "", string columnName = "")
             {
                 var ret = new StringBuilder();
                 using (StringReader sr = new StringReader(originContent))
@@ -230,7 +230,7 @@ namespace Generator.Core
             var inner_class = Get_Class(table2);
             table2.Name = join_info.Table_Sub.Name;
             // 通过逐行更改的方式混合在一起
-            var inject = new BaseInjector(_config);
+            var inject = new BaseInjector(_tables, _config);
             var ret = inject.InjectHead(out_class, new join_inject(this).Inject(inner_class));
 
             return ret;
