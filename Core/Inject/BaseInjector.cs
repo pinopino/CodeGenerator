@@ -1,4 +1,5 @@
 ﻿using Generator.Core.Config;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -9,13 +10,15 @@ namespace Generator.Core.Inject
         protected static readonly string _mark_head = "//@_head__@";
         protected static readonly string _mark_tail = "//@_tail__@";
         protected GlobalConfiguration _config;
+        protected Dictionary<string, TableMetaData> _tables;
 
-        public BaseInjector(GlobalConfiguration config)
+        public BaseInjector(Dictionary<string, TableMetaData> tables, GlobalConfiguration config)
         {
+            _tables = tables;
             _config = config;
         }
 
-        public string InjectHead(string originContent, string injectContent)
+        public string InjectHead(string originContent, string injectContent, string tableName = "", string columnName = "")
         {
             var ret = new StringBuilder();
             using (StringReader sr = new StringReader(originContent))
@@ -34,12 +37,12 @@ namespace Generator.Core.Inject
             return ret.ToString();
         }
 
-        public virtual string Inject(string originContent)
+        public virtual string Inject(string originContent, string tableName = "", string columnName = "")
         {
             return originContent;
         }
 
-        public string InjectTail(string originContent, string injectContent)
+        public string InjectTail(string originContent, string injectContent, string tableName = "", string columnName = "")
         {
             var ret = new StringBuilder();
             using (StringReader sr = new StringReader(originContent))

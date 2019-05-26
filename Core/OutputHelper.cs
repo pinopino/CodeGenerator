@@ -145,7 +145,7 @@ namespace Generator.Core
             return csharpType;
         }
 
-        public static void LoadPlugin(GlobalConfiguration config)
+        public static void LoadPlugin(Dictionary<string, TableMetaData> tables, GlobalConfiguration config)
         {
             // links: https://stackoverflow.com/questions/10732933/can-i-use-activator-createinstance-with-an-interface
             var plugin_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CopyFiles");
@@ -155,7 +155,7 @@ namespace Generator.Core
                                      where !t.IsInterface && !t.IsAbstract
                                      where typeof(IInjector).IsAssignableFrom(t)
                                      select t).ToArray();
-                IInjector[] objs = load_types.Select(t => (IInjector)Activator.CreateInstance(t, config)).ToArray();
+                IInjector[] objs = load_types.Select(t => (IInjector)Activator.CreateInstance(t, tables, config)).ToArray();
 
                 _plugins.AddRange(objs);
             }
@@ -344,7 +344,7 @@ namespace Generator.Core
                 {
                     if (!typeof(IModelInjector).IsAssignableFrom(plug.GetType()))
                         continue;
-                    new_str = plug.Inject(sb.ToString());
+                    new_str = plug.Inject(sb.ToString(), table.Name);
                 }
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), new_str);

@@ -57,7 +57,7 @@ namespace Console
                 if (key == "Y" || key == "y")
                 {
                     // 手动加载插件
-                    OutputHelper.LoadPlugin(config);
+                    OutputHelper.LoadPlugin(meta_data, config);
 
                     // 生成DAL最终文件
                     Print("生成DAL...");

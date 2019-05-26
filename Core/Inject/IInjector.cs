@@ -2,7 +2,7 @@
 {
     public interface IInjector
     {
-        string Inject(string originContent);
+        string Inject(string originContent, string tableName = "", string columnName = "");
     }
 
     public interface IDALInjector : IInjector
