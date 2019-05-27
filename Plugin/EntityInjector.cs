@@ -44,7 +44,6 @@ namespace Plugin
                 sb.AppendLine($"\t\t\tif (_ver_{col.Name.ToLower()} != 0)");
                 sb.AppendLine("\t\t\t{");
                 sb.AppendLine($"\t\t\t\tinfo.Add(\"{col.Name}\", _{col.Name.ToLower()});");
-                sb.AppendLine($"\t\t\t_ver_{col.Name.ToLower()} = 0;");
                 sb.AppendLine("\t\t\t}");
             }
             sb.AppendLine("\t\t\treturn info;");
