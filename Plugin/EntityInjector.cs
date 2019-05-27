@@ -6,26 +6,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Linq;
 
 namespace Plugin
 {
-    public class TraceFieldInjector : BaseInjector, IModelInjector
+    internal class EntityInjector : BaseInjector, IModelInjector
     {
-        public TraceFieldInjector(Dictionary<string, TableMetaData> tables, GlobalConfiguration config)
+        public EntityInjector(Dictionary<string, TableMetaData> tables, GlobalConfiguration config)
             : base(tables, config)
         { }
 
         public override string Inject(string originContent, string tableName = "", string columnName = "")
         {
-            var table = _tables[tableName];
-            if (!_config.TraceFieldTables.Any(p => p.Name == tableName))
-                return originContent;
-
             var ret = new StringBuilder();
+
             // fields
             var sb1 = new StringBuilder();
             sb1.AppendLine("\t\tprivate bool _____flag;");
+            var table = _tables[tableName];
             foreach (var col in table.Columns)
             {
                 sb1.AppendLine(string.Format("{0}{0}private volatile int _ver_{1};", '\t', col.Name.ToLower()));
