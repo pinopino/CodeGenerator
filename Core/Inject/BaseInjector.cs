@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System;
 
 namespace Generator.Core.Inject
 {
@@ -18,7 +19,7 @@ namespace Generator.Core.Inject
             _config = config;
         }
 
-        public string InjectHead(string originContent, string injectContent, string tableName = "", string columnName = "")
+        public string InjectHead(string originContent, string injectContent)
         {
             var ret = new StringBuilder();
             using (StringReader sr = new StringReader(originContent))
@@ -42,7 +43,7 @@ namespace Generator.Core.Inject
             return originContent;
         }
 
-        public string InjectTail(string originContent, string injectContent, string tableName = "", string columnName = "")
+        public string InjectTail(string originContent, string injectContent)
         {
             var ret = new StringBuilder();
             using (StringReader sr = new StringReader(originContent))
@@ -59,6 +60,11 @@ namespace Generator.Core.Inject
             }
 
             return ret.ToString();
+        }
+
+        public virtual void InjectToNewFile(string fileName, string tableName = "", string columnName = "")
+        {
+            throw new NotImplementedException();
         }
     }
 }
