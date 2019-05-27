@@ -2,6 +2,7 @@
 {
     public interface IInjector
     {
+        string Name { get; }
         string Inject(string originContent, string tableName = "", string columnName = "");
     }
 

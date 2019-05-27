@@ -346,6 +346,8 @@ namespace Generator.Core
                     if (!typeof(IModelInjector).IsAssignableFrom(plug.GetType()))
                         continue;
                     new_str = plug.Inject(sb.ToString(), table.Name);
+                    File.AppendAllText(Path.Combine(path, plug.Name, string.Format("{0}.cs", g.FileName)), new_str);
+                    new_str = string.Empty;
                 }
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), new_str);
