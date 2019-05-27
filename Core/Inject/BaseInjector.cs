@@ -61,10 +61,5 @@ namespace Generator.Core.Inject
 
             return ret.ToString();
         }
-
-        public virtual void InjectToNewFile(string fileName, string tableName = "", string columnName = "")
-        {
-            throw new NotImplementedException();
-        }
     }
 }
