@@ -340,6 +340,7 @@ namespace Generator.Core
                 sb.AppendLine(g.Get_Tail(table));
 
                 var new_str = sb.ToString();
+                // 插件的执行顺序
                 foreach (var plug in _plugins)
                 {
                     if (!typeof(IModelInjector).IsAssignableFrom(plug.GetType()))
