@@ -18,14 +18,19 @@ namespace Plugin
             : base(tables, config)
         { }
 
+        public override bool Check(string tableName, string columnName = "")
+        {
+            if (_config.EntityTables == null || _config.EntityTables.Count == 0)
+                return false;
+            if (!_config.EntityTables.Any(p => p.Name == tableName))
+                return false;
+
+            return true;
+        }
+
         public override string Inject(string originContent, string tableName = "", string columnName = "")
         {
             var table = _tables[tableName];
-            if (_config.EntityTables == null || _config.EntityTables.Count == 0)
-                return originContent;
-            if (!_config.EntityTables.Any(p => p.Name == tableName))
-                return originContent;
-
             var ret = new StringBuilder();
             // fields
             var sb = new StringBuilder();

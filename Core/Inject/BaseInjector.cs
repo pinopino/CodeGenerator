@@ -22,6 +22,11 @@ namespace Generator.Core.Inject
                 EnsurePath();
         }
 
+        public virtual bool Check(string tableName, string columnName = "")
+        {
+            return true;
+        }
+
         public string InjectHead(string originContent, string injectContent)
         {
             var ret = new StringBuilder();
