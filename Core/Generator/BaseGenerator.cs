@@ -1,5 +1,6 @@
 ﻿using Generator.Core.Config;
 using Generator.Core.Inject;
+using Generator.Template;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,16 +30,189 @@ namespace Generator.Core
             : base(config, tables)
         { }
 
-        #region 元数据
-        public abstract string Get_MetaData1(string tableName);
-        public abstract string Get_MetaData2(JoinMapping join_info);
-        public abstract string Get_MetaData3(string tableName);
+        #region head生成逻辑
+        public string Get_Head(TableMetaData table)
+        {
+            var sb = new StringBuilder();
+            sb.Append(_config.DALConfig.HeaderNote);
+            sb.AppendLine(string.Join(Environment.NewLine, _config.DALConfig.Using));
+            sb.AppendLine();
+            sb.AppendLine($"namespace {_config.DALConfig.Namespace}");
+            sb.AppendLine("{");
+            sb.AppendLine(Get_MetaData1(table.Name));
+            sb.AppendLine(string.Format("{0}public partial class {1}{2}{3}{4}",
+                    '\t',
+                    _config.DALConfig.ClassPrefix,
+                    table.Name,
+                    _config.DALConfig.ClassSuffix,
+                    string.IsNullOrWhiteSpace(_config.DALConfig.BaseClass) ? string.Empty : (" : " + _config.DALConfig.BaseClass)));
+            sb.AppendLine(string.Format("{0}{{", '\t'));
+            var join_info = _config.JoinedTables == null ? null : _config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
+            if (join_info != null)
+            {
+                sb.AppendLine(Get_MetaData2(join_info));
+            }
+            sb.AppendLine(Get_MetaData3(table.Name));
+
+            return sb.ToString();
+        }
+
+        // 元数据
+        private string Get_MetaData1(string tableName)
+        {
+            var sb1 = new StringBuilder();
+            sb1.AppendLine($"\tnamespace Metadata");
+            sb1.AppendLine("\t{");
+            sb1.AppendLine($"\t\tpublic sealed class {tableName}Column : IColumn");
+            sb1.AppendLine("\t\t{");
+            sb1.AppendLine($"\t\t\tinternal {tableName}Column(string table, string name)");
+            sb1.AppendLine("\t\t\t{");
+            sb1.AppendLine("\t\t\t\tTable = table;");
+            sb1.AppendLine("\t\t\t\tName = name;");
+            sb1.AppendLine("\t\t\t}");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tpublic string Name { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tpublic string Table { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tpublic bool IsAddEqual { private set; get; }");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tprivate bool _asc;");
+            sb1.AppendLine("\t\t\tpublic string Asc { get { return this._asc ? \"ASC\" : \"DESC\"; } }");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\t\tpublic {tableName}Column SetAddEqual() {{ IsAddEqual ^= true; return this; }}");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\t\tpublic {tableName}Column SetOrderByAsc() {{ this._asc = true; return this; }}");
+            sb1.AppendLine();
+            sb1.AppendLine($"\t\t\tpublic {tableName}Column SetOrderByDesc() {{ this._asc = false; return this; }}");
+            sb1.AppendLine("\t\t}");
+            sb1.AppendLine();
+
+            sb1.AppendLine($"\t\tpublic sealed class {tableName}Table");
+            sb1.AppendLine("\t\t{");
+            sb1.AppendLine($"\t\t\tinternal {tableName}Table(string name)");
+            sb1.AppendLine("\t\t\t{");
+            sb1.AppendLine("\t\t\t\tName = name;");
+            sb1.AppendLine("\t\t\t}");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\t\tpublic string Name { private set; get; }");
+            sb1.AppendLine("\t\t}");
+            sb1.AppendLine("\t}");
+
+            return sb1.ToString();
+        }
+
+        private string Get_MetaData2(JoinMapping join_info)
+        {
+            var subTable = join_info.Table_Sub.Name;
+            var columns = _tables[subTable].Columns;
+            var sb = new StringBuilder();
+            sb.AppendLine("\t\tstatic Dictionary<string, string> col_map = new Dictionary<string, string>");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine("\t\t\t// column ==> property");
+            for (int i = 0; i < columns.Count; i++)
+            {
+                var col = columns[i];
+                sb.AppendLine($"\t\t\t{{\"{col.Name}2\", \"{col.Name}\"}}, ");
+            }
+            sb.AppendLine("\t\t};");
+            sb.AppendLine();
+            sb.AppendLine("\t\tstatic Func<Type, string, System.Reflection.PropertyInfo> mapper = (t, col) =>");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine("\t\t\tif (col_map.ContainsKey(col))");
+            sb.AppendLine("\t\t\t{");
+            sb.AppendLine("\t\t\t\treturn t.GetProperty(col_map[col]);");
+            sb.AppendLine("\t\t\t}");
+            sb.AppendLine("\t\t\telse");
+            sb.AppendLine("\t\t\t{");
+            sb.AppendLine("\t\t\t\treturn t.GetProperty(col);");
+            sb.AppendLine("\t\t\t}");
+            sb.AppendLine("\t\t};");
+            sb.AppendLine();
+            sb.AppendLine($"\t\tstatic CustomPropertyTypeMap type_map = new CustomPropertyTypeMap(typeof(Joined{join_info.Table_Main.Name}.{subTable}), (t, col) => mapper(t, col));");
+
+            return sb.ToString();
+        }
+
+        private string Get_MetaData3(string tableName)
+        {
+            var table_config = _tables[tableName];
+            var sb1 = new StringBuilder();
+            var sb2 = new StringBuilder();
+            sb1.AppendLine($"\t\tpublic static readonly {tableName}Table Table = new {tableName}Table(\"{tableName}\");");
+            sb1.AppendLine();
+            sb1.AppendLine("\t\tpublic sealed class Columns");
+            sb1.AppendLine("\t\t{");
+            for (int i = 0; i < table_config.Columns.Count; i++)
+            {
+                var column = table_config.Columns[i];
+                sb1.AppendLine($"\t\t\tpublic static readonly {tableName}Column {column.Name} = new {tableName}Column(\"{tableName}\", \"{column.Name}\");");
+                if (IsKeyword(column.Name))
+                {
+                    sb2.Append($"@{column.Name}, ");
+                }
+                else
+                {
+                    sb2.Append($"{column.Name}, ");
+                }
+            }
+            sb1.Append($"\t\t\tpublic static readonly List<{tableName}Column> All = new List<{tableName}Column> {{ ");
+            sb1.Append(sb2);
+            sb1.AppendLine("};");
+            sb1.AppendLine("\t\t}");
+
+            return sb1.ToString();
+        }
         #endregion
 
-        #region Base
-        public abstract string Get_BaseTableHelper();
+        #region BaseHelper
+        public string Get_BaseTableHelper()
+        {
+            var str1 = "IDbConnection connection = new SqlConnection(ConnectionString);";
 
-        public abstract string Get_PageDataView();
+            var sb2 = new StringBuilder();
+            sb2.AppendLine("var count_sql = string.Format(\"SELECT COUNT(1) FROM {0}\", tableName);");
+            sb2.AppendLine("\t\t\tif (string.IsNullOrWhiteSpace(orderBy))");
+            sb2.AppendLine("\t\t\t{");
+            sb2.AppendLine("\t\t\t\torderBy = \"id desc\";");
+            sb2.AppendLine("\t\t\t}");
+            sb2.AppendLine("\t\t\tif (!string.IsNullOrWhiteSpace(where))");
+            sb2.AppendLine("\t\t\t{");
+            sb2.AppendLine("\t\t\t\tif (where.ToLower().Contains(\"where\"))");
+            sb2.AppendLine("\t\t\t\t{");
+            sb2.AppendLine("\t\t\t\tthrow new ArgumentException(\"where子句不需要带where关键字\");");
+            sb2.AppendLine("\t\t\t\t}");
+            sb2.AppendLine("\t\t\t\twhere = \" WHERE \" + where;");
+            sb2.AppendLine("\t\t\t}");
+            sb2.AppendLine();
+            sb2.AppendLine("\t\t\tvar sql = string.Format(\"SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged \", columns, orderBy, tableName, where);");
+            sb2.AppendLine("\t\t\tvar pageStart = (currentPage - 1) * pageSize;");
+            sb2.AppendLine("\t\t\tsql += string.Format(\" WHERE Row >{0} AND Row <={1}\", pageStart, pageStart + pageSize);");
+            sb2.AppendLine("\t\t\tcount_sql += where;");
+            sb2.AppendLine("\t\t\tusing (var conn = GetOpenConnection())");
+            sb2.AppendLine("\t\t\t{");
+            sb2.AppendLine("\t\t\t\tresult.TotalRecords = connection.ExecuteScalar<int>(count_sql);");
+            sb2.AppendLine("\t\t\t\tresult.TotalPages = result.TotalRecords / pageSize;");
+            sb2.AppendLine("\t\t\t\tif (result.TotalRecords % pageSize > 0)");
+            sb2.AppendLine("\t\t\t\t\tresult.TotalPages += 1;");
+            sb2.AppendLine("\t\t\t\tvar list = connection.Query<T>(sql);");
+            sb2.AppendLine("\t\t\t\tresult.Items = list.Count() == 0 ? (new List<T>()) : list.ToList();");
+            sb2.Append("\t\t\t}");
+
+            var str = string.Format(DALTemplate.BASE_TABLE_HELPER_TEMPLATE,
+                                    _config.DALConfig.Namespace,
+                                    _config.DBConn,
+                                    str1,
+                                    sb2.ToString());
+            return str;
+        }
+
+        public string Get_PageDataView()
+        {
+            var str = string.Format(DALTemplate.PAGE_VIEW_DATA_TEMPLATE,
+                                    _config.DALConfig.Namespace);
+            return str;
+        }
         #endregion
 
         #region Exists
