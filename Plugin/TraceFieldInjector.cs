@@ -18,6 +18,16 @@ namespace Plugin
             : base(tables, config)
         { }
 
+        public override bool Check(string tableName, string columnName = "")
+        {
+            if (_config.TraceFieldTables == null || _config.TraceFieldTables.Count == 0)
+                return false;
+            if (!_config.TraceFieldTables.Any(p => p.Name == tableName))
+                return false;
+
+            return true;
+        }
+
         public override string Inject(string originContent, string tableName = "", string columnName = "")
         {
             var table = _tables[tableName];
