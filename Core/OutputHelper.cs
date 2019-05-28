@@ -211,25 +211,7 @@ namespace Generator.Core
                 {
                     continue;
                 }
-                sb.Append(config.DALConfig.HeaderNote);
-                sb.AppendLine(string.Join(Environment.NewLine, config.DALConfig.Using));
-                sb.AppendLine();
-                sb.AppendLine($"namespace {config.DALConfig.Namespace}");
-                sb.AppendLine("{");
-                sb.AppendLine(g.Get_MetaData1(table.Name));
-                sb.AppendLine(string.Format("{0}public partial class {1}{2}{3}{4}",
-                        '\t',
-                        config.DALConfig.ClassPrefix,
-                        table.Name,
-                        config.DALConfig.ClassSuffix,
-                        string.IsNullOrWhiteSpace(config.DALConfig.BaseClass) ? string.Empty : (" : " + config.DALConfig.BaseClass)));
-                sb.AppendLine(string.Format("{0}{{", '\t'));
-                var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
-                if (join_info != null)
-                {
-                    sb.AppendLine(g.Get_MetaData2(join_info));
-                }
-                sb.AppendLine(g.Get_MetaData3(table.Name));
+                sb.AppendLine(g.Get_Head(table));
                 // 按方法生成
                 foreach (var item in config.DALConfig.Methods)
                 {
@@ -279,10 +261,10 @@ namespace Generator.Core
                     }
                 }
                 // Joined
-                if (join_info != null)
-                {
-                    sb.Append(g.Get_Joined(join_info));
-                }
+                //if (join_info != null)
+                //{
+                //    sb.Append(g.Get_Joined(join_info));
+                //}
                 sb.AppendLine(string.Format("{0}}}", '\t'));
                 sb.AppendLine("}");
 
