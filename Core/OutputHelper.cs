@@ -219,54 +219,54 @@ namespace Generator.Core
                     {
                         case "exists":
                             {
-                                sb.AppendLine(g.Get_Exists(table.Name));
+                                sb.AppendLine(g.Get_Exists(table));
                             }
                             break;
                         case "insert":
                             {
-                                sb.AppendLine(g.Get_Insert(table.Name));
+                                sb.AppendLine(g.Get_Insert(table));
                             }
                             break;
                         case "delete":
                             {
-                                sb.AppendLine(g.Get_Delete(table.Name));
-                                sb.AppendLine(g.Get_BatchDelete(table.Name));
+                                sb.AppendLine(g.Get_Delete(table));
+                                sb.AppendLine(g.Get_BatchDelete(table));
                             }
                             break;
                         case "update":
                             {
-                                sb.AppendLine(g.Get_Update(table.Name));
+                                sb.AppendLine(g.Get_Update(table));
                             }
                             break;
                         case "getmodel":
                             {
-                                sb.AppendLine(g.Get_GetModel(table.Name));
+                                sb.AppendLine(g.Get_GetModel(table));
                             }
                             break;
                         case "getlist":
                             {
-                                sb.AppendLine(g.Get_GetList(table.Name));
+                                sb.AppendLine(g.Get_GetList(table));
                             }
                             break;
                         case "getcount":
                             {
-                                sb.AppendLine(g.Get_Count(table.Name));
+                                sb.AppendLine(g.Get_Count(table));
                             }
                             break;
                         case "getpage":
                             {
-                                sb.Append(g.Get_GetListByPage(table.Name));
+                                sb.Append(g.Get_GetListByPage(table));
                             }
                             break;
                     }
                 }
                 // Joined
-                //if (join_info != null)
-                //{
-                //    sb.Append(g.Get_Joined(join_info));
-                //}
-                sb.AppendLine(string.Format("{0}}}", '\t'));
-                sb.AppendLine("}");
+                var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
+                if (join_info != null)
+                {
+                    sb.Append(g.Get_Joined(join_info));
+                }
+                sb.AppendLine(g.Get_Tail(table));
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
                 sb.Clear();
