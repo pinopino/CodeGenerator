@@ -396,7 +396,10 @@ namespace DataLayer.Base
             var cs = ConnectionString;
             if (mars)
             {
-                var scsb = new MySqlConnectionStringBuilder(cs);
+                var scsb = new MySqlConnectionStringBuilder(cs)
+                {
+                    AllowBatch = true
+                };
                 cs = scsb.ConnectionString;
             }
             var connection = new MySqlConnection(cs);
@@ -417,7 +420,7 @@ namespace DataLayer.Base
             string orderBy,
             string columns,
             int pageSize,
-            int currentPage,string primaryKey)
+            int currentPage, string primaryKey)
         {
             var result = new PageDataView<T>();
             var count_sql = string.Format("SELECT COUNT(1) FROM {0}", tableName);
@@ -434,7 +437,7 @@ namespace DataLayer.Base
                 where = " WHERE " + where;
             }
             var pageStart = (currentPage - 1) * pageSize;
-            var sql = string.Format("SELECT {0} FROM {2} where {6} >=(select {6} from {2} {3}  ORDER BY {1} limit {4},1) limit {5}; ", columns, orderBy, tableName, where, pageStart,pageSize, primaryKey);
+            var sql = string.Format("SELECT {0} FROM {2} where {6} >=(select {6} from {2} {3}  ORDER BY {1} limit {4},1) limit {5}; ", columns, orderBy, tableName, where, pageStart, pageSize, primaryKey);
             count_sql += where;
             using (var conn = GetOpenConnection())
             {
