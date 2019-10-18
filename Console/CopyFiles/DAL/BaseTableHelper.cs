@@ -372,10 +372,6 @@ namespace DataLayer.Base
     {
         public static string ConnectionString { get; }
 
-        private static MySqlConnection _connection;
-
-        protected static MySqlConnection connection => _connection ?? (_connection = GetOpenConnection());
-
         static BaseTableHelper()
         {
             // 添加json配置文件路径
@@ -407,13 +403,6 @@ namespace DataLayer.Base
             return connection;
         }
 
-        protected static MySqlConnection GetClosedConnection()
-        {
-            var conn = new MySqlConnection(ConnectionString);
-            if (conn.State != ConnectionState.Closed) throw new InvalidOperationException("should be closed!");
-            return conn;
-        }
-
         protected static PageDataView<T> Paged<T>(
             string tableName,
             string where,
@@ -441,11 +430,11 @@ namespace DataLayer.Base
             count_sql += where;
             using (var conn = GetOpenConnection())
             {
-                result.TotalRecords = connection.ExecuteScalar<int>(count_sql);
+                result.TotalRecords = conn.ExecuteScalar<int>(count_sql);
                 result.TotalPages = result.TotalRecords / pageSize;
                 if (result.TotalRecords % pageSize > 0)
                     result.TotalPages += 1;
-                var list = connection.Query<T>(sql);
+                var list = conn.Query<T>(sql);
                 result.Items = list.Count() == 0 ? (new List<T>()) : list.ToList();
             }
 
