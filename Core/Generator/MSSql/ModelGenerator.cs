@@ -14,7 +14,11 @@ namespace Generator.Core.MSSql
 
         public override string RenderModelFor(TableMetaData table)
         {
-            return Render("model.cshtml", new ViewInfoWapper { Config = _config, TableInfo = table });
+            var model = new ViewInfoWapper(this);
+            model.Config = _config;
+            model.TableInfo = table;
+
+            return Render("model.cshtml", model);
         }
     }
 }

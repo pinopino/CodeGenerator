@@ -108,7 +108,7 @@ namespace Console
              .UseMemoryCachingProvider()
              .Build();
 
-            var model = new ViewInfoWapper();
+            var model = new ViewInfoWapper(null);
             model.Config = new Generator.Core.Config.GlobalConfiguration();
             model.Config.Project = "my_test_proj";
             model.Config.DALConfig = new Generator.Core.Config.DALConfig();

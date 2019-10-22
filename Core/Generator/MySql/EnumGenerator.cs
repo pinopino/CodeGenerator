@@ -15,7 +15,11 @@ namespace Generator.Core.MySql
 
         public override string RenderEnumFor(TableMetaData table, ColumnMetaData column)
         {
-            return Render("enum.cshtml", new ViewInfoWapper { Config = _config, TableInfo = table });
+            var model = new ViewInfoWapper(this);
+            model.Config = _config;
+            model.TableInfo = table;
+
+            return Render("enum.cshtml", model);
         }
 
         private string GetStrFromComment(ColumnMetaData column)

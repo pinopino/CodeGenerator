@@ -8,33 +8,30 @@
         /// <summary>
         /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
         /// </summary>
-        @foreach (var item in Model.TableInfo.ExistPredicate)
-        {
-            @(string.Format("/// <param name=\"{0}\">{1}</param>", item.Name, item.Comment).Indent(8).NewLine())
-        }
+        @Model.MakeParamComment(Model.TableInfo.ExistPredicate, 8);
         /// <returns>是否存在，true为存在</returns>
-        public static bool Exists(as)
+        public static bool Exists(@Model.MakeParamList(Model.TableInfo.ExistPredicate))
         {
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM @Model.TableInfo.Name");
-            sql.Append(" WHERE {4}");
+            sql.Append("SELECT COUNT(1) FROM [@Model.TableInfo.Name]");
+            sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.ExistPredicate)");
             var ret = false;
             using (var conn = GetOpenConnection())
-            {
-                ret = foreach;
-            }
+			{
+				ret = conn.ExecuteScalar<int>(sql.ToString(), new {@Model.MakeParamValList(Model.TableInfo.ExistPredicate)} > 0;
+			}
         }
 
         /// <summary>
         /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
         /// </summary>
-		public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
+        public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
 		{
 			var parser = new PredicateParser();
             var where_str = parser.Parse(predicate);
 
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM {2}");
+            sql.Append("SELECT COUNT(1) FROM [@Model.TableInfo.Name]");
             sql.Append(" WHERE " + where_str);
             var ret = false;
             using (var conn = GetOpenConnection())

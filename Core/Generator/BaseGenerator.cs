@@ -1,8 +1,10 @@
-﻿using Generator.Core.Config;
+﻿using Generator.Common;
+using Generator.Core.Config;
 using Generator.Template;
 using RazorLight;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Generator.Core
 {
@@ -19,6 +21,38 @@ namespace Generator.Core
                  .UseFilesystemProject(_config.TemplatePath)
                  .UseMemoryCachingProvider()
                  .Build();
+        }
+
+        public virtual string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"/// <param name=\"{item.Name}\">{item.Comment}</param>".Indent(indent));
+            return sb.ToString();
+        }
+
+        public virtual string MakeParamList(List<ColumnMetaData> predicate)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"{item.DbType} {item.Name}, ");
+            return sb.ToString();
+        }
+
+        public virtual string MakeParamValList(List<ColumnMetaData> predicate)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"@{item.Name}={item.Name}, ");
+            return sb.ToString();
+        }
+
+        public virtual string MakeWhere(List<ColumnMetaData> predicate)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"[{item.Name}]=@{item.Name} and ");
+            return sb.ToString();
         }
 
         protected string Render(string template, ViewInfoWapper model)
