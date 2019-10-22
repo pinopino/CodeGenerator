@@ -1,0 +1,32 @@
+﻿@using RazorLight
+@using Generator.Template;
+@using Generator.Common;
+@inherits TemplatePage<ViewInfoWapper>
+@{
+    DisableEncoding = true;
+}
+@* 输出文件头信息 *@
+@Model.Config.DALConfig.HeaderNote
+@* 输出using信息 *@
+@foreach (var u in Model.Config.DALConfig.Using)
+{
+    @(u.Indent())
+}
+@* 输出类信息 *@
+@("public partial class " + Model.Config.DALConfig.ClassPrefix +
+                            Model.TableInfo.Name +
+                            Model.Config.DALConfig.ClassSuffix.NewLine() +
+                            (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
+@("{".NewLine())
+@* 输出类的方法 *@
+@foreach (var item in Model.Config.DALConfig.Methods)
+{
+    switch (item.Name.ToLower())
+    {
+        case "exists":
+            {
+                
+            }
+            break;
+    }
+}

@@ -1,8 +1,11 @@
 ﻿using Generator.Common;
 using Generator.Core;
 using Generator.Core.Config;
+using Generator.Template;
 using Newtonsoft.Json;
+using RazorLight;
 using System;
+using System.IO;
 
 namespace Console
 {
@@ -96,6 +99,50 @@ namespace Console
         static ConsoleProgressBar GetProgressBar()
         {
             return new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
+        }
+
+
+        static void TestRazor()
+        {
+            var _engine = new RazorLightEngineBuilder()
+             .UseFilesystemProject(@"D:\test")
+             .UseMemoryCachingProvider()
+             .Build();
+
+            var model = new ViewInfoWapper();
+            model.Config = new Generator.Core.Config.GlobalConfiguration();
+            model.Config.Project = "my_test_proj";
+            model.Config.DALConfig = new Generator.Core.Config.DALConfig();
+            model.Config.DALConfig.Namespace = "abc";
+            model.Config.DALConfig.HeaderNote = "head-note: hello world";
+            model.Config.DALConfig.Using = new System.Collections.Generic.List<string> { "using a;", "using b;" };
+            model.Config.DALConfig.ClassPrefix = string.Empty;
+            model.Config.DALConfig.ClassSuffix = string.Empty;
+            model.Config.DALConfig.BaseClass = "mybaseclass";
+            model.Config.DALConfig.Methods = new System.Collections.Generic.List<Generator.Core.Config.MethodInfo>
+            {
+                new Generator.Core.Config.MethodInfo { Name = "test" },
+                new Generator.Core.Config.MethodInfo { Name = "exists" },
+            };
+            model.TableInfo = new Generator.Core.TableMetaData();
+            model.TableInfo.Name = "sql_table";
+            model.TableInfo.ExistPredicate = new System.Collections.Generic.List<Generator.Core.ColumnMetaData>
+            {
+                new Generator.Core.ColumnMetaData { Name ="p1", Comment ="p1的注释信息" },
+                new Generator.Core.ColumnMetaData { Name ="p2", Comment ="p2的注释信息" },
+                new Generator.Core.ColumnMetaData { Name ="p3", Comment ="p3的注释信息" },
+            };
+
+            var result = string.Empty;
+            var cacheResult = _engine.TemplateCache.RetrieveTemplate("dal_test.cshtml");
+            if (cacheResult.Success)
+                result = _engine.RenderTemplateAsync(cacheResult.Template.TemplatePageFactory(), model).Result;
+            else
+                result = _engine.CompileRenderAsync("dal_test.cshtml", model).Result;
+
+            File.WriteAllText("hhhhh.txt", result);
+            System.Console.WriteLine("ok");
+            System.Console.Read();
         }
     }
 }

@@ -84,9 +84,13 @@ namespace Generator.Core.Config
         /// </summary>
         public string DBConn { set; get; }
         /// <summary>
-        /// 输出的文件位置
+        /// 输出文件路径
         /// </summary>
         public string OutputBasePath { set; get; }
+        /// <summary>
+        /// 模板文件路径
+        /// </summary>
+        public string TemplatePath { set; get; }
         /// <summary>
         /// 项目名称
         /// </summary>

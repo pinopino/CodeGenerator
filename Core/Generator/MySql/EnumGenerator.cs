@@ -2,7 +2,7 @@
 using Generator.Template;
 using System.Text.RegularExpressions;
 
-namespace Generator.Core.MSSql
+namespace Generator.Core.MySql
 {
     public class EnumGenerator : BaseGenerator_Enum
     {

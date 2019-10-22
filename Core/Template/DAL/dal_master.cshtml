@@ -1,0 +1,59 @@
+﻿@using RazorLight
+@using Generator.Template;
+@using Generator.Common;
+@inherits TemplatePage<ViewInfoWapper>
+@{
+    DisableEncoding = true;
+}
+@* 输出文件头信息 *@
+@Model.Config.DALConfig.HeaderNote
+@* 输出using信息 *@
+@foreach (var u in Model.Config.DALConfig.Using)
+{
+    @(u.Indent())
+}
+@* 输出类信息 *@
+@("public partial class " + Model.Config.DALConfig.ClassPrefix +
+                            Model.TableInfo.Name +
+                            Model.Config.DALConfig.ClassSuffix.NewLine() +
+                            (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
+@("{".NewLine())
+@* 输出类的方法 *@
+@foreach (var item in Model.Config.DALConfig.Methods)
+{
+    switch (item.Name.ToLower())
+    {
+        case "exists":
+            {
+                await IncludeAsync("exist.cshtml", Model);
+            }
+            break;
+        case "insert":
+            {
+                await IncludeAsync("insert.cshtml", Model);
+            }
+            break;
+        case "delete":
+            {
+                await IncludeAsync("delete.cshtml", Model);
+            }
+            break;
+        case "update":
+            {
+                await IncludeAsync("update.cshtml", Model);
+            }
+            break;
+        case "getmodel":
+        case "getlist":
+        case "getcount":
+            {
+                await IncludeAsync("get.cshtml", Model);
+            }
+            break;
+        case "getpage":
+            {
+                await IncludeAsync("page.cshtml", Model);
+            }
+            break;
+    }
+}

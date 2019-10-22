@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Generator.Core.MSSql
+namespace Generator.Core.MySql
 {
     public class DALGenerator : BaseGenerator_DAL
     {

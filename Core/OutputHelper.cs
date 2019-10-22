@@ -15,6 +15,7 @@ namespace Generator.Core
 {
     public class OutputHelper
     {
+        private static List<IInjector> _plugins = new List<IInjector>();
         private static Dictionary<Type, DbType> typeMap = new Dictionary<Type, DbType>
         {
             [typeof(byte)] = DbType.Byte,
@@ -55,7 +56,6 @@ namespace Generator.Core
             [typeof(TimeSpan?)] = DbType.Time,
             [typeof(object)] = DbType.Object
         };
-        private static List<IInjector> _plugins = new List<IInjector>();
 
         public static Type MapCommonType(string dbtype)
         {
@@ -145,8 +145,9 @@ namespace Generator.Core
             return csharpType;
         }
 
-        public static void LoadPlugin(Dictionary<string, TableMetaData> tables, GlobalConfiguration config)
+        public static void LoadPlugin(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
+            ResetProgress(progress);
             // links: https://stackoverflow.com/questions/10732933/can-i-use-activator-createinstance-with-an-interface
             var plugin_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CopyFiles");
             foreach (var dll in Directory.GetFiles(plugin_path, "*.dll"))
@@ -156,36 +157,30 @@ namespace Generator.Core
                                      where typeof(IInjector).IsAssignableFrom(t)
                                      select t).ToArray();
                 IInjector[] objs = load_types.Select(t => (IInjector)Activator.CreateInstance(t, tables, config)).ToArray();
-
                 _plugins.AddRange(objs);
             }
+            PrintProgress(progress, 100, 100);
         }
 
         public static void OutputConfig(string content, GlobalConfiguration config, IProgressBar progress = null)
         {
+            ResetProgress(progress);
             if (Directory.Exists(config.OutputBasePath))
             {
-                DeleteDirectory(config.OutputBasePath);
+                Directory.Delete(config.OutputBasePath, true);
             }
             else
             {
                 Directory.CreateDirectory(config.OutputBasePath);
             }
 
-            File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), FormatJsonStr(content), Encoding.UTF8);
-            if (progress != null)
-            {
-                progress.Reset();
-                ProgressPrint(progress, 100, 100);
-            }
+            File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), content, Encoding.UTF8);
+            PrintProgress(progress, 100, 100);
         }
 
         public static void OutputDAL(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
-            if (progress != null)
-            {
-                progress.Reset();
-            }
+            ResetProgress(progress);
             var path = Path.Combine(config.OutputBasePath, "DAL");
             Directory.CreateDirectory(path);
 
@@ -195,10 +190,10 @@ namespace Generator.Core
             switch (config.DBType)
             {
                 case "mssql":
-                    g = new Generator.Core.MSSql.DALGenerator(config, tables);
+                    g = new Generator.Core.MSSql.DALGenerator(config);
                     break;
                 case "mysql":
-                    throw new NotImplementedException();
+                    g = new Generator.Core.MySql.DALGenerator(config);
                     break;
             }
 
@@ -208,79 +203,22 @@ namespace Generator.Core
             {
                 var table = tables[key];
                 if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
-                {
                     continue;
-                }
-                sb.AppendLine(g.Get_Head(table));
-                // 按方法生成
-                foreach (var item in config.DALConfig.Methods)
-                {
-                    switch (item.Name.ToLower())
-                    {
-                        case "exists":
-                            {
-                                sb.AppendLine(g.Get_Exists(table));
-                            }
-                            break;
-                        case "insert":
-                            {
-                                sb.AppendLine(g.Get_Insert(table));
-                            }
-                            break;
-                        case "delete":
-                            {
-                                sb.AppendLine(g.Get_Delete(table));
-                                sb.AppendLine(g.Get_BatchDelete(table));
-                            }
-                            break;
-                        case "update":
-                            {
-                                sb.AppendLine(g.Get_Update(table));
-                            }
-                            break;
-                        case "getmodel":
-                            {
-                                sb.AppendLine(g.Get_GetModel(table));
-                            }
-                            break;
-                        case "getlist":
-                            {
-                                sb.AppendLine(g.Get_GetList(table));
-                            }
-                            break;
-                        case "getcount":
-                            {
-                                sb.AppendLine(g.Get_Count(table));
-                            }
-                            break;
-                        case "getpage":
-                            {
-                                sb.Append(g.Get_GetListByPage(table));
-                            }
-                            break;
-                    }
-                }
+
+                sb.Append(g.RenderDALFor(table));
                 // Joined
                 var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
                 if (join_info != null)
-                {
-                    sb.Append(g.Get_Joined(join_info));
-                }
-                sb.AppendLine(g.Get_Tail(table));
+                { }
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
                 sb.Clear();
-
-                if (progress != null)
-                {
-                    // 打印进度
-                    ProgressPrint(progress, ++i, tables.Count);
-                }
+                PrintProgress(progress, ++i, tables.Count);
             }
 
             // 生成BaseTableHelper、PageDataView
-            File.AppendAllText(Path.Combine(path, "BaseTableHelper.cs"), g.Get_BaseTableHelper());
-            File.AppendAllText(Path.Combine(path, "PageDataView.cs"), g.Get_PageDataView());
+            File.AppendAllText(Path.Combine(path, "BaseTableHelper.cs"), g.RenderBaseTableHelper());
+            File.AppendAllText(Path.Combine(path, "PageDataView.cs"), g.RenderPageDataView());
 
             // 拷贝公用文件到指定目录
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);
@@ -288,10 +226,7 @@ namespace Generator.Core
 
         public static void OutputModel(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
-            if (progress != null)
-            {
-                progress.Reset();
-            }
+            ResetProgress(progress);
             var path = Path.Combine(config.OutputBasePath, "Model");
             Directory.CreateDirectory(path);
 
@@ -300,10 +235,10 @@ namespace Generator.Core
             switch (config.DBType)
             {
                 case "mssql":
-                    g = new Generator.Core.MSSql.ModelGenerator(config, tables);
+                    g = new Generator.Core.MSSql.ModelGenerator(config);
                     break;
                 case "mysql":
-                    throw new NotImplementedException();
+                    g = new Generator.Core.MySql.ModelGenerator(config);
                     break;
             }
 
@@ -314,12 +249,9 @@ namespace Generator.Core
             {
                 var table = tables[key];
                 if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
-                {
                     continue;
-                }
-                sb.AppendLine(g.Get_Head(table));
-                sb.AppendLine(g.Get_Class(table));
-                sb.AppendLine(g.Get_Tail(table));
+
+                sb.AppendLine(g.RenderModelFor(table));
 
                 var new_str = sb.ToString();
                 // 插件的执行顺序
@@ -336,29 +268,24 @@ namespace Generator.Core
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), new_str);
                 sb.Clear();
-
-                if (progress != null)
-                {
-                    // 打印进度
-                    ProgressPrint(progress, ++i, tables.Count);
-                }
+                PrintProgress(progress, ++i, tables.Count);
             }
 
             // 如果配置文件指定了JoinedTables，那么这里需要为这些关联表生成额外的包装model，
             // 路径：Model\JoinedViewModel
             if (config.JoinedTables != null && config.JoinedTables.Count > 0)
             {
-                Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
-                var sb2 = new StringBuilder();
-                foreach (var map in config.JoinedTables)
-                {
-                    sb2.AppendLine(g.Get_Join_Head(map));
-                    sb2.AppendLine(g.Get_Joined_Class(map));
-                    sb2.AppendLine(g.Get_Join_Tail(map));
+                //Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
+                //var sb2 = new StringBuilder();
+                //foreach (var map in config.JoinedTables)
+                //{
+                //    sb2.AppendLine(g.Get_Join_Head(map));
+                //    sb2.AppendLine(g.Get_Joined_Class(map));
+                //    sb2.AppendLine(g.Get_Join_Tail(map));
 
-                    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + g.FileName)), sb2.ToString());
-                    sb2.Clear();
-                }
+                //    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + g.FileName)), sb2.ToString());
+                //    sb2.Clear();
+                //}
             }
 
             // 拷贝公用文件到指定目录
@@ -367,10 +294,7 @@ namespace Generator.Core
 
         public static void OutputEnum(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
         {
-            if (progress != null)
-            {
-                progress.Reset();
-            }
+            ResetProgress(progress);
             var path = Path.Combine(config.OutputBasePath, "Enum");
             Directory.CreateDirectory(path);
 
@@ -379,10 +303,10 @@ namespace Generator.Core
             switch (config.DBType)
             {
                 case "mssql":
-                    g = new Generator.Core.MSSql.EnumGenerator(config, tables);
+                    g = new Generator.Core.MSSql.EnumGenerator(config);
                     break;
                 case "mysql":
-                    throw new NotImplementedException();
+                    g = new Generator.Core.MySql.EnumGenerator(config);
                     break;
             }
 
@@ -393,27 +317,18 @@ namespace Generator.Core
             {
                 var table = tables[key];
                 if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
-                {
                     continue;
-                }
 
                 foreach (var column in table.Columns)
                 {
                     if (!string.IsNullOrWhiteSpace(column.Comment))
                     {
-                        sb.AppendLine(g.Get_Head(column));
-                        sb.AppendLine(g.Get_Enum(column));
-                        sb.AppendLine(g.Get_Tail(column));
+                        sb.AppendLine(g.RenderEnumFor(table, column));
                         File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), sb.ToString());
                         sb.Clear();
                     }
                 }
-
-                if (progress != null)
-                {
-                    // 打印进度
-                    ProgressPrint(progress, ++i, tables.Count);
-                }
+                PrintProgress(progress, ++i, tables.Count);
             }
 
             // 拷贝公用文件到指定目录
@@ -423,8 +338,12 @@ namespace Generator.Core
         // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
         public static void ReCreateDB(GlobalConfiguration config, IProgressBar progress = null)
         {
+            ResetProgress(progress);
             if (string.IsNullOrWhiteSpace(config.ReCreateDB.SQLFilePath) || config.ReCreateDB.DBs == null)
+            {
+                PrintProgress(progress, 100, 100);
                 return;
+            }
 
             IReCreateDB c = null;
             // todo: 有点丑陋，可以考虑走ioc
@@ -434,10 +353,11 @@ namespace Generator.Core
                     c = new Generator.Core.MSSql.ReCreator(config);
                     break;
                 case "mysql":
-                    throw new NotImplementedException();
+                    c = new Generator.Core.MySql.ReCreator(config);
                     break;
             }
             c.ReCreate();
+            PrintProgress(progress, 100, 100);
         }
 
         public static void DoPartialCheck(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
@@ -523,56 +443,18 @@ namespace Generator.Core
             return ret;
         }
 
-        private static void DeleteDirectory(string target_dir, bool del_self = false)
+        private static void PrintProgress(IProgressBar progress, long index, long total)
         {
-            var files = Directory.GetFiles(target_dir);
-            var dirs = Directory.GetDirectories(target_dir);
-
-            foreach (string file in files)
+            if (progress != null)
             {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
-            }
-
-            foreach (string dir in dirs)
-            {
-                DeleteDirectory(dir, true);
-            }
-
-            if (del_self)
-            {
-                Directory.Delete(target_dir, false);
+                progress.Dispaly(Convert.ToInt32((index / (total * 1.0)) * 100));
             }
         }
 
-        private static string FormatJsonStr(string json)
+        private static void ResetProgress(IProgressBar progress)
         {
-            //格式化json字符串
-            JsonSerializer serializer = new JsonSerializer();
-            TextReader tr = new StringReader(json);
-            JsonTextReader jtr = new JsonTextReader(tr);
-            object obj = serializer.Deserialize(jtr);
-            if (obj != null)
-            {
-                StringWriter textWriter = new StringWriter();
-                JsonTextWriter jsonWriter = new JsonTextWriter(textWriter)
-                {
-                    Formatting = Formatting.Indented,
-                    Indentation = 4,
-                    IndentChar = ' '
-                };
-                serializer.Serialize(jsonWriter, obj);
-                return textWriter.ToString();
-            }
-            else
-            {
-                return json;
-            }
-        }
-
-        private static void ProgressPrint(IProgressBar progress, long index, long total)
-        {
-            progress.Dispaly(Convert.ToInt32((index / (total * 1.0)) * 100));
+            if (progress != null)
+                progress.Reset();
         }
     }
 }
