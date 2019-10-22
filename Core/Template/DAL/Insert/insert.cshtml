@@ -5,23 +5,35 @@
 @{
     DisableEncoding = true;
 }
-@* 输出Exists方法 *@
-        /// <summary>
-        /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
-        /// </summary>
-        @foreach (var item in Model.TableInfo.ExistPredicate)
-        {
-            @(string.Format("/// <param name=\"{0}\">{1}</param>", item.Name, item.Comment).Indent(8).NewLine())
-        }
-        /// <returns>是否存在，true为存在</returns>
-        public static bool Exists(as)
-        {
+		/// <summary>
+    /// 添加{0}
+    ///
+</summary>
+        /// <param name="model">{1}</param>
+        /// <returns>新插入数据的id</returns>
+        public static {2} Insert({3} model, SqlConnection conn = null, SqlTransaction transaction = null)
+{{
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM {3}");
-            sql.Append(" WHERE {4}");
-            var ret = false;
-            using (var conn = GetOpenConnection())
-            {
-                ret = foreach;
-            }
-        }
+            sql.Append("INSERT INTO {4}({5})");
+            sql.Append(" OUTPUT INSERTED.[{6}] ");
+            sql.Append("VALUES({7})");
+            var ret = {8};
+            if (conn != null)
+            {{
+                if (transaction == null)
+                {{
+                    throw new ArgumentNullException("transaction");
+}}
+                ret = conn.ExecuteScalar<{9}>
+    (sql.ToString(), model, transaction);
+    }}
+    else
+    {{
+                using (var conn1 = GetOpenConnection())
+                {{
+                    ret = conn1.ExecuteScalar<{10}>(sql.ToString(), model);
+    }}
+    }}
+
+    return ret;
+    }}

@@ -5,7 +5,6 @@
 @{
     DisableEncoding = true;
 }
-@* 输出Exists方法 *@
         /// <summary>
         /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
         /// </summary>
@@ -17,7 +16,7 @@
         public static bool Exists(as)
         {
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM {3}");
+            sql.Append("SELECT COUNT(1) FROM @Model.TableInfo.Name");
             sql.Append(" WHERE {4}");
             var ret = false;
             using (var conn = GetOpenConnection())
@@ -25,3 +24,23 @@
                 ret = foreach;
             }
         }
+
+        /// <summary>
+        /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
+        /// </summary>
+		public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
+		{
+			var parser = new PredicateParser();
+            var where_str = parser.Parse(predicate);
+
+            var sql = new StringBuilder();
+            sql.Append("SELECT COUNT(1) FROM {2}");
+            sql.Append(" WHERE " + where_str);
+            var ret = false;
+            using (var conn = GetOpenConnection())
+            {
+                ret = conn.ExecuteScalar<int>(sql.ToString()) > 0;
+            }
+
+            return ret;
+		}

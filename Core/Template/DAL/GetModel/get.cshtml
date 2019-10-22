@@ -5,23 +5,103 @@
 @{
     DisableEncoding = true;
 }
-@* 输出Exists方法 *@
-        /// <summary>
-        /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
-        /// </summary>
-        @foreach (var item in Model.TableInfo.ExistPredicate)
-        {
-            @(string.Format("/// <param name=\"{0}\">{1}</param>", item.Name, item.Comment).Indent(8).NewLine())
-        }
-        /// <returns>是否存在，true为存在</returns>
-        public static bool Exists(as)
-        {
+		/// <summary>
+    /// 批量获取{0}
+    ///
+</summary>
+        public static List<{1}>
+    GetList(Expression<Func<{1}, bool>> predicate = null, params {1}Column[] orderBy)
+        {{
+			var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}}
+
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM {3}");
-            sql.Append(" WHERE {4}");
-            var ret = false;
+            sql.Append("SELECT * FROM {2}");
+            if (where_str != string.Empty)
+				sql.Append(" WHERE " + where_str);
+			if (orderBy != null && orderBy.Length > 0)
+                sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{{p.Name}} {{p.Asc}}")));
+
+			List<{1}> ret = null;
             using (var conn = GetOpenConnection())
-            {
-                ret = foreach;
-            }
-        }
+            {{
+                ret = conn.Query<{1}>(sql.ToString()).ToList();
+            }}
+
+            return ret;
+        }}
+
+		/// <summary>
+        /// 批量获取{0}
+        /// </summary>
+        public static List<{1}> GetList(int top, Expression<Func<{1}, bool>> predicate = null, params {1}Column[] orderBy)
+        {{
+			var where_str = string.Empty;
+			if (predicate != null)
+			{{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}}
+
+            var sql = new StringBuilder();
+            sql.Append("SELECT TOP " + top.ToString() + " * FROM {2}");
+            if (where_str != string.Empty)
+				sql.Append(" WHERE " + where_str);
+			if (orderBy != null && orderBy.Length > 0)
+                sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{{p.Name}} {{p.Asc}}")));
+
+			List<{1}>
+    ret = null;
+    using (var conn = GetOpenConnection())
+    {{
+                ret = conn.Query<{1}>(sql.ToString()).ToList();
+    }}
+
+    return ret;
+    }}
+
+    /// <summary>
+        /// 获取指定的{0}
+        ///
+    </summary>
+    {1}
+    /// <returns>{2}实体</returns>
+    public static {3} GetModel({4})
+    {{
+            var sql = new StringBuilder();
+            sql.Append("SELECT TOP 1 {5} FROM {6} ");
+            sql.Append(" WHERE {7}");
+            {8} ret = null;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.QueryFirstOrDefault<{9}>(sql.ToString(), new {{ {10} }});
+    }}
+
+    return ret;
+    }}
+
+    /// <summary>
+        /// 获取指定的{0}
+        ///
+    </summary>
+    public static {1} GetModel(Expression<Func<{1}, bool>> predicate)
+        {{
+			var parser = new PredicateParser();
+            var where_str = parser.Parse(predicate);
+
+            var sql = new StringBuilder();
+            sql.Append("SELECT TOP 1 * FROM {2} ");
+            sql.Append(" WHERE " + where_str);
+            {1} ret = null;
+            using (var conn = GetOpenConnection())
+            {{
+                ret = conn.QueryFirstOrDefault<{1}>(sql.ToString());
+            }}
+
+            return ret;
+        }}
+

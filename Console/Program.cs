@@ -101,7 +101,6 @@ namespace Console
             return new ConsoleProgressBar(System.Console.CursorLeft, System.Console.CursorTop, 50, ProgressBarType.Character);
         }
 
-
         static void TestRazor()
         {
             var _engine = new RazorLightEngineBuilder()
