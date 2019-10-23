@@ -15,6 +15,11 @@ namespace Generator.Template
             _generator = generator;
         }
 
+        public string GetPartialViewPath(string method)
+        {
+            return ((BaseGenerator_DAL)_generator).GetPartialViewPath(method);
+        }
+
         public string MakeTableName(string rawName)
         {
             return ((BaseGenerator_DAL)_generator).MakeTableName(rawName);

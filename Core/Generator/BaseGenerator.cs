@@ -48,8 +48,10 @@ namespace Generator.Core
             model.Config = _config;
             model.TableInfo = table;
 
-            return Render("dal_master.cshtml", model);
+            return Render("DAL/dal_master.cshtml", model);
         }
+
+        public abstract string GetPartialViewPath(string method);
 
         /// <summary>
         /// 生成的dapper查询时使用的表名

@@ -48,7 +48,7 @@ namespace Console
             var meta_data = parser.ParseMetadata();
             Print("解析完毕，生成中间配置文件...");
             // 生成中间配置文件
-            var meta_json = JsonConvert.SerializeObject(meta_data);
+            var meta_json = JsonConvert.SerializeObject(meta_data, Formatting.Indented);
             OutputHelper.OutputConfig(meta_json, config, progress);
 
             // 生成最终文件
@@ -68,20 +68,20 @@ namespace Console
 
                     // 生成Model最终文件
                     Print("生成Model...");
-                    OutputHelper.OutputModel(meta_data, config, progress);
+                    //OutputHelper.OutputModel(meta_data, config, progress);
 
                     // 生成Enum最终文件
                     Print("生成Enum...");
-                    OutputHelper.OutputEnum(meta_data, config, progress);
+                    //OutputHelper.OutputEnum(meta_data, config, progress);
 
                     // 检测partial字段有效性
                     Print("检测partial字段有效性...");
-                    OutputHelper.DoPartialCheck(meta_data, config, progress);
+                    //OutputHelper.DoPartialCheck(meta_data, config, progress);
 
                     Print("生成完毕！");
                     break;
                 }
-                System.Console.WriteLine("按‘quit’退出");
+                System.Console.WriteLine("输入‘quit’退出");
             } while (key != "quit");
 
             Print("结束！");

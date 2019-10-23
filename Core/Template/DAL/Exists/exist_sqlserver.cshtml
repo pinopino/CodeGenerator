@@ -5,39 +5,39 @@
 @{
     DisableEncoding = true;
 }
-        /// <summary>
-        /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
-        /// </summary>
-        @Model.MakeParamComment(Model.TableInfo.ExistPredicate, 8);
-        /// <returns>是否存在，true为存在</returns>
-        public static bool Exists(@Model.MakeParamList(Model.TableInfo.ExistPredicate))
+    /// <summary>
+    /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
+    /// </summary>
+    @Model.MakeParamComment(Model.TableInfo.ExistPredicate, 8)
+    /// <returns>是否存在，true为存在</returns>
+    public static bool Exists(@Model.MakeParamList(Model.TableInfo.ExistPredicate))
+    {
+        var sql = new StringBuilder();
+        sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
+        sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.ExistPredicate)");
+        var ret = false;
+        using (var conn = GetOpenConnection())
+	    {
+		    ret = conn.ExecuteScalar<int>(sql.ToString(), new {@Model.MakeParamValList(Model.TableInfo.ExistPredicate)} > 0;
+	    }
+    }
+
+    /// <summary>
+    /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
+    /// </summary>
+    public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
+    {
+	    var parser = new PredicateParser();
+        var where_str = parser.Parse(predicate);
+
+        var sql = new StringBuilder();
+        sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
+        sql.Append(" WHERE " + where_str);
+        var ret = false;
+        using (var conn = GetOpenConnection())
         {
-            var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.ExistPredicate)");
-            var ret = false;
-            using (var conn = GetOpenConnection())
-			{
-				ret = conn.ExecuteScalar<int>(sql.ToString(), new {@Model.MakeParamValList(Model.TableInfo.ExistPredicate)} > 0;
-			}
+            ret = conn.ExecuteScalar<int>(sql.ToString()) > 0;
         }
 
-        /// <summary>
-        /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
-        /// </summary>
-        public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
-		{
-			var parser = new PredicateParser();
-            var where_str = parser.Parse(predicate);
-
-            var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            sql.Append(" WHERE " + where_str);
-            var ret = false;
-            using (var conn = GetOpenConnection())
-            {
-                ret = conn.ExecuteScalar<int>(sql.ToString()) > 0;
-            }
-
-            return ret;
-		}
+        return ret;
+    }

@@ -14,6 +14,28 @@ namespace Generator.Core.MSSql
             : base(config)
         { }
 
+        public override string GetPartialViewPath(string method)
+        {
+            switch (method.ToLower())
+            {
+                case "exists":
+                    return "DAL/Exists/exist_sqlserver.cshtml";
+                case "insert":
+                    return "DAL/Insert/inser_sqlserver.cshtml";
+                case "delete":
+                    return "DAL/Delete/delete_sqlserver.cshtml";
+                case "update":
+                    return "DAL/Update/update_sqlserver.cshtml";
+                case "getmodel":
+                case "getlist":
+                case "getcount":
+                    return "DAL/GetModel/get_sqlserver.cshtml";
+                case "getpage":
+                    return "DAL/Page/page_sqlserver.cshtml";
+            }
+            return string.Empty;
+        }
+
         public override string MakeTableName(string rawName)
         {
             return $"[{rawName}]";

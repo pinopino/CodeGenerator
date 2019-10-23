@@ -17,6 +17,11 @@ namespace Generator.Core.MySql
             : base(config)
         { }
 
+        public override string GetPartialViewPath(string method)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string MakeTableName(string rawName)
         {
             throw new NotImplementedException();

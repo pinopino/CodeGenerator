@@ -60,7 +60,7 @@ namespace Generator.Core.Config
                     "using System.Collections.Generic;",
                     "using System.Linq;",
                     "using System.Text;",
-                    "using Dapper",
+                    "using Dapper;",
                 };
             this.DALConfig.Using.Add(string.Format("using {0};", this.ModelConfig.Namespace));
             this.DALConfig.Using.Add(string.Format("using {0}.{1};", this.DALConfig.Namespace, "Metadata"));
