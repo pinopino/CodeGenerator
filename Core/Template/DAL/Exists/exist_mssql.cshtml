@@ -1,14 +1,13 @@
 ﻿@using RazorLight
 @using Generator.Template;
-@using Generator.Common;
 @inherits TemplatePage<ViewInfoWapper>
 @{
     DisableEncoding = true;
 }
     /// <summary>
-    /// 是否存在指定的@(Model.TableInfo.Name + "实体对象")
+    /// 是否存在指定的@(Model.TableInfo.Name + "数据记录")
     /// </summary>
-    @Model.MakeParamComment(Model.TableInfo.ExistPredicate, 8)
+    @Model.MakeParamComment(Model.TableInfo.ExistPredicate)
     /// <returns>是否存在，true为存在</returns>
     public static bool Exists(@Model.MakeParamList(Model.TableInfo.ExistPredicate))
     {
@@ -18,7 +17,7 @@
         var ret = false;
         using (var conn = GetOpenConnection())
 	    {
-		    ret = conn.ExecuteScalar<int>(sql.ToString(), new {@Model.MakeParamValList(Model.TableInfo.ExistPredicate)} > 0;
+		    ret = conn.ExecuteScalar<int>(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.ExistPredicate) } > 0;
 	    }
     }
 

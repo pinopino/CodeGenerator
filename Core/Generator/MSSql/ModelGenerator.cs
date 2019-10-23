@@ -18,7 +18,7 @@ namespace Generator.Core.MSSql
             model.Config = _config;
             model.TableInfo = table;
 
-            return Render("model.cshtml", model);
+            return Render("model_mssql.cshtml", model);
         }
     }
 }

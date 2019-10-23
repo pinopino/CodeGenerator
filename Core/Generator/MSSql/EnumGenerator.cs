@@ -19,7 +19,7 @@ namespace Generator.Core.MSSql
             model.Config = _config;
             model.TableInfo = table;
 
-            return Render("enum.cshtml", model);
+            return Render("enum_mssql.cshtml", model);
         }
 
         private string GetStrFromComment(ColumnMetaData column)

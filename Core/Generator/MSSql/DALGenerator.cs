@@ -19,19 +19,19 @@ namespace Generator.Core.MSSql
             switch (method.ToLower())
             {
                 case "exists":
-                    return "DAL/Exists/exist_sqlserver.cshtml";
+                    return "DAL/Exists/exist_mssql.cshtml";
                 case "insert":
-                    return "DAL/Insert/inser_sqlserver.cshtml";
+                    return "DAL/Insert/inser_mssql.cshtml";
                 case "delete":
-                    return "DAL/Delete/delete_sqlserver.cshtml";
+                    return "DAL/Delete/delete_mssql.cshtml";
                 case "update":
-                    return "DAL/Update/update_sqlserver.cshtml";
+                    return "DAL/Update/update_mssql.cshtml";
                 case "getmodel":
                 case "getlist":
                 case "getcount":
-                    return "DAL/GetModel/get_sqlserver.cshtml";
+                    return "DAL/GetModel/get_mssql.cshtml";
                 case "getpage":
-                    return "DAL/Page/page_sqlserver.cshtml";
+                    return "DAL/Page/page_mssql.cshtml";
             }
             return string.Empty;
         }
@@ -41,11 +41,11 @@ namespace Generator.Core.MSSql
             return $"[{rawName}]";
         }
 
-        public override string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4)
+        public override string MakeParamComment(List<ColumnMetaData> predicate)
         {
             var sb = new StringBuilder();
             foreach (var item in predicate)
-                sb.AppendLine($"/// <param name=\"{item.Name}\">{item.Comment}</param>".Indent(indent));
+                sb.Append($"/// <param name=\"{item.Name}\">{item.Comment}</param>");
             return sb.ToString();
         }
 
@@ -53,7 +53,7 @@ namespace Generator.Core.MSSql
         {
             var sb = new StringBuilder();
             foreach (var item in predicate)
-                sb.AppendLine($"{item.DbType} {item.Name}, ");
+                sb.Append($"{item.DbType} {item.Name}, ");
             return sb.ToString();
         }
 
@@ -61,7 +61,7 @@ namespace Generator.Core.MSSql
         {
             var sb = new StringBuilder();
             foreach (var item in predicate)
-                sb.AppendLine($"@{item.Name}={item.Name}, ");
+                sb.Append($"@{item.Name}={item.Name}, ");
             return sb.ToString();
         }
 
@@ -69,7 +69,7 @@ namespace Generator.Core.MSSql
         {
             var sb = new StringBuilder();
             foreach (var item in predicate)
-                sb.AppendLine($"[{item.Name}]=@{item.Name} and ");
+                sb.Append($"[{item.Name}]=@{item.Name} and ");
             return sb.ToString();
         }
     }

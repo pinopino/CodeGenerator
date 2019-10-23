@@ -66,7 +66,7 @@ namespace Generator.Core.Config
             this.DALConfig.Using.Add(string.Format("using {0}.{1};", this.DALConfig.Namespace, "Metadata"));
             this.DALConfig.Using.Add(string.Format("using {0}.{1};", this.DALConfig.Namespace, "Base"));
             if (this.JoinedTables != null && this.JoinedTables.Count > 0)
-                this.DALConfig.Using.Add(string.Format("using {0}.{1}", this.ModelConfig.Namespace, "JoinedViewModel"));
+                this.DALConfig.Using.Add(string.Format("using {0}.{1}", this.ModelConfig.Namespace, "JoinedViewModel;"));
         }
 
         public T GetValue<T>(string key)

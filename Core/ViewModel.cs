@@ -25,9 +25,9 @@ namespace Generator.Template
             return ((BaseGenerator_DAL)_generator).MakeTableName(rawName);
         }
 
-        public string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4)
+        public string MakeParamComment(List<ColumnMetaData> predicate)
         {
-            return ((BaseGenerator_DAL)_generator).MakeParamComment(predicate, indent);
+            return ((BaseGenerator_DAL)_generator).MakeParamComment(predicate);
         }
 
         public string MakeParamList(List<ColumnMetaData> predicate)

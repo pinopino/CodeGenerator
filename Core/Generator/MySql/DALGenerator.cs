@@ -27,7 +27,7 @@ namespace Generator.Core.MySql
             throw new NotImplementedException();
         }
 
-        public override string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4)
+        public override string MakeParamComment(List<ColumnMetaData> predicate)
         {
             throw new NotImplementedException();
         }

@@ -61,7 +61,7 @@ namespace Generator.Core
         /// <summary>
         /// 生成的方法注释信息中包含的参数说明文字
         /// </summary>
-        public abstract string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4);
+        public abstract string MakeParamComment(List<ColumnMetaData> predicate);
 
         /// <summary>
         /// 生成的方法的参数列表
