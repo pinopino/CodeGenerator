@@ -1,10 +1,7 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
-using Generator.Template;
-using RazorLight;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Generator.Core.MSSql
@@ -17,13 +14,41 @@ namespace Generator.Core.MSSql
             : base(config)
         { }
 
-        public override string RenderDALFor(TableMetaData table)
+        public override string MakeTableName(string rawName)
         {
-            var model = new ViewInfoWapper(this);
-            model.Config = _config;
-            model.TableInfo = table;
+            return $"[{rawName}]";
+        }
 
-            return Render("dal_master.cshtml", model);
+        public override string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"/// <param name=\"{item.Name}\">{item.Comment}</param>".Indent(indent));
+            return sb.ToString();
+        }
+
+        public override string MakeParamList(List<ColumnMetaData> predicate)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"{item.DbType} {item.Name}, ");
+            return sb.ToString();
+        }
+
+        public override string MakeParamValList(List<ColumnMetaData> predicate)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"@{item.Name}={item.Name}, ");
+            return sb.ToString();
+        }
+
+        public override string MakeWhere(List<ColumnMetaData> predicate)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in predicate)
+                sb.AppendLine($"[{item.Name}]=@{item.Name} and ");
+            return sb.ToString();
         }
     }
 }

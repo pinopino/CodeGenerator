@@ -17,13 +17,29 @@ namespace Generator.Core.MySql
             : base(config)
         { }
 
-        public override string RenderDALFor(TableMetaData table)
+        public override string MakeTableName(string rawName)
         {
-            var model = new ViewInfoWapper(this);
-            model.Config = _config;
-            model.TableInfo = table;
+            throw new NotImplementedException();
+        }
 
-            return Render("dal_master.cshtml", model);
+        public override string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeParamList(List<ColumnMetaData> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeParamValList(List<ColumnMetaData> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeWhere(List<ColumnMetaData> predicate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

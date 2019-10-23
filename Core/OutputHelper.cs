@@ -1,7 +1,6 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
 using Generator.Core.Inject;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;

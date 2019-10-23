@@ -13,7 +13,7 @@
         public static bool Exists(@Model.MakeParamList(Model.TableInfo.ExistPredicate))
         {
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM [@Model.TableInfo.Name]");
+            sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
             sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.ExistPredicate)");
             var ret = false;
             using (var conn = GetOpenConnection())
@@ -31,7 +31,7 @@
             var where_str = parser.Parse(predicate);
 
             var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM [@Model.TableInfo.Name]");
+            sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
             sql.Append(" WHERE " + where_str);
             var ret = false;
             using (var conn = GetOpenConnection())

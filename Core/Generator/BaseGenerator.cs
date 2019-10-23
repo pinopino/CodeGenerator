@@ -1,10 +1,8 @@
-﻿using Generator.Common;
-using Generator.Core.Config;
+﻿using Generator.Core.Config;
 using Generator.Template;
 using RazorLight;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Generator.Core
 {
@@ -21,38 +19,6 @@ namespace Generator.Core
                  .UseFilesystemProject(_config.TemplatePath)
                  .UseMemoryCachingProvider()
                  .Build();
-        }
-
-        public virtual string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in predicate)
-                sb.AppendLine($"/// <param name=\"{item.Name}\">{item.Comment}</param>".Indent(indent));
-            return sb.ToString();
-        }
-
-        public virtual string MakeParamList(List<ColumnMetaData> predicate)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in predicate)
-                sb.AppendLine($"{item.DbType} {item.Name}, ");
-            return sb.ToString();
-        }
-
-        public virtual string MakeParamValList(List<ColumnMetaData> predicate)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in predicate)
-                sb.AppendLine($"@{item.Name}={item.Name}, ");
-            return sb.ToString();
-        }
-
-        public virtual string MakeWhere(List<ColumnMetaData> predicate)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in predicate)
-                sb.AppendLine($"[{item.Name}]=@{item.Name} and ");
-            return sb.ToString();
         }
 
         protected string Render(string template, ViewInfoWapper model)
@@ -76,7 +42,39 @@ namespace Generator.Core
             : base(config)
         { }
 
-        public abstract string RenderDALFor(TableMetaData table);
+        public virtual string RenderDALFor(TableMetaData table)
+        {
+            var model = new ViewInfoWapper(this);
+            model.Config = _config;
+            model.TableInfo = table;
+
+            return Render("dal_master.cshtml", model);
+        }
+
+        /// <summary>
+        /// 生成的dapper查询时使用的表名
+        /// </summary>
+        public abstract string MakeTableName(string rawName);
+
+        /// <summary>
+        /// 生成的方法注释信息中包含的参数说明文字
+        /// </summary>
+        public abstract string MakeParamComment(List<ColumnMetaData> predicate, int indent = 4);
+
+        /// <summary>
+        /// 生成的方法的参数列表
+        /// </summary>
+        public abstract string MakeParamList(List<ColumnMetaData> predicate);
+
+        /// <summary>
+        /// 生成的dapper查询时使用的参数值列表
+        /// </summary>
+        public abstract string MakeParamValList(List<ColumnMetaData> predicate);
+
+        /// <summary>
+        /// 生成的dapper查询时where语句
+        /// </summary>
+        public abstract string MakeWhere(List<ColumnMetaData> predicate);
 
         public string RenderBaseTableHelper()
         {
