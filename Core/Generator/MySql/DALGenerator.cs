@@ -51,5 +51,20 @@ namespace Generator.Core.MySql
         {
             throw new NotImplementedException();
         }
+
+        public override string MakeConnectionInit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeGetOpenConnection()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeBasePaging()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

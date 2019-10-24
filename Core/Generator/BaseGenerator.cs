@@ -106,13 +106,17 @@ namespace Generator.Core
 
         public string RenderBaseTableHelper()
         {
-            return string.Empty;
+            var model = new ViewInfoWapper(this);
+            model.Config = _config;
+
+            return Render("DAL/Base/BaseTableHelper.cshtml", model);
         }
 
-        public string RenderPageDataView()
-        {
-            return string.Empty;
-        }
+        public abstract string MakeConnectionInit();
+
+        public abstract string MakeGetOpenConnection();
+
+        public abstract string MakeBasePaging();
 
         protected bool IsKeyword(string colunm)
         {

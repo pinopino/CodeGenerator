@@ -69,5 +69,20 @@ namespace Generator.Core.MSSql
                 sb.Append($"[{item.Name}]=@{item.Name} and ");
             return sb.TrimEnd("and ").ToString();
         }
+
+        public override string MakeConnectionInit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeGetOpenConnection()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeBasePaging()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

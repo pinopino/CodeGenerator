@@ -217,7 +217,6 @@ namespace Generator.Core
 
             // 生成BaseTableHelper、PageDataView
             File.AppendAllText(Path.Combine(path, "BaseTableHelper.cs"), g.RenderBaseTableHelper());
-            File.AppendAllText(Path.Combine(path, "PageDataView.cs"), g.RenderPageDataView());
 
             // 拷贝公用文件到指定目录
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);

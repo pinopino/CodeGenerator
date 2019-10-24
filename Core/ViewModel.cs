@@ -25,29 +25,44 @@ namespace Generator.Template
             return ((BaseGenerator_DAL)_generator).MakeTableName(rawName);
         }
 
-        public string MakeParamComment(List<ColumnMetaData> predicate)
+        public string MakeParamComment(List<ColumnMetaData> columns)
         {
-            return ((BaseGenerator_DAL)_generator).MakeParamComment(predicate);
+            return ((BaseGenerator_DAL)_generator).MakeParamComment(columns);
         }
 
-        public string MakeMethodParam(List<ColumnMetaData> predicate)
+        public string MakeMethodParam(List<ColumnMetaData> columns)
         {
-            return ((BaseGenerator_DAL)_generator).MakeMethodParam(predicate);
+            return ((BaseGenerator_DAL)_generator).MakeMethodParam(columns);
         }
 
-        public string MakeParamList(List<ColumnMetaData> predicate)
+        public string MakeParamList(List<ColumnMetaData> columns)
         {
-            return ((BaseGenerator_DAL)_generator).MakeParamList(predicate);
+            return ((BaseGenerator_DAL)_generator).MakeParamList(columns);
         }
 
-        public string MakeParamValList(List<ColumnMetaData> predicate)
+        public string MakeParamValList(List<ColumnMetaData> columns)
         {
-            return ((BaseGenerator_DAL)_generator).MakeParamValList(predicate);
+            return ((BaseGenerator_DAL)_generator).MakeParamValList(columns);
         }
 
-        public string MakeWhere(List<ColumnMetaData> predicate)
+        public string MakeWhere(List<ColumnMetaData> columns)
         {
-            return ((BaseGenerator_DAL)_generator).MakeWhere(predicate);
+            return ((BaseGenerator_DAL)_generator).MakeWhere(columns);
+        }
+
+        public string MakeConnectionInit()
+        {
+            return ((BaseGenerator_DAL)_generator).MakeConnectionInit();
+        }
+
+        public string MakeGetOpenConnection()
+        {
+            return ((BaseGenerator_DAL)_generator).MakeGetOpenConnection();
+        }
+
+        public string MakeBasePaging()
+        {
+            return ((BaseGenerator_DAL)_generator).MakeBasePaging();
         }
     }
 }

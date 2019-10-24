@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <Folder Include="Template\BLL\" />
-    <Folder Include="Template\DAL\Base\" />
   </ItemGroup>
 
 </Project>
