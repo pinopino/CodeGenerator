@@ -4,6 +4,19 @@
 @{
     DisableEncoding = true;
 }
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+
 namespace @(Model.Config.DALConfig.Namespace).Base
 {
     public interface IColumn
@@ -16,7 +29,8 @@ namespace @(Model.Config.DALConfig.Namespace).Base
 
     public abstract class BaseTableHelper
     {
-        public static string ConnectionString { get; }
+        private static string _connectionstring;
+        public static string ConnectionString { get { return _connectionstring; } }
 
         private static IDbConnection _connection;
 

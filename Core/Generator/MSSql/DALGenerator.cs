@@ -72,17 +72,26 @@ namespace Generator.Core.MSSql
 
         public override string MakeConnectionInit()
         {
-            throw new NotImplementedException();
+            var str = @"var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile(""appsettings.json"");
+            // 创建配置根对象
+            var configurationRoot = builder.Build();
+            _connectionstring = configurationRoot.GetSection(""DbConnect"").Value; ";
+
+            return str;
         }
 
         public override string MakeGetOpenConnection()
         {
-            throw new NotImplementedException();
+            var str = @"var connection = new SqlConnection(_connectionstring);
+            connection.Open();
+            return connection;";
+
+            return str;
         }
 
         public override string MakeBasePaging()
         {
-            throw new NotImplementedException();
+            return Render("DAL/Base/BasePaging.cshtml", null);
         }
     }
 }
