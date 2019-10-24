@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace Generator.Common
 {
@@ -36,5 +37,11 @@ namespace Generator.Common
         {
             return str + Environment.NewLine;
         }
+
+        public static StringBuilder TrimEnd(this StringBuilder sb, string trimStr)
+        {
+            return sb.Remove(sb.Length - trimStr.Length, trimStr.Length);
+        }
     }
 }
+

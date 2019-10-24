@@ -5,7 +5,10 @@
 @{
     DisableEncoding = true;
 }
-@Model.Config.DALConfig.HeaderNote
+/*
+ * @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+ * @Model.Config.DALConfig.HeaderNote
+ */
 @foreach (var u in Model.Config.DALConfig.Using)
 {
     @(u.NewLine())
@@ -13,14 +16,14 @@
 
 @* 输出类信息 *@
 @("public partial class " + Model.Config.DALConfig.ClassPrefix +
-                                Model.TableInfo.Name +
-                                Model.Config.DALConfig.ClassSuffix +
-                                (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
+                                        Model.TableInfo.Name +
+                                        Model.Config.DALConfig.ClassSuffix +
+                                        (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
 {
-    @* 输出类的方法 *@
-    @foreach (var item in Model.Config.DALConfig.Methods)
-    {
-        await IncludeAsync(Model.GetPartialViewPath(item.Name), Model);
-    }
+@* 输出类的方法 *@
+@foreach (var item in Model.Config.DALConfig.Methods)
+{
+    await IncludeAsync(Model.GetPartialViewPath(item.Name), Model);
+}
 
 }

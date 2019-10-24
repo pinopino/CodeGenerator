@@ -125,7 +125,7 @@ namespace Console
             };
             model.TableInfo = new Generator.Core.TableMetaData();
             model.TableInfo.Name = "sql_table";
-            model.TableInfo.ExistPredicate = new System.Collections.Generic.List<Generator.Core.ColumnMetaData>
+            model.TableInfo.PrimaryKey = new System.Collections.Generic.List<Generator.Core.ColumnMetaData>
             {
                 new Generator.Core.ColumnMetaData { Name ="p1", Comment ="p1的注释信息" },
                 new Generator.Core.ColumnMetaData { Name ="p2", Comment ="p2的注释信息" },

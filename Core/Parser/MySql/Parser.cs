@@ -42,10 +42,8 @@ namespace Generator.Core.MySql
                         Name = name,
                         Columns = new List<ColumnMetaData>(),
                         Comment = "",
-                        ExistPredicate = new List<ColumnMetaData>(),
                         Identity = new ColumnMetaData(),
-                        PrimaryKey = new List<ColumnMetaData>(),
-                        WherePredicate = new List<ColumnMetaData>()
+                        PrimaryKey = new List<ColumnMetaData>()
                     };
 
                     CommandText = $"SHOW FULL FIELDS FROM {name};"; // 得到表结构
@@ -73,8 +71,6 @@ namespace Generator.Core.MySql
                         if (item.Key == "PRI")
                         {
                             table.PrimaryKey.Add(ColumData);
-                            table.WherePredicate.Add(ColumData);
-                            table.ExistPredicate.Add(ColumData);
                         }
                         if (item.Extra == "auto_increment")
                         {

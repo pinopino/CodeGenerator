@@ -64,17 +64,11 @@ namespace Generator.Core.MSSql
 
             // 主键
             if (column.InPrimaryKey)
-            {
                 metaTable.PrimaryKey.Add(meta_col);
-                metaTable.ExistPredicate.Add(meta_col);
-                metaTable.WherePredicate.Add(meta_col);
-            }
 
             // 标识
             if (column.Identity)
-            {
                 metaTable.Identity = meta_col;
-            }
         }
 
         protected override string FindDBName(string connStr)

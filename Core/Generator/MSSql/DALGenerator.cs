@@ -54,7 +54,7 @@ namespace Generator.Core.MSSql
             var sb = new StringBuilder();
             foreach (var item in predicate)
                 sb.Append($"{item.DbType} {item.Name}, ");
-            return sb.ToString();
+            return sb.TrimEnd(", ").ToString();
         }
 
         public override string MakeParamValList(List<ColumnMetaData> predicate)
@@ -62,7 +62,7 @@ namespace Generator.Core.MSSql
             var sb = new StringBuilder();
             foreach (var item in predicate)
                 sb.Append($"@{item.Name}={item.Name}, ");
-            return sb.ToString();
+            return sb.TrimEnd(", ").ToString();
         }
 
         public override string MakeWhere(List<ColumnMetaData> predicate)
@@ -70,7 +70,7 @@ namespace Generator.Core.MSSql
             var sb = new StringBuilder();
             foreach (var item in predicate)
                 sb.Append($"[{item.Name}]=@{item.Name} and ");
-            return sb.ToString();
+            return sb.TrimEnd("and ").ToString();
         }
     }
 }
