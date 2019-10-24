@@ -30,6 +30,11 @@ namespace Generator.Template
             return ((BaseGenerator_DAL)_generator).MakeParamComment(predicate);
         }
 
+        public string MakeMethodParam(List<ColumnMetaData> predicate)
+        {
+            return ((BaseGenerator_DAL)_generator).MakeMethodParam(predicate);
+        }
+
         public string MakeParamList(List<ColumnMetaData> predicate)
         {
             return ((BaseGenerator_DAL)_generator).MakeParamList(predicate);

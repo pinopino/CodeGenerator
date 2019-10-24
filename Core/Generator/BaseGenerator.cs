@@ -51,7 +51,28 @@ namespace Generator.Core
             return Render("DAL/dal_master.cshtml", model);
         }
 
-        public abstract string GetPartialViewPath(string method);
+        public virtual string GetPartialViewPath(string method)
+        {
+            switch (method.ToLower())
+            {
+                case "exists":
+                    return "DAL/Exists/exist.cshtml";
+                case "insert":
+                    return "DAL/Insert/inser.cshtml";
+                case "delete":
+                    return "DAL/Delete/delete.cshtml";
+                case "update":
+                    return "DAL/Update/update.cshtml";
+                case "getmodel":
+                case "getlist":
+                case "getcount":
+                    return "DAL/GetModel/get.cshtml";
+                case "getpage":
+                    return "DAL/Page/page.cshtml";
+            }
+
+            throw new System.ArgumentException($"暂不支持生成{method}相关方法");
+        }
 
         /// <summary>
         /// 生成的dapper查询时使用的表名
@@ -61,22 +82,27 @@ namespace Generator.Core
         /// <summary>
         /// 生成的方法注释信息中包含的参数说明文字
         /// </summary>
-        public abstract string MakeParamComment(List<ColumnMetaData> predicate);
+        public abstract string MakeParamComment(List<ColumnMetaData> columns);
 
         /// <summary>
         /// 生成的方法的参数列表
         /// </summary>
-        public abstract string MakeParamList(List<ColumnMetaData> predicate);
+        public abstract string MakeMethodParam(List<ColumnMetaData> columns);
+
+        /// <summary>
+        /// 生成的dapper查询时使用的参数列表
+        /// </summary>
+        public abstract string MakeParamList(List<ColumnMetaData> columns);
 
         /// <summary>
         /// 生成的dapper查询时使用的参数值列表
         /// </summary>
-        public abstract string MakeParamValList(List<ColumnMetaData> predicate);
+        public abstract string MakeParamValList(List<ColumnMetaData> columns);
 
         /// <summary>
         /// 生成的dapper查询时where语句
         /// </summary>
-        public abstract string MakeWhere(List<ColumnMetaData> predicate);
+        public abstract string MakeWhere(List<ColumnMetaData> columns);
 
         public string RenderBaseTableHelper()
         {

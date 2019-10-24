@@ -1,0 +1,72 @@
+﻿@using RazorLight
+@using Generator.Template;
+@inherits TemplatePage<ViewInfoWapper>
+@{
+    DisableEncoding = true;
+}
+
+
+@if (Model.TableInfo.PrimaryKey.Count == 0) { goto cc; }
+	/// <summary>
+    /// 删除指定的@(Model.TableInfo.Name)数据记录
+    /// </summary>
+    @Model.MakeParamComment(Model.TableInfo.PrimaryKey)
+    /// <returns>是否成功，true为成功</returns>
+    public static bool Delete(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
+    {
+        var sql = new StringBuilder();
+        sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
+        sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.PrimaryKey)");
+        var ret = false;
+        using (var conn = GetOpenConnection())
+        {
+            ret = conn.Execute(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) }) > 0;
+        }
+
+        return ret;
+    }
+
+    /// <summary>
+    /// 批量删除指定的@(Model.TableInfo.Name)数据记录
+    /// </summary>
+    /// <param name="Ids">@(Model.TableInfo.Name + "实体对象的")id列表</param>
+    /// <returns>是否成功，true为成功</returns>
+    public static bool Delete(List<@Model.TableInfo.PrimaryKey[0].DbType> Ids)
+    {
+        var sql = new StringBuilder();
+        sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
+        sql.Append(" WHERE @Model.TableInfo.PrimaryKey[0].Name IN @@ids");
+        var ret = false;
+        using (var conn = GetOpenConnection())
+        {
+            ret = conn.Execute(sql.ToString(), new { @@ids = Ids }) > 0;
+        }
+
+        return ret;
+    }
+
+    @{ cc: }
+    /// <summary>
+    /// 删除指定的@(Model.TableInfo.Name)数据记录
+    /// </summary>
+    public static bool Delete(Expression<Func<@Model.TableInfo.Name, bool>> predicate = null)
+    {
+		var where_str = string.Empty;
+		if (predicate != null)
+		{
+			var parser = new PredicateParser();
+			where_str = parser.Parse(predicate);
+		}
+			
+        var sql = new StringBuilder();
+        sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
+		if (!string.IsNullOrEmpty(where_str)))
+			sql.Append(" WHERE " + where_str);
+        var ret = false;
+        using (var conn = GetOpenConnection())
+        {
+            ret = conn.Execute(sql.ToString()) > 0;
+        }
+
+        return ret;
+    }

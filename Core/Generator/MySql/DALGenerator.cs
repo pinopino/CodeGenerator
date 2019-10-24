@@ -32,7 +32,12 @@ namespace Generator.Core.MySql
             throw new NotImplementedException();
         }
 
-        public override string MakeParamList(List<ColumnMetaData> predicate)
+        public override string MakeMethodParam(List<ColumnMetaData> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string MakeParamList(List<ColumnMetaData> columns)
         {
             throw new NotImplementedException();
         }

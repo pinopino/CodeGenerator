@@ -16,24 +16,10 @@ namespace Generator.Core.MSSql
 
         public override string GetPartialViewPath(string method)
         {
-            switch (method.ToLower())
-            {
-                case "exists":
-                    return "DAL/Exists/exist_mssql.cshtml";
-                case "insert":
-                    return "DAL/Insert/inser_mssql.cshtml";
-                case "delete":
-                    return "DAL/Delete/delete_mssql.cshtml";
-                case "update":
-                    return "DAL/Update/update_mssql.cshtml";
-                case "getmodel":
-                case "getlist":
-                case "getcount":
-                    return "DAL/GetModel/get_mssql.cshtml";
-                case "getpage":
-                    return "DAL/Page/page_mssql.cshtml";
-            }
-            return string.Empty;
+            if (method.ToLower() == "insert")
+                return "DAL/Insert/insert_mssql.cshtml";
+            else
+                return base.GetPartialViewPath(method);
         }
 
         public override string MakeTableName(string rawName)
@@ -41,34 +27,45 @@ namespace Generator.Core.MSSql
             return $"[{rawName}]";
         }
 
-        public override string MakeParamComment(List<ColumnMetaData> predicate)
+        public override string MakeParamComment(List<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
-            foreach (var item in predicate)
+            foreach (var item in columns)
                 sb.Append($"/// <param name=\"{item.Name}\">{item.Comment}</param>");
             return sb.ToString();
         }
 
-        public override string MakeParamList(List<ColumnMetaData> predicate)
+        public override string MakeMethodParam(List<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
-            foreach (var item in predicate)
+            foreach (var item in columns)
                 sb.Append($"{item.DbType} {item.Name}, ");
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeParamValList(List<ColumnMetaData> predicate)
+        public override string MakeParamList(List<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
-            foreach (var item in predicate)
+            foreach (var item in columns)
+            {
+                if (!item.IsIdentity)
+                    sb.Append($"@{item.Name}, ");
+            }
+            return sb.TrimEnd(", ").ToString();
+        }
+
+        public override string MakeParamValList(List<ColumnMetaData> columns)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in columns)
                 sb.Append($"@{item.Name}={item.Name}, ");
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeWhere(List<ColumnMetaData> predicate)
+        public override string MakeWhere(List<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
-            foreach (var item in predicate)
+            foreach (var item in columns)
                 sb.Append($"[{item.Name}]=@{item.Name} and ");
             return sb.TrimEnd("and ").ToString();
         }
