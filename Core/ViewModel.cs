@@ -4,11 +4,20 @@ using System.Collections.Generic;
 
 namespace Generator.Template
 {
+    public class EnumInfo
+    {
+        public string EnumName;
+        public string Comment;
+        public string[] Values;
+        public string DbType;
+    }
+
     public class ViewInfoWapper
     {
         private BaseGenerator _generator;
         public GlobalConfiguration Config;
         public TableMetaData TableInfo;
+        public EnumInfo EnumInfo;
 
         public ViewInfoWapper(BaseGenerator generator)
         {

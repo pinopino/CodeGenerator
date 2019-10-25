@@ -7,63 +7,63 @@
 
 
 @if (Model.TableInfo.PrimaryKey.Count == 0) { goto cc; }
- 	/// <summary>
-    /// 添加新@(Model.TableInfo.Name)记录
-    /// </summary>
-    /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-    /// <returns>新插入数据的id</returns>
-    public static @(Model.TableInfo.PrimaryKey[0].DbType) Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
-    {
-        var sql = new StringBuilder();
-        sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p=>!p.IsIdentity).Select(p => $"[{p.Name}]"))))");
-        sql.Append(" OUTPUT INSERTED.[@(Model.TableInfo.PrimaryKey[0].Name)] ");
-        sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
-        var ret = 0;
-        if (conn != null)
+ 	    /// <summary>
+        /// 添加新@(Model.TableInfo.Name)记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <returns>新插入数据的id</returns>
+        public static @(Model.TableInfo.PrimaryKey[0].DbType) Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
         {
-            if (transaction == null)
+            var sql = new StringBuilder();
+            sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+            sql.Append(" OUTPUT INSERTED.[@(Model.TableInfo.PrimaryKey[0].Name)] ");
+            sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
+            var ret = 0;
+            if (conn != null)
             {
-                throw new ArgumentNullException("transaction");
+                if (transaction == null)
+                {
+                    throw new ArgumentNullException("transaction");
+                }
+                ret = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey[0].DbType)>(sql.ToString(), model, transaction);
             }
-            ret = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey[0].DbType)>(sql.ToString(), model, transaction);
-        }
-        else
-        {
-            using (var conn1 = GetOpenConnection())
+            else
             {
-                ret = conn1.ExecuteScalar<@(Model.TableInfo.PrimaryKey[0].DbType)>(sql.ToString(), model);
+                using (var conn1 = GetOpenConnection())
+                {
+                    ret = conn1.ExecuteScalar<@(Model.TableInfo.PrimaryKey[0].DbType)>(sql.ToString(), model);
+                }
             }
-        }
 
-        return ret;
-    }
-    @{ cc: }
-    /// <summary>
-    /// 添加新@(Model.TableInfo.Name)记录
-    /// </summary>
-    /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-    /// <returns>是否插入成功，true为成功</returns>
-    public static bool Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
-    {
-        var sql = new StringBuilder();
-        sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
-        sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
-        var ret = false;
-        if (conn != null)
-        {
-            if (transaction == null)
-            {
-                throw new ArgumentNullException("transaction");
-            }
-            ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+            return ret;
         }
-        else
+        @{ cc: }
+        /// <summary>
+        /// 添加新@(Model.TableInfo.Name)记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <returns>是否插入成功，true为成功</returns>
+        public static bool Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
         {
-            using (var conn1 = GetOpenConnection())
+            var sql = new StringBuilder();
+            sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+            sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
+            var ret = false;
+            if (conn != null)
             {
-                ret = conn1.Execute(sql.ToString(), model) > 0;
+                if (transaction == null)
+                {
+                    throw new ArgumentNullException("transaction");
+                }
+                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
             }
-        }
+            else
+            {
+                using (var conn1 = GetOpenConnection())
+                {
+                    ret = conn1.Execute(sql.ToString(), model) > 0;
+                }
+            }
 
-        return ret;
-    }
+            return ret;
+        }

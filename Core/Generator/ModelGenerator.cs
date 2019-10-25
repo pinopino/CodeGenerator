@@ -1,7 +1,7 @@
 ﻿using Generator.Core.Config;
 using Generator.Template;
 
-namespace Generator.Core.MSSql
+namespace Generator.Core
 {
     public class ModelGenerator : BaseGenerator_Model
     {

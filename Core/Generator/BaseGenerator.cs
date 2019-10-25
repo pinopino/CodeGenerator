@@ -169,6 +169,8 @@ namespace Generator.Core
             : base(config)
         { }
 
+        public abstract bool CanGenerateEnum(TableMetaData table, ColumnMetaData column);
+
         public abstract string RenderEnumFor(TableMetaData table, ColumnMetaData column);
     }
 }

@@ -72,7 +72,7 @@ namespace Console
 
                     // 生成Enum最终文件
                     Print("生成Enum...");
-                    //OutputHelper.OutputEnum(meta_data, config, progress);
+                    OutputHelper.OutputEnum(meta_data, config, progress);
 
                     // 检测partial字段有效性
                     Print("检测partial字段有效性...");

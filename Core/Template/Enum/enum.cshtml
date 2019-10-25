@@ -5,12 +5,30 @@
 @{
     DisableEncoding = true;
 }
-	/// <summary>
-    /// {0}枚举
-    /// {1}
-    ///
-</summary>
-	public static class {2}
-{{
-{3}
-}}
+/*
+ * @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+ * @Model.Config.ModelConfig.HeaderNote
+ */
+@foreach (var u in Model.Config.ModelConfig.Using)
+{
+    @(u.NewLine())
+}
+
+namespace @(Model.Config.Project).GenEnum
+{
+    /// <summary>
+	/// @(Model.EnumInfo.EnumName)枚举
+	/// @Model.EnumInfo.Comment
+	/// </summary>
+	public static class @Model.EnumInfo.EnumName
+	{
+        @for (int i = 0; i < Model.EnumInfo.Values.Length; i += 2)
+        {
+            var is_number = int.TryParse(Model.EnumInfo.Values[i], out _);
+            @("/// <summary>".Indent(8).NewLine())
+            @($"/// {Model.EnumInfo.Values[i + 1]} {Model.EnumInfo.Values[i]}".Indent(8).NewLine())
+            @("/// </summary>".Indent(8).NewLine())
+            @($"public static readonly {Model.EnumInfo.DbType} {Model.EnumInfo.Values[i + 1]} = {(is_number ? Model.EnumInfo.Values[i] : (string.Format(@"""{0}""", Model.EnumInfo.Values[i])) )};".Indent(8).NewLine().NewLine())
+        }
+	}
+}

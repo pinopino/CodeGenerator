@@ -228,18 +228,7 @@ namespace Generator.Core
             var path = Path.Combine(config.OutputBasePath, "Model");
             Directory.CreateDirectory(path);
 
-            BaseGenerator_Model g = null;
-            // todo: 有点丑陋，可以考虑走ioc
-            switch (config.DBType)
-            {
-                case "mssql":
-                    g = new Generator.Core.MSSql.ModelGenerator(config);
-                    break;
-                case "mysql":
-                    g = new Generator.Core.MySql.ModelGenerator(config);
-                    break;
-            }
-
+            BaseGenerator_Model g = new ModelGenerator(config);
             // 解析
             var i = 0;
             var sb = new StringBuilder();
@@ -296,18 +285,7 @@ namespace Generator.Core
             var path = Path.Combine(config.OutputBasePath, "Enum");
             Directory.CreateDirectory(path);
 
-            BaseGenerator_Enum g = null;
-            // todo: 有点丑陋，可以考虑走ioc
-            switch (config.DBType)
-            {
-                case "mssql":
-                    g = new Generator.Core.MSSql.EnumGenerator(config);
-                    break;
-                case "mysql":
-                    g = new Generator.Core.MySql.EnumGenerator(config);
-                    break;
-            }
-
+            BaseGenerator_Enum g = new EnumGenerator(config);
             // 解析
             var i = 0;
             var sb = new StringBuilder();
@@ -319,7 +297,7 @@ namespace Generator.Core
 
                 foreach (var column in table.Columns)
                 {
-                    if (!string.IsNullOrWhiteSpace(column.Comment))
+                    if (g.CanGenerateEnum(table, column))
                     {
                         sb.AppendLine(g.RenderEnumFor(table, column));
                         File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), sb.ToString());

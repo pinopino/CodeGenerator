@@ -14,16 +14,19 @@
     @(u.NewLine())
 }
 
-@* 输出类信息 *@
-@("public partial class " + Model.Config.DALConfig.ClassPrefix +
-                                        Model.TableInfo.Name +
-                                        Model.Config.DALConfig.ClassSuffix +
-                                        (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
+namespace @Model.Config.DALConfig.Namespace
 {
-@* 输出类的方法 *@
-@foreach (var item in Model.Config.DALConfig.Methods)
-{
-    await IncludeAsync(Model.GetPartialViewPath(item.Name), Model);
-}
+    @* 输出类信息 *@
+    @("public partial class " + Model.Config.DALConfig.ClassPrefix +
+                                                Model.TableInfo.Name +
+                                                Model.Config.DALConfig.ClassSuffix +
+                                                (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
+    {
+        @* 输出类的方法 *@
+        @foreach (var item in Model.Config.DALConfig.Methods)
+        {
+            await IncludeAsync(Model.GetPartialViewPath(item.Name), Model);
+        }
 
+    }
 }
