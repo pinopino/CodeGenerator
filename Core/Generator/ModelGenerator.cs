@@ -14,11 +14,12 @@ namespace Generator.Core
 
         public override string RenderModelFor(TableMetaData table)
         {
+            _table_name = table.Name;
             var model = new ViewInfoWapper(this);
             model.Config = _config;
             model.TableInfo = table;
 
-            return Render("model_mssql.cshtml", model);
+            return Render("Model/model.cshtml", model);
         }
     }
 }

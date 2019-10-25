@@ -5,3 +5,60 @@
 @{
     DisableEncoding = true;
 }
+/*
+ * @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+ * @Model.Config.ModelConfig.HeaderNote
+ */
+@foreach (var u in Model.Config.ModelConfig.Using)
+{
+    @(u.NewLine())
+}
+
+namespace @(Model.Config.ModelConfig.Namespace)
+{
+	/// <summary>
+    /// @(Model.TableInfo.Name)实体
+    /// @(Model.TableInfo.Comment)
+    /// </summary>
+	@("public class " + Model.Config.ModelConfig.ClassPrefix +
+                        Model.TableInfo.Name +
+                        Model.Config.ModelConfig.ClassSuffix +
+                        (string.IsNullOrWhiteSpace(Model.Config.ModelConfig.BaseClass) ? string.Empty : (" : " + Model.Config.ModelConfig.BaseClass)))
+	{
+        public @(Model.TableInfo.Name)()
+        { }
+
+        @for (int i = 0; i < Model.TableInfo.Columns.Count; i++)
+        {
+            var p = Model.TableInfo.Columns[i];
+            if (p.Nullable && p.DbType != "string")
+            {
+                @($"private {p.DbType}? _{p.Name.ToLower()};".Indent(8).NewLine())
+            }
+            else
+            {
+                @($"private {p.DbType} _{p.Name.ToLower()};".Indent(8).NewLine())
+            }
+        }
+
+        @for (int i = 0; i < Model.TableInfo.Columns.Count; i++)
+        {
+            var p = Model.TableInfo.Columns[i];
+            @($"/// <summary>".Indent(8).NewLine())
+            @($"/// {p.Comment}".Indent(8).NewLine())
+            @($"/// </summary>".Indent(8).NewLine())
+            if (p.Nullable && p.DbType != "string")
+            {
+                @($"public {p.DbType}? _{p.Name};".Indent(8).NewLine())
+            }
+            else
+            {
+                @($"public {p.DbType} _{p.Name};".Indent(8).NewLine())
+            }
+            @("{".Indent(8).NewLine())
+            @($"set {{ _{p.Name.ToLower()} = value; }}".Indent(12).NewLine())
+            @($"get {{ return _{p.Name.ToLower()}; }}".Indent(12).NewLine())
+            @("}".Indent(8).NewLine().NewLine())
+        }
+    }
+}
