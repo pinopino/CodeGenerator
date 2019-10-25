@@ -19,7 +19,21 @@ namespace Generator.Core.MySql
 
         public override string GetPartialViewPath(string method)
         {
-            throw new NotImplementedException();
+            switch (method.ToLower())
+            {
+                case "insert":
+                    return "DAL/Insert/inser_mysql.cshtml";
+                case "update":
+                    return "DAL/Update/update.cshtml";
+                case "getmodel":
+                case "getlist":
+                case "getcount":
+                    return "DAL/GetModel/get_mysql.cshtml";
+                case "getpage":
+                    return "DAL/Page/page.cshtml";
+                default:
+                    return base.GetPartialViewPath(method);
+            }
         }
 
         public override string MakeTableName(string rawName)

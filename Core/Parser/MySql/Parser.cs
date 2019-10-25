@@ -2,6 +2,7 @@
 using Generator.Common;
 using Generator.Core.Config;
 using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -29,12 +30,13 @@ namespace Generator.Core.MySql
 
         public override Dictionary<string, TableMetaData> ParseMetadata()
         {
+            var result = new Dictionary<string, TableMetaData>();
             using (MySqlConnection connection = new MySqlConnection(base.ConnStr))
             {
                 var CommandText = "SHOW TABLES;";
                 connection.Open();
                 var TableNames = connection.Query<string>(CommandText).ToList();
-
+               
                 foreach (var name in TableNames)
                 {
                     var table = new TableMetaData
@@ -47,13 +49,15 @@ namespace Generator.Core.MySql
                     };
 
                     CommandText = $"SHOW FULL FIELDS FROM {name};"; // 得到表结构
-                    var result = connection.Query<FieldViewModel>(CommandText).ToList();
-                    foreach (var item in result)
+                    var fields = connection.Query<FieldViewModel>(CommandText).ToList();
+                    bool _fail = false;
+                    foreach (var item in fields)
                     {
                         item.Type = item.Type.Substring(0, item.Type.IndexOf("("));
                         if (item.Type.Any(p => p.Equals("enum") || p.Equals("set")))
                         {
-                            // Print($"表{name}存在enum和set字段，暂无对应数据结构，跳过此表的生成！");
+                            _fail = true;
+                            Console.WriteLine($"表{name}存在enum和set字段，暂无对应数据结构，跳过此表的生成！");
                             break;
                         }
                         var ColumData = new ColumnMetaData
@@ -76,12 +80,16 @@ namespace Generator.Core.MySql
                         {
                             table.Identity = ColumData;
                         }
-                        table.Columns.Add(ColumData);
+                        if (!_fail)
+                        {
+                            table.Columns.Add(ColumData);
+                        }
                     }
+                    result.Add(table.Name, table);
                 }
             }
 
-            return new Dictionary<string, TableMetaData>();
+            return result;
         }
 
         protected override string FindDBName(string connStr)
