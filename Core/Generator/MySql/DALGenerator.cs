@@ -80,15 +80,5 @@ namespace Generator.Core.MySql
         {
             throw new NotImplementedException();
         }
-
-        public override string GetColumnStr(string column)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string GetColumnValueStr(string column)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

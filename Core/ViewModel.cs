@@ -76,6 +76,11 @@ namespace Generator.Template
             return ((BaseGenerator_DAL)_generator).MakeBasePaging();
         }
 
+        public string Render(string template, ViewInfoWapper model)
+        {
+            return _generator.Render(template, model);
+        }
+
         public bool IsUpdateExceptColumn(ColumnMetaData column)
         {
             return ((BaseGenerator_DAL)_generator).IsUpdateExceptColumn(TableInfo.Name, column.Name);

@@ -21,7 +21,7 @@ namespace Generator.Core
                  .Build();
         }
 
-        protected string Render(string template, ViewInfoWapper model)
+        public string Render(string template, ViewInfoWapper model)
         {
             var result = string.Empty;
             var cacheResult = _engine.TemplateCache.RetrieveTemplate(template);
@@ -73,10 +73,6 @@ namespace Generator.Core
 
             throw new System.ArgumentException($"暂不支持生成{method}相关方法");
         }
-
-        public abstract string GetColumnStr(string column);
-
-        public abstract string GetColumnValueStr(string column);
 
         /// <summary>
         /// 生成的dapper查询时使用的表名

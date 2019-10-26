@@ -1,0 +1,81 @@
+﻿@using RazorLight
+@using Generator.Template;
+@using Generator.Common;
+@inherits TemplatePage<ViewInfoWapper>
+@{
+    DisableEncoding = true;
+}
+
+
+		/// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <param name="fields">需要更新的字段名字</param>
+        /// <param name="reverse">反转给定的更新字段</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+        {
+			var where_str = string.Empty;
+			if (predicate != null)
+			{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}
+            @if (Model.TableInfo.PrimaryKey.Count == 0)
+            {
+                @("else".Indent(12).NewLine());
+                @("{".Indent(12).NewLine());
+                @("throw new Exception(\"在表没有主键的情况下请提供predicate\");".Indent(16).NewLine());
+                @("}".Indent(12).NewLine());
+            }
+            else
+            {
+                @("else".Indent(12).NewLine());
+                @("{".Indent(12).NewLine());
+                @($"where_str = \"{Model.MakeWhere(Model.TableInfo.PrimaryKey)}\";".Indent(16).NewLine());
+                @("}".Indent(12).NewLine());
+            }
+
+            var sql = new StringBuilder();
+            sql.Append("UPDATE @(Model.MakeTableName(Model.TableInfo.Name))");
+            if (fields == null || fields.Length == 0)
+            {
+                sql.Append(" SET @(Model.MakeWhere(Model.TableInfo.Columns, p=>!p.IsIdentity && !Model.IsUpdateExceptColumn(p)))");
+            }
+            else
+            {
+                if (reverse == true)
+                {
+                    fields = (@(Model.TableInfo.Name)Column[])Columns.All.Except(fields);
+                }
+                sql.Append(" SET ");
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    sql.Append("`" + fields[i].Name + "` = ?" + fields[i].Name + "");
+                    if (i != fields.Length - 1)
+                    {
+                        sql.Append(",");
+                    }
+                }
+            }
+            sql.Append(" WHERE " + where_str);
+            var ret = false;
+            if (conn != null)
+            {
+                if (transaction == null)
+                {
+                    throw new ArgumentNullException("transaction");
+                }
+                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+            }
+            else
+            {
+                using (var conn1 = GetOpenConnection())
+                {
+                    ret = conn1.Execute(sql.ToString(), model) > 0;
+                }
+            }
+
+            return ret;
+        }

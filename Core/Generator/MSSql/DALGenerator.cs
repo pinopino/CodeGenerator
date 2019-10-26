@@ -18,6 +18,8 @@ namespace Generator.Core.MSSql
         {
             if (method.ToLower() == "insert")
                 return "DAL/Insert/insert_mssql.cshtml";
+            else if (method.ToLower() == "update")
+                return "DAL/Update/update_mssql.cshtml";
             else
                 return base.GetPartialViewPath(method);
         }
@@ -92,16 +94,6 @@ namespace Generator.Core.MSSql
         public override string MakeBasePaging()
         {
             return Render("DAL/Base/BasePaging.cshtml", null);
-        }
-
-        public override string GetColumnStr(string column)
-        {
-            return $"[{column}]";
-        }
-
-        public override string GetColumnValueStr(string column)
-        {
-            return $"@{column}";
         }
     }
 }
