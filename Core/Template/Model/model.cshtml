@@ -58,7 +58,11 @@ namespace @(Model.Config.ModelConfig.Namespace)
             @("{".Indent(8).NewLine())
             @($"set {{ _{p.Name.ToLower()} = value; }}".Indent(12).NewLine())
             @($"get {{ return _{p.Name.ToLower()}; }}".Indent(12).NewLine())
-            @("}".Indent(8).NewLine().NewLine())
+            @("}".Indent(8).NewLine())
+            if (i != Model.TableInfo.Columns.Count - 1)
+            {
+                string.Empty.NewLine();
+            }
         }
     }
 }

@@ -5,207 +5,203 @@
 @{
     DisableEncoding = true;
 }
+
+
 		/// <summary>
-    /// 更新{0}
-    ///
-</summary>
-        /// <param name="model">{1}</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <param name="fields">需要更新的字段名字</param>
+        /// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, Expression<Func<{2}, bool>
-    > predicate, bool reverse, SqlConnection conn, SqlTransaction transaction, params {2}Column[] fields)
-    {{
+        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+        {
 			var where_str = string.Empty;
 			if (predicate != null)
-			{{
+			{
 				var parser = new PredicateParser();
 				where_str = parser.Parse(predicate);
-    }}
-    else
-    {{
-				where_str = "{3}";
-    }}
+			}
+            @if (Model.TableInfo.PrimaryKey.Count == 0)
+            {
+                @("else".Indent(12).NewLine());
+                @("{".Indent(12).NewLine());
+                @("throw new Exception(\"在表没有主键的情况下请提供predicate\");".Indent(16).NewLine());
+                @("}".Indent(12).NewLine());
+            }
+            else
+            {
+                @("else".Indent(12).NewLine());
+                @("{".Indent(12).NewLine());
+                @($"where_str = \"{Model.MakeWhere(Model.TableInfo.PrimaryKey)}\";".Indent(16).NewLine());
+                @("}".Indent(12).NewLine());
+            }
 
-    var sql = new StringBuilder();
-    sql.Append("UPDATE [{2}]");
-    if (fields == null || fields.Length == 0)
-    {{
-                 sql.Append(" SET {4}");
-    }}
-    else
-    {{
-				if (reverse == true)
-				{{
-					 fields = ({2}Column[])Columns.All.Except(fields);
-    }}
-    sql.Append(" SET ");
-    for (int i = 0; i < fields.Length; i++)
-    {{
-    if (fields[i].IsAddEqual)
-    {{
-    sql.Append("[" + fields[i].Name + "] += @" + fields[i].Name + "");
-    fields[i].SetAddEqual();
-    }}
-    else
-    {{
-    sql.Append("[" + fields[i].Name + "] = @" + fields[i].Name + "");
-    }}
-
-    if (i != fields.Length - 1)
-    {{
+            var sql = new StringBuilder();
+            sql.Append("UPDATE @(Model.MakeTableName(Model.TableInfo.Name))");
+            if (fields == null || fields.Length == 0)
+            {
+                sql.Append(" SET @(Model.MakeWhere(Model.TableInfo.Columns, p=>!p.IsIdentity && !Model.IsUpdateExceptColumn(p)))");
+            }
+            else
+            {
+                if (reverse == true)
+                {
+                    fields = (@(Model.TableInfo.Name)Column[])Columns.All.Except(fields);
+                }
+                sql.Append(" SET ");
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    sql.Append("[" + fields[i].Name + "] = @@" + fields[i].Name + "");
+                    if (i != fields.Length - 1)
+                    {
                         sql.Append(",");
-    }}
-    }}
-    }}
-    sql.Append(" WHERE " + where_str);
-    var ret = false;
-    if (conn != null)
-    {{
+                    }
+                }
+            }
+            sql.Append(" WHERE " + where_str);
+            var ret = false;
+            if (conn != null)
+            {
                 if (transaction == null)
-                {{
+                {
                     throw new ArgumentNullException("transaction");
-    }}
-    ret = conn.Execute(sql.ToString(), model, transaction) > 0;
-    }}
-    else
-    {{
+                }
+                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+            }
+            else
+            {
                 using (var conn1 = GetOpenConnection())
-                {{
+                {
                     ret = conn1.Execute(sql.ToString(), model) > 0;
-    }}
-    }}
+                }
+            }
 
-    return ret;
-    }}
-
-    /// <summary>
-        /// 更新{0}
-        ///
-    </summary>
-    /// <param name="model">{1}</param>
-    /// <param name="fields">需要更新的字段名字</param>
-    /// <param name="reverse">反转给定的更新字段</param>
-    /// <returns>是否成功，true为成功</returns>
-    public static bool Update({2} model, params {2}Column[] fields)
-    {{
-            return Update(
-				model: model,
-				predicate: null,
-				reverse: false,
-				conn: null,
-				transaction: null,
-				fields: fields);
-    }}
-
-    /// <summary>
-        /// 更新{0}
-        ///
-    </summary>
-    /// <param name="model">{1}</param>
-    /// <param name="fields">需要更新的字段名字</param>
-    /// <param name="reverse">反转给定的更新字段</param>
-    /// <returns>是否成功，true为成功</returns>
-    public static bool Update({2} model, bool reverse, params {2}Column[] fields)
-    {{
-            return Update(
-				model: model,
-				predicate: null,
-				reverse: reverse,
-				conn: null,
-				transaction: null,
-				fields: fields);
-    }}
-
-    /// <summary>
-        /// 更新{0}
-        ///
-    </summary>
-    /// <param name="model">{1}</param>
-    /// <param name="fields">需要更新的字段名字</param>
-    /// <param name="reverse">反转给定的更新字段</param>
-    /// <returns>是否成功，true为成功</returns>
-    public static bool Update({2} model, SqlConnection conn, SqlTransaction transaction, params {2}Column[] fields)
-    {{
-            return Update(
-				model: model,
-				predicate: null,
-				reverse: false,
-				conn: conn,
-				transaction: transaction,
-				fields: fields);
-    }}
-
-    /// <summary>
-        /// 更新{0}
-        ///
-    </summary>
-    /// <param name="model">{1}</param>
-    /// <param name="fields">需要更新的字段名字</param>
-    /// <param name="reverse">反转给定的更新字段</param>
-    /// <returns>是否成功，true为成功</returns>
-    public static bool Update({2} model, bool reverse, SqlConnection conn, SqlTransaction transaction, params {2}Column[] fields)
-    {{
-            return Update(
-				model: model,
-				predicate: null,
-				reverse: reverse,
-				conn: conn,
-				transaction: transaction,
-				fields: fields);
-    }}
-
-    /// <summary>
-        /// 更新{0}
-        ///
-    </summary>
-    /// <param name="model">{1}</param>
-    /// <param name="fields">需要更新的字段名字</param>
-    /// <param name="reverse">反转给定的更新字段</param>
-    /// <returns>是否成功，true为成功</returns>
-    public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, params {2}Column[] fields)
-        {{
-            return Update(
-				model: model,
-				predicate: predicate,
-				reverse: false,
-				conn: null,
-				transaction: null,
-				fields: fields);
-        }}
-
-		/// <summary>
-        /// 更新{0}
+            return ret;
+        }
+        
+        /// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
         /// </summary>
-        /// <param name="model">{1}</param>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
 		/// <param name="fields">需要更新的字段名字</param>
 		/// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, bool reverse, params {2}Column[] fields)
-        {{
+        public static bool Update(@(Model.TableInfo.Name) model, params @(Model.TableInfo.Name)Column[] fields)
+        {
             return Update(
-				model: model,
-				predicate: predicate,
-				reverse: reverse,
-				conn: null,
-				transaction: null,
+				model: model, 
+				predicate: null, 
+				reverse: false, 
+				conn: null, 
+				transaction: null, 
 				fields: fields);
-        }}
+        }
 
 		/// <summary>
-        /// 更新{0}
+        /// 更新@(Model.TableInfo.Name)数据记录
         /// </summary>
-        /// <param name="model">{1}</param>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
 		/// <param name="fields">需要更新的字段名字</param>
 		/// <param name="reverse">反转给定的更新字段</param>
         /// <returns>是否成功，true为成功</returns>
-        public static bool Update({2} model, Expression<Func<{2}, bool>> predicate, SqlConnection conn, SqlTransaction transaction, params {2}Column[] fields)
-        {{
+        public static bool Update(@(Model.TableInfo.Name) model, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
+        {
             return Update(
-				model: model,
-				predicate: predicate,
-				reverse: false,
-				conn: conn,
-				transaction: transaction,
+				model: model, 
+				predicate: null, 
+				reverse: reverse, 
+				conn: null, 
+				transaction: null, 
 				fields: fields);
-        }}
+        }
+
+		/// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		/// <param name="fields">需要更新的字段名字</param>
+		/// <param name="reverse">反转给定的更新字段</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Update(@(Model.TableInfo.Name) model, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+        {
+            return Update(
+				model: model, 
+				predicate: null, 
+				reverse: false, 
+				conn: conn, 
+				transaction: transaction, 
+				fields: fields);
+        }
+
+		/// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		/// <param name="fields">需要更新的字段名字</param>
+		/// <param name="reverse">反转给定的更新字段</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Update(@(Model.TableInfo.Name) model, bool reverse, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+        {
+            return Update(
+				model: model, 
+				predicate: null, 
+				reverse: reverse, 
+				conn: conn, 
+				transaction: transaction, 
+				fields: fields);
+        }
+
+		/// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		/// <param name="fields">需要更新的字段名字</param>
+		/// <param name="reverse">反转给定的更新字段</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, params @(Model.TableInfo.Name)Column[] fields)
+        {
+            return Update(
+				model: model, 
+				predicate: predicate, 
+				reverse: false, 
+				conn: null, 
+				transaction: null, 
+				fields: fields);
+        }
+
+		/// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		/// <param name="fields">需要更新的字段名字</param>
+		/// <param name="reverse">反转给定的更新字段</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
+        {
+            return Update(
+				model: model, 
+				predicate: predicate, 
+				reverse: reverse, 
+				conn: null, 
+				transaction: null, 
+				fields: fields);
+        }
+
+		/// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		/// <param name="fields">需要更新的字段名字</param>
+		/// <param name="reverse">反转给定的更新字段</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+        {
+            return Update(
+				model: model, 
+				predicate: predicate, 
+				reverse: false, 
+				conn: conn, 
+				transaction: transaction, 
+				fields: fields);
+        }

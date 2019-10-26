@@ -43,7 +43,7 @@ namespace Generator.Core.MSSql
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeParamList(List<ColumnMetaData> columns)
+        public override string MakeParamList(IEnumerable<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
             foreach (var item in columns)
@@ -54,7 +54,7 @@ namespace Generator.Core.MSSql
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeParamValList(List<ColumnMetaData> columns)
+        public override string MakeParamValueList(IEnumerable<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
             foreach (var item in columns)
@@ -62,7 +62,7 @@ namespace Generator.Core.MSSql
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeWhere(List<ColumnMetaData> columns)
+        public override string MakeWhere(IEnumerable<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
             foreach (var item in columns)
@@ -92,6 +92,16 @@ namespace Generator.Core.MSSql
         public override string MakeBasePaging()
         {
             return Render("DAL/Base/BasePaging.cshtml", null);
+        }
+
+        public override string GetColumnStr(string column)
+        {
+            return $"[{column}]";
+        }
+
+        public override string GetColumnValueStr(string column)
+        {
+            return $"@{column}";
         }
     }
 }
