@@ -49,17 +49,17 @@ namespace Generator.Core.MySql
             throw new NotImplementedException();
         }
 
-        public override string MakeParamList(List<ColumnMetaData> columns)
+        public override string MakeParamList(IEnumerable<ColumnMetaData> columns)
         {
             throw new NotImplementedException();
         }
 
-        public override string MakeParamValList(List<ColumnMetaData> predicate)
+        public override string MakeParamValueList(IEnumerable<ColumnMetaData> predicate)
         {
             throw new NotImplementedException();
         }
 
-        public override string MakeWhere(List<ColumnMetaData> predicate)
+        public override string MakeWhere(IEnumerable<ColumnMetaData> predicate)
         {
             throw new NotImplementedException();
         }

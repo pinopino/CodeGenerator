@@ -68,7 +68,7 @@ namespace Console
 
                     // 生成Model最终文件
                     Print("生成Model...");
-                    //OutputHelper.OutputModel(meta_data, config, progress);
+                    OutputHelper.OutputModel(meta_data, config, progress);
 
                     // 生成Enum最终文件
                     Print("生成Enum...");

@@ -18,6 +18,8 @@ namespace Generator.Core.MSSql
         {
             if (method.ToLower() == "insert")
                 return "DAL/Insert/insert_mssql.cshtml";
+            else if (method.ToLower() == "update")
+                return "DAL/Update/update_mssql.cshtml";
             else
                 return base.GetPartialViewPath(method);
         }
@@ -43,7 +45,7 @@ namespace Generator.Core.MSSql
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeParamList(List<ColumnMetaData> columns)
+        public override string MakeParamList(IEnumerable<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
             foreach (var item in columns)
@@ -54,7 +56,7 @@ namespace Generator.Core.MSSql
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeParamValList(List<ColumnMetaData> columns)
+        public override string MakeParamValueList(IEnumerable<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
             foreach (var item in columns)
@@ -62,7 +64,7 @@ namespace Generator.Core.MSSql
             return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeWhere(List<ColumnMetaData> columns)
+        public override string MakeWhere(IEnumerable<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
             foreach (var item in columns)

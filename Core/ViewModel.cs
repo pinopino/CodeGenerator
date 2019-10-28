@@ -1,6 +1,8 @@
 ﻿using Generator.Core;
 using Generator.Core.Config;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Generator.Template
 {
@@ -44,19 +46,19 @@ namespace Generator.Template
             return ((BaseGenerator_DAL)_generator).MakeMethodParam(columns);
         }
 
-        public string MakeParamList(List<ColumnMetaData> columns)
+        public string MakeParamList(List<ColumnMetaData> columns, Func<ColumnMetaData, bool> predicate = null)
         {
-            return ((BaseGenerator_DAL)_generator).MakeParamList(columns);
+            return ((BaseGenerator_DAL)_generator).MakeParamList(columns.Where(p => predicate == null ? true : predicate(p)));
         }
 
-        public string MakeParamValList(List<ColumnMetaData> columns)
+        public string MakeParamValList(List<ColumnMetaData> columns, Func<ColumnMetaData, bool> predicate = null)
         {
-            return ((BaseGenerator_DAL)_generator).MakeParamValList(columns);
+            return ((BaseGenerator_DAL)_generator).MakeParamValueList(columns.Where(p => predicate == null ? true : predicate(p)));
         }
 
-        public string MakeWhere(List<ColumnMetaData> columns)
+        public string MakeWhere(List<ColumnMetaData> columns, Func<ColumnMetaData, bool> predicate = null)
         {
-            return ((BaseGenerator_DAL)_generator).MakeWhere(columns);
+            return ((BaseGenerator_DAL)_generator).MakeWhere(columns.Where(p => predicate == null ? true : predicate(p)));
         }
 
         public string MakeConnectionInit()
@@ -72,6 +74,16 @@ namespace Generator.Template
         public string MakeBasePaging()
         {
             return ((BaseGenerator_DAL)_generator).MakeBasePaging();
+        }
+
+        public string Render(string template, ViewInfoWapper model)
+        {
+            return _generator.Render(template, model);
+        }
+
+        public bool IsUpdateExceptColumn(ColumnMetaData column)
+        {
+            return ((BaseGenerator_DAL)_generator).IsUpdateExceptColumn(TableInfo.Name, column.Name);
         }
         public string MakeBaseParseExpression()
         {

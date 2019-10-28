@@ -21,7 +21,7 @@ namespace Generator.Core
                  .Build();
         }
 
-        protected string Render(string template, ViewInfoWapper model)
+        public string Render(string template, ViewInfoWapper model)
         {
             var result = string.Empty;
             var cacheResult = _engine.TemplateCache.RetrieveTemplate(template);
@@ -92,17 +92,17 @@ namespace Generator.Core
         /// <summary>
         /// 生成的dapper查询时使用的参数列表
         /// </summary>
-        public abstract string MakeParamList(List<ColumnMetaData> columns);
+        public abstract string MakeParamList(IEnumerable<ColumnMetaData> columns);
 
         /// <summary>
         /// 生成的dapper查询时使用的参数值列表
         /// </summary>
-        public abstract string MakeParamValList(List<ColumnMetaData> columns);
+        public abstract string MakeParamValueList(IEnumerable<ColumnMetaData> columns);
 
         /// <summary>
         /// 生成的dapper查询时where语句
         /// </summary>
-        public abstract string MakeWhere(List<ColumnMetaData> columns);
+        public abstract string MakeWhere(IEnumerable<ColumnMetaData> columns);
 
         public string RenderBaseTableHelper()
         {
@@ -146,7 +146,7 @@ namespace Generator.Core
             return string.Empty;
         }
 
-        protected bool IsUpdateExceptColumn(string table, string colunm)
+        public bool IsUpdateExceptColumn(string table, string colunm)
         {
             if (_config.UpdateExceptColumns == null)
                 return false;

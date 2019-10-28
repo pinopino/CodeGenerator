@@ -28,7 +28,11 @@ namespace @(Model.Config.Project).GenEnum
             @("/// <summary>".Indent(8).NewLine())
             @($"/// {Model.EnumInfo.Values[i + 1]} {Model.EnumInfo.Values[i]}".Indent(8).NewLine())
             @("/// </summary>".Indent(8).NewLine())
-            @($"public static readonly {Model.EnumInfo.DbType} {Model.EnumInfo.Values[i + 1]} = {(is_number ? Model.EnumInfo.Values[i] : (string.Format(@"""{0}""", Model.EnumInfo.Values[i])) )};".Indent(8).NewLine().NewLine())
+            @($"public static readonly {Model.EnumInfo.DbType} {Model.EnumInfo.Values[i + 1]} = {(is_number ? Model.EnumInfo.Values[i] : (string.Format(@"""{0}""", Model.EnumInfo.Values[i])) )};".Indent(8).NewLine())
+            if (i != Model.EnumInfo.Values.Length - 1)
+            {
+                string.Empty.NewLine();
+            }
         }
 	}
 }
