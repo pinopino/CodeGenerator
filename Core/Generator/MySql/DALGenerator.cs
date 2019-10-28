@@ -23,8 +23,6 @@ namespace Generator.Core.MySql
             {
                 case "insert":
                     return "DAL/Insert/inser_mysql.cshtml";
-                case "update":
-                    return "DAL/Update/update.cshtml";
                 case "getmodel":
                 case "getlist":
                 case "getcount":
@@ -79,6 +77,10 @@ namespace Generator.Core.MySql
         public override string MakeBasePaging()
         {
             throw new NotImplementedException();
+        }
+        public override string MakeBaseParseExpression()
+        {
+            return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) {KeyWordsEscape= new Template.KeyWordsEscape { Left = "`", Right = "`" } });
         }
     }
 }
