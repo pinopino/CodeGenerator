@@ -118,6 +118,8 @@ namespace Generator.Core
 
         public abstract string MakeBasePaging();
 
+        public abstract string MakeBaseParseExpression();
+
         protected bool IsKeyword(string colunm)
         {
             return _keywords.Contains(colunm);

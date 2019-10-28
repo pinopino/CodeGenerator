@@ -79,7 +79,7 @@
 	    /// <summary>
         /// 批量获取@(Model.TableInfo.Name)实体对象
         /// </summary>
-        public static List<@(Model.TableInfo.Name)> GetList(int top, Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, params @(Model.TableInfo.Name)Column[] orderBy)
+        public static List<@(Model.TableInfo.Name)> GetList(int num,Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, params @(Model.TableInfo.Name)Column[] orderBy)
         {
 		    var where_str = string.Empty;
 		    if (predicate != null)
@@ -89,17 +89,43 @@
 		    }
 
             var sql = new StringBuilder();
-            sql.Append("SELECT TOP " + top.ToString() + " * FROM @Model.MakeTableName(Model.TableInfo.Name)");
+            sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
             if (where_str != string.Empty)
 			    sql.Append(" WHERE " + where_str);
 		    if (orderBy != null && orderBy.Length > 0)
                 sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{p.Name} {p.Asc}")));
-
+            sql.Append(" LIMIT 0" + num);
 		    List<@(Model.TableInfo.Name)> ret = null;
             using (var conn = GetOpenConnection())
             {
                 ret = conn.Query<@(Model.TableInfo.Name)>(sql.ToString()).ToList();
             }
 			
+            return ret;
+        }
+        
+        /// <summary>
+		/// 获取记录总数
+		/// </summary>
+        public static int GetCount(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null)
+        {
+			var where_str = string.Empty;
+			if (predicate != null)
+			{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate);
+			}
+
+            var sql = new StringBuilder();
+            sql.Append("SELECT COUNT(1) FROM `@(Model.TableInfo.Name)`");
+			if (where_str != string.Empty)
+				sql.Append(" WHERE " + where_str);
+
+            var ret = -1;
+            using (var conn = GetOpenConnection())
+            {
+                ret = conn.ExecuteScalar<int>(sql.ToString());
+            }
+
             return ret;
         }

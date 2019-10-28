@@ -73,5 +73,9 @@ namespace Generator.Template
         {
             return ((BaseGenerator_DAL)_generator).MakeBasePaging();
         }
+        public string MakeBaseParseExpression()
+        {
+            return ((BaseGenerator_DAL)_generator).MakeBaseParseExpression();
+        }
     }
 }
