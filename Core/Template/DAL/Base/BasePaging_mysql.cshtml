@@ -1,0 +1,53 @@
+﻿@using RazorLight
+@using Generator.Template;
+@{
+    DisableEncoding = true;
+}
+    /// <summary>
+    /// 此分页用于有数值型主键的table,如果表数据庞大最好手写一个高效的分页方式
+    /// </summary>
+    /// <typeparam name="T">生成的model</typeparam>
+    /// <param name="tableName">表名</param>
+    /// <param name="where">where条件不要带where关键字</param>
+    /// <param name="orderBy">排序</param>
+    /// <param name="columns">需要查出来的字段</param>
+    /// <param name="pageSize">每页数量</param>
+    /// <param name="currentPage">当前页</param>
+    /// <param name="primaryKey">主键</param>
+    /// <returns></returns>
+    protected static PageDataView<T> Paged<T>(string tableName, string where, string orderBy, string columns, int pageSize, int currentPage, string primaryKey)
+    {
+        var result = new PageDataView<T>();
+        var count_sql = string.Format("SELECT COUNT(1) FROM {0}", tableName);
+
+        if (!string.IsNullOrWhiteSpace(where))
+        {
+            if (where.ToLower().Contains("where"))
+            {
+                throw new ArgumentException("where子句不需要带where关键字");
+            }
+            where = " WHERE " + where;
+        }
+        var pageStart = (currentPage - 1) * pageSize;
+        if (string.IsNullOrWhiteSpace(orderBy))
+        {
+            var sql = string.Format("SELECT {0} FROM {2} where {6} >=(select {6} from {2} {3}  limit {4},1) limit {5}; ", columns, "", tableName, where, pageStart, pageSize, primaryKey);
+        }
+        else
+        {
+            var sql = string.Format("SELECT {0} FROM {2} where {6} >=(select {6} from {2} {3}  ORDER BY {1} limit {4},1) limit {5}; ", columns, orderBy, tableName, where, pageStart, pageSize, primaryKey);
+        }
+
+        count_sql += where;
+        using (var conn = GetOpenConnection())
+        {
+            result.TotalRecords = conn.ExecuteScalar<int>(count_sql);
+            result.TotalPages = result.TotalRecords / pageSize;
+            if (result.TotalRecords % pageSize > 0)
+                result.TotalPages += 1;
+            var list = conn.Query<T>(sql);
+            result.Items = list.Count() == 0 ? (new List<T>()) : list.ToList();
+        }
+
+        return result;
+    }

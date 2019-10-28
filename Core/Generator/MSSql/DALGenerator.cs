@@ -91,9 +91,9 @@ namespace Generator.Core.MSSql
             return str;
         }
 
-        public override string MakeBasePaging()
+        public override string MakeBasePaging(TableMetaData tableMetaData)
         {
-            return Render("DAL/Base/BasePaging.cshtml", null);
+            return Render("DAL/Base/BasePaging.cshtml",new Template.ViewInfoWapper(this) { TableInfo= tableMetaData });
         }
 
         public override string MakeBaseParseExpression()

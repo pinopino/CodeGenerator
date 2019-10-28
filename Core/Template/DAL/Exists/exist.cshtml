@@ -18,7 +18,7 @@
             var ret = false;
             using (var conn = GetOpenConnection())
 	        {
-		        ret = conn.ExecuteScalar<int>(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) } > 0;
+		        ret = conn.ExecuteScalar<int>(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) }) > 0;
 	        }
         }
 
@@ -33,7 +33,7 @@
 
             var sql = new StringBuilder();
             sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            if (!string.IsNullOrEmpty(where_str)))
+            if (!string.IsNullOrEmpty(where_str))
 			    sql.Append(" WHERE " + where_str);
             var ret = false;
             using (var conn = GetOpenConnection())

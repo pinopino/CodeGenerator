@@ -22,13 +22,15 @@ namespace Generator.Core.MySql
             switch (method.ToLower())
             {
                 case "insert":
-                    return "DAL/Insert/inser_mysql.cshtml";
+                    return "DAL/Insert/insert_mysql.cshtml";
+                case "update":
+                    return "DAL/Update/update_mysql.cshtml";
                 case "getmodel":
                 case "getlist":
                 case "getcount":
                     return "DAL/GetModel/get_mysql.cshtml";
                 case "getpage":
-                    return "DAL/Page/page.cshtml";
+                    return "DAL/Page/page_mysql.cshtml";
                 default:
                     return base.GetPartialViewPath(method);
             }
@@ -36,48 +38,76 @@ namespace Generator.Core.MySql
 
         public override string MakeTableName(string rawName)
         {
-            throw new NotImplementedException();
+            return $"`{rawName}`";
         }
 
-        public override string MakeParamComment(List<ColumnMetaData> predicate)
+        public override string MakeParamComment(List<ColumnMetaData> columns)
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+                sb.Append($"/// <param name=\"{item.Name}\">{item.Comment}</param>");
+            return sb.ToString();
         }
 
-        public override string MakeMethodParam(List<ColumnMetaData> predicate)
+        public override string MakeMethodParam(List<ColumnMetaData> columns)
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+                sb.Append($"{item.DbType} {item.Name}, ");
+            return sb.TrimEnd(", ").ToString();
         }
 
         public override string MakeParamList(IEnumerable<ColumnMetaData> columns)
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+            {
+                if (!item.IsIdentity)
+                    sb.Append($"@{item.Name}, ");
+            }
+            return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeParamValueList(IEnumerable<ColumnMetaData> predicate)
+        public override string MakeParamValueList(IEnumerable<ColumnMetaData> columns)
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+                sb.Append($"@{item.Name}={item.Name}, ");
+            return sb.TrimEnd(", ").ToString();
         }
 
-        public override string MakeWhere(IEnumerable<ColumnMetaData> predicate)
+        public override string MakeWhere(IEnumerable<ColumnMetaData> columns)
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+                sb.Append($"[{item.Name}]=@{item.Name} and ");
+            return sb.TrimEnd("and ").ToString();
         }
 
         public override string MakeConnectionInit()
         {
-            throw new NotImplementedException();
+            var str = @"var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile(""appsettings.json"");
+            // 创建配置根对象
+            var configurationRoot = builder.Build();
+            _connectionstring = configurationRoot.GetSection(""DbConnect"").Value; ";
+
+            return str;
         }
 
         public override string MakeGetOpenConnection()
         {
-            throw new NotImplementedException();
+            var str = @"var connection = new MySqlConnection(_connectionstring);
+            connection.Open();
+            return connection;";
+
+            return str;
         }
 
-        public override string MakeBasePaging()
+        public override string MakeBasePaging(TableMetaData tableMetaData)
         {
-            throw new NotImplementedException();
+            return Render("DAL/Base/BasePaging_mysql.cshtml", new ViewInfoWapper(this) { TableInfo = tableMetaData });
         }
+
         public override string MakeBaseParseExpression()
         {
             return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) {KeyWordsEscape= new Template.KeyWordsEscape { Left = "`", Right = "`" } });

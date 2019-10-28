@@ -77,9 +77,9 @@ namespace Generator.Template
             return ((BaseGenerator_DAL)_generator).MakeGetOpenConnection();
         }
 
-        public string MakeBasePaging()
+        public string MakeBasePaging(TableMetaData tableMetaData)
         {
-            return ((BaseGenerator_DAL)_generator).MakeBasePaging();
+            return ((BaseGenerator_DAL)_generator).MakeBasePaging(tableMetaData);
         }
 
         public string Render(string template, ViewInfoWapper model)
