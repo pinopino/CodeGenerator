@@ -6,6 +6,11 @@ using System.Linq;
 
 namespace Generator.Template
 {
+    public class KeyWordsEscape
+    {
+        public string Left;
+        public string Right;
+    }
     public class EnumInfo
     {
         public string EnumName;
@@ -20,6 +25,7 @@ namespace Generator.Template
         public GlobalConfiguration Config;
         public TableMetaData TableInfo;
         public EnumInfo EnumInfo;
+        public KeyWordsEscape KeyWordsEscape;
 
         public ViewInfoWapper(BaseGenerator generator)
         {

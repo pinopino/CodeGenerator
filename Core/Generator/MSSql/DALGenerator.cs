@@ -98,7 +98,7 @@ namespace Generator.Core.MSSql
 
         public override string MakeBaseParseExpression()
         {
-            return Render("DAL/Base/BaseParseExpression.cshtml", new Template.ViewInfoWapper(this) { EnumInfo = new Template.EnumInfo { EnumName = "[", Comment = "]" } });
+            return Render("DAL/Base/BaseParseExpression.cshtml", new Template.ViewInfoWapper(this) { KeyWordsEscape = new Template.KeyWordsEscape { Left = "[", Right = "]" } });
         }
     }
 }

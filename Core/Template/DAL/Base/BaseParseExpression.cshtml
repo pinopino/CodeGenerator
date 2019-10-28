@@ -250,106 +250,106 @@ internal class PredicateParser : ExpressionVisitor
                     }
                     break;
                 case ExpressionType.Parameter:
-                    sb.Append($"[{node.Expression.Type.Name}].[{node.Member.Name}]");
+                    sb.Append($"@(Model.KeyWordsEscape.Left){node.Expression.Type.Name}@(Model.KeyWordsEscape.Right).@(Model.KeyWordsEscape.Left){node.Member.Name}@(Model.KeyWordsEscape.Right)");
                     if (node.Type == typeof(bool))
                     {
-                        boolean = true;
-                        if (!prev_op.HasValue || (prev_op != ExpressionType.Equal && prev_op != ExpressionType.NotEqual))
-                        {
-                            sb.Append(invert ? " = 0" : " = 1");
-                            invert_used = true;
-                        }
-                        else
-                        {
-                            invert_used = !invert;
-                        }
+                    boolean = true;
+                    if (!prev_op.HasValue || (prev_op != ExpressionType.Equal && prev_op != ExpressionType.NotEqual))
+                    {
+                    sb.Append(invert ? " = 0" : " = 1");
+                    invert_used = true;
+                    }
+                    else
+                    {
+                    invert_used = !invert;
+                    }
                     }
                     break;
-                case ExpressionType.MemberAccess:
+                    case ExpressionType.MemberAccess:
                     this.Visit(Evaluator.PartialEval(node));
                     break;
-            }
+                    }
 
-            return node;
-        }
-    }
+                    return node;
+                    }
+                    }
 
-    protected override Expression VisitMethodCall(MethodCallExpression node)
-    {
-        if (node.Method == typeof(string).GetMethod("Contains", new[] { typeof(string) }))
-        {
-            sb.Append("(");
-            this.Visit(node.Object);
-            sb.Append(invert ? " NOT LIKE '%" : " LIKE '%");
-            quote = false;
-            this.Visit(node.Arguments[0]);
-            quote = true;
-            sb.Append("%')");
-            return node;
-        }
-        if (node.Method == typeof(string).GetMethod("StartsWith", new[] { typeof(string) }))
-        {
-            sb.Append("(");
-            this.Visit(node.Object);
-            sb.Append(invert ? " NOT LIKE '" : " LIKE '");
-            quote = false;
-            this.Visit(node.Arguments[0]);
-            quote = true;
-            sb.Append("%')");
-            return node;
-        }
-        if (node.Method == typeof(string).GetMethod("EndsWith", new[] { typeof(string) }))
-        {
-            sb.Append("(");
-            this.Visit(node.Object);
-            sb.Append(invert ? " NOT LIKE '%" : " LIKE '%");
-            quote = false;
-            this.Visit(node.Arguments[0]);
-            quote = true;
-            sb.Append("')");
-            return node;
-        }
+                    protected override Expression VisitMethodCall(MethodCallExpression node)
+                    {
+                    if (node.Method == typeof(string).GetMethod("Contains", new[] { typeof(string) }))
+                    {
+                    sb.Append("(");
+                    this.Visit(node.Object);
+                    sb.Append(invert ? " NOT LIKE '%" : " LIKE '%");
+                    quote = false;
+                    this.Visit(node.Arguments[0]);
+                    quote = true;
+                    sb.Append("%')");
+                    return node;
+                    }
+                    if (node.Method == typeof(string).GetMethod("StartsWith", new[] { typeof(string) }))
+                    {
+                    sb.Append("(");
+                    this.Visit(node.Object);
+                    sb.Append(invert ? " NOT LIKE '" : " LIKE '");
+                    quote = false;
+                    this.Visit(node.Arguments[0]);
+                    quote = true;
+                    sb.Append("%')");
+                    return node;
+                    }
+                    if (node.Method == typeof(string).GetMethod("EndsWith", new[] { typeof(string) }))
+                    {
+                    sb.Append("(");
+                    this.Visit(node.Object);
+                    sb.Append(invert ? " NOT LIKE '%" : " LIKE '%");
+                    quote = false;
+                    this.Visit(node.Arguments[0]);
+                    quote = true;
+                    sb.Append("')");
+                    return node;
+                    }
 
-        // 注意区分两种contains方法的方式，一个是在对象上list.contains，一个是在string上string.contains
-        if (node.Method.Name == "Contains")
-        {
-            Expression collection;
-            Expression property;
-            if (node.Method.IsDefined(typeof(ExtensionAttribute)) && node.Arguments.Count == 2) // 支持直接调用扩展方法的形式
-            {
-                collection = node.Arguments[0];
-                property = node.Arguments[1];
-            }
-            else if (!node.Method.IsDefined(typeof(ExtensionAttribute)) && node.Arguments.Count == 1)
-            {
-                collection = node.Object;
-                property = node.Arguments[0];
-            }
-            else
-            {
-                throw new Exception("Unsupported method call: " + node.Method.Name);
-            }
-            sb.Append("(");
-            this.Visit(property);
-            sb.Append(invert ? " NOT IN (" : " IN (");
-            this.Visit(collection);
-            sb.Append("))");
-        }
-        else
-        {
-            throw new Exception("Unsupported method call: " + node.Method.Name);
-        }
+                    // 注意区分两种contains方法的方式，一个是在对象上list.contains，一个是在string上string.contains
+                    if (node.Method.Name == "Contains")
+                    {
+                    Expression collection;
+                    Expression property;
+                    if (node.Method.IsDefined(typeof(ExtensionAttribute)) && node.Arguments.Count == 2) // 支持直接调用扩展方法的形式
+                    {
+                    collection = node.Arguments[0];
+                    property = node.Arguments[1];
+                    }
+                    else if (!node.Method.IsDefined(typeof(ExtensionAttribute)) && node.Arguments.Count == 1)
+                    {
+                    collection = node.Object;
+                    property = node.Arguments[0];
+                    }
+                    else
+                    {
+                    throw new Exception("Unsupported method call: " + node.Method.Name);
+                    }
+                    sb.Append("(");
+                    this.Visit(property);
+                    sb.Append(invert ? " NOT IN (" : " IN (");
+                    this.Visit(collection);
+                    sb.Append("))");
+                    }
+                    else
+                    {
+                    throw new Exception("Unsupported method call: " + node.Method.Name);
+                    }
 
-        return node;
-    }
+                    return node;
+                    }
 
-    private bool IsNullConstant(Expression expr)
-    {
-        return (expr.NodeType == ExpressionType.Constant && ((ConstantExpression)expr).Value == null);
-    }
+                    private bool IsNullConstant(Expression expr)
+                    {
+                    return (expr.NodeType == ExpressionType.Constant && ((ConstantExpression)expr).Value == null);
+                    }
 
-    public override string ToString()
-    {
-        return sb.ToString();
-    }
-}
+                    public override string ToString()
+                    {
+                    return sb.ToString();
+                    }
+                    }

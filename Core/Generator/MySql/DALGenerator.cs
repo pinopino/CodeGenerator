@@ -80,7 +80,7 @@ namespace Generator.Core.MySql
         }
         public override string MakeBaseParseExpression()
         {
-            return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) {EnumInfo= new Template.EnumInfo { EnumName = "`", Comment = "`" } });
+            return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) {KeyWordsEscape= new Template.KeyWordsEscape { Left = "`", Right = "`" } });
         }
     }
 }
