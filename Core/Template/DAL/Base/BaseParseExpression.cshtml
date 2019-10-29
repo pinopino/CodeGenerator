@@ -269,9 +269,8 @@ internal class PredicateParser : ExpressionVisitor
                         this.Visit(Evaluator.PartialEval(node));
                         break;
                 }
-
-                return node;
             }
+            return node;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

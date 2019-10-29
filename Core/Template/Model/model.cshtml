@@ -49,11 +49,11 @@ namespace @(Model.Config.ModelConfig.Namespace)
             @($"/// </summary>".Indent(8).NewLine())
             if (p.Nullable && p.DbType != "string")
             {
-                @($"public {p.DbType}? _{p.Name};".Indent(8).NewLine())
+                @($"public {p.DbType}? {p.Name}".Indent(8).NewLine())
             }
             else
             {
-                @($"public {p.DbType} _{p.Name};".Indent(8).NewLine())
+                @($"public {p.DbType} {p.Name}".Indent(8).NewLine())
             }
             @("{".Indent(8).NewLine())
             @($"set {{ _{p.Name.ToLower()} = value; }}".Indent(12).NewLine())

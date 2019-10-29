@@ -14,7 +14,7 @@
         public static @(Model.TableInfo.PrimaryKey[0].DbType) Insert(@(Model.TableInfo.Name) model, MySqlConnection conn = null, MySqlTransaction transaction = null)
         {
             var sql = new StringBuilder();
-            sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+            sql.Append("INSERT INTO `@Model.TableInfo.Name` (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"`{p.Name}`"))))");
             sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)));");
             sql.Append("SELECT LAST_INSERT_ID();");
             var ret = 0;
@@ -42,10 +42,10 @@
         /// </summary>
         /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
         /// <returns>是否插入成功，true为成功</returns>
-        public static bool Insert(@(Model.TableInfo.Name) model, MySqlConnection conn = null, MySqlTransaction transaction = null)
+        public static bool Insert(@(Model.TableInfo.Name) model)
         {
             var sql = new StringBuilder();
-            sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+            sql.Append("INSERT INTO `@Model.TableInfo.Name` (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"`{p.Name}`"))))");
             sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
             var ret = false;
             if (conn != null)
@@ -73,7 +73,7 @@
         public static bool InsertMany(List<@(Model.TableInfo.Name)> model, MySqlConnection conn = null)
         {
             var sql = new StringBuilder();
-            sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+            sql.Append("INSERT INTO `@Model.TableInfo.Name` (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"`{p.Name}`"))))");
             sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
             bool ret;
             if (conn != null)

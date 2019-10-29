@@ -20,6 +20,7 @@
 	        {
 		        ret = conn.ExecuteScalar<int>(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) }) > 0;
 	        }
+            return ret;
         }
 
         @{ cc: }

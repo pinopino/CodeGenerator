@@ -16,17 +16,65 @@
 
 namespace @Model.Config.DALConfig.Namespace
 {
-    @* 输出类信息 *@
-    @("public partial class " + Model.Config.DALConfig.ClassPrefix +
-                                Model.TableInfo.Name +
-                                Model.Config.DALConfig.ClassSuffix +
-                                (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
+    namespace Metadata
+	{
+		public sealed class @(Model.TableInfo.Name)Column : IColumn
+		{
+			internal @(Model.TableInfo.Name)Column(string table, string name)
+			{
+				Table = table;
+				Name = name;
+			}
+
+			public string Name { private set; get; }
+
+			public string Table { private set; get; }
+
+			public bool IsAddEqual { private set; get; }
+
+			private bool _asc;
+			public string Asc { get { return this._asc ? "ASC" : "DESC"; } }
+
+			public @(Model.TableInfo.Name)Column SetAddEqual() { IsAddEqual ^= true; return this; }
+
+			public @(Model.TableInfo.Name)Column SetOrderByAsc() { this._asc = true; return this; }
+
+			public @(Model.TableInfo.Name)Column SetOrderByDesc() { this._asc = false; return this; }
+		}
+
+		public sealed class @(Model.TableInfo.Name)Table
+		{
+			internal @(Model.TableInfo.Name)Table(string name)
+			{
+				Name = name;
+			}
+
+			public string Name { private set; get; }
+		    }
+	    }
+    @*///TODO:JoinModel 后面生成放这儿*@
+
+@* 输出类信息 *@
+@("\tpublic partial class " + Model.Config.DALConfig.ClassPrefix +
+                            Model.TableInfo.Name +
+                            Model.Config.DALConfig.ClassSuffix +
+                            (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
     {
-        @* 输出类的方法 *@
-        @foreach (var item in Model.Config.DALConfig.Methods)
-        {
-            await IncludeAsync(Model.GetPartialViewPath(item.Name), Model);
-        }
+		public static readonly @(Model.TableInfo.Name)Table Table = new @(Model.TableInfo.Name)Table("@(Model.TableInfo.Name)");
+
+		public sealed class Columns
+		{
+          @foreach(var column in @Model.TableInfo.Columns)
+          {
+              @("\t\t\tpublic static readonly " + Model.TableInfo.Name + "Column " + column.Name + " = new " + Model.TableInfo.Name + "Column(\"" + Model.TableInfo.Name + "\", \"" + column.Name + "\");\r\n");
+          }
+			public static readonly List<@(Model.TableInfo.Name)Column> All = new List<@(Model.TableInfo.Name)Column> { @string.Join(",",@Model.TableInfo.Columns.Select(p=>p.Name).ToArray())};
+		}
+@* 输出类的方法 *@
+@foreach (var item in Model.Config.DALConfig.Methods)
+{
+    await IncludeAsync(Model.GetPartialViewPath(item.Name), Model);
+}
 
     }
 }
