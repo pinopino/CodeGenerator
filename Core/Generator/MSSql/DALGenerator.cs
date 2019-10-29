@@ -100,10 +100,5 @@ namespace Generator.Core.MSSql
         {
             return Render("DAL/Base/BaseParseExpression.cshtml", new Template.ViewInfoWapper(this) { KeyWordsEscape = new Template.KeyWordsEscape { Left = "[", Right = "]" } });
         }
-
-        public override string MakeTableColumns()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

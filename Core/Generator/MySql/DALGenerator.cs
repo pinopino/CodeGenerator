@@ -112,10 +112,5 @@ namespace Generator.Core.MySql
         {
             return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) {KeyWordsEscape= new Template.KeyWordsEscape { Left = "`", Right = "`" } });
         }
-
-        public override string MakeTableColumns()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
