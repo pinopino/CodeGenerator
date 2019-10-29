@@ -120,6 +120,8 @@ namespace Generator.Core
 
         public abstract string MakeBaseParseExpression();
 
+        public abstract string MakeTableColumns();
+
         protected bool IsKeyword(string colunm)
         {
             return _keywords.Contains(colunm);

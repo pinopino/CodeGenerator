@@ -64,7 +64,7 @@ namespace Generator.Core.Config
             this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace};");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Metadata;");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Base;");
-            if (this.JoinedTables != null && this.JoinedTables.Count > 0)
+            if (this.JoinedTables != null && this.JoinedTables.Count > 0 && !string.IsNullOrEmpty(this.JoinedTables[0].Table_Main.Name))
                 this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace}.JoinedViewModel;");
             switch (this.DBType.ToLower())
             {
@@ -72,7 +72,7 @@ namespace Generator.Core.Config
                     this.DALConfig.UsingSqlConnect = "using System.Data.SqlClient;";
                     break;
                 case "mysql":
-                    this.DALConfig.UsingSqlConnect = "using System.Data.MySqlClient;";
+                    this.DALConfig.UsingSqlConnect = "using MySql.Data.MySqlClient;";
                     break;
                 case "oracl":
                     break;
