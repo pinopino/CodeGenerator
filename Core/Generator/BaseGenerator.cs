@@ -116,7 +116,7 @@ namespace Generator.Core
 
         public abstract string MakeGetOpenConnection();
 
-        public abstract string MakeBasePaging();
+        public abstract string MakeBasePaging(TableMetaData TableInfo);
 
         public abstract string MakeBaseParseExpression();
 

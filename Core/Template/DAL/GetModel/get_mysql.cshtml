@@ -37,7 +37,7 @@
 			
             var sql = new StringBuilder();
             sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            if (!string.IsNullOrEmpty(where_str)))
+            if (!string.IsNullOrEmpty(where_str))
 			    sql.Append(" WHERE " + where_str);
             @(Model.TableInfo.Name) ret = null;
             using (var conn = GetOpenConnection())

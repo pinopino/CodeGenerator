@@ -59,12 +59,24 @@ namespace Generator.Core.Config
                     "using System.Linq;",
                     "using System.Text;",
                     "using Dapper;",
+                    "using System.Linq.Expressions;",
                 };
             this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace};");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Metadata;");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Base;");
             if (this.JoinedTables != null && this.JoinedTables.Count > 0)
                 this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace}.JoinedViewModel;");
+            switch (this.DBType.ToLower())
+            {
+                case "mssql":
+                    this.DALConfig.UsingSqlConnect = "using System.Data.SqlClient;";
+                    break;
+                case "mysql":
+                    this.DALConfig.UsingSqlConnect = "using System.Data.MySqlClient;";
+                    break;
+                case "oracl":
+                    break;
+            }
         }
 
         public T GetValue<T>(string key)
@@ -187,6 +199,7 @@ namespace Generator.Core.Config
         public string ClassPrefix { set; get; }
         public string ClassSuffix { set; get; }
         public List<MethodInfo> Methods { set; get; }
+        public string UsingSqlConnect { set; get; }
     }
 
     public class MethodInfo

@@ -3,7 +3,15 @@
 @{
     DisableEncoding = true;
 }
-var result = new PageDataView<T>();
+protected static PageDataView<T> Paged<T>(
+            string tableName,
+            string where,
+            string orderBy,
+            string columns,
+            int pageSize,
+            int currentPage)
+        {
+            var result = new PageDataView<T>();
             var count_sql = string.Format("SELECT COUNT(1) FROM {0}", tableName);
             if (string.IsNullOrWhiteSpace(orderBy))
             {
@@ -33,3 +41,4 @@ var result = new PageDataView<T>();
             }
 
             return result;
+        }
