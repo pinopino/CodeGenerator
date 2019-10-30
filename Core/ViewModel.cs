@@ -95,5 +95,20 @@ namespace Generator.Template
         {
             return ((BaseGenerator_DAL)_generator).MakeBaseParseExpression();
         }
+
+        public string AppendDALUsing()
+        {
+            return ((BaseGenerator_DAL)_generator).AppendDALUsing();
+        }
+
+        public string AppendModelUsing()
+        {
+            return ((BaseGenerator_Model)_generator).AppendModelUsing();
+        }
+
+        public string AppendEnumUsing()
+        {
+            return ((BaseGenerator_Enum)_generator).AppendEnumUsing();
+        }
     }
 }

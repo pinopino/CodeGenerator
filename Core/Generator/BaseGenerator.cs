@@ -74,6 +74,11 @@ namespace Generator.Core
             throw new System.ArgumentException($"暂不支持生成{method}相关方法");
         }
 
+        public virtual string AppendDALUsing()
+        {
+            return string.Empty;
+        }
+
         /// <summary>
         /// 生成的dapper查询时使用的表名
         /// </summary>
@@ -163,6 +168,11 @@ namespace Generator.Core
         { }
 
         public abstract string RenderModelFor(TableMetaData table);
+
+        public virtual string AppendModelUsing()
+        {
+            return string.Empty;
+        }
     }
 
     public abstract class BaseGenerator_Enum : BaseGenerator
@@ -174,5 +184,10 @@ namespace Generator.Core
         public abstract bool CanGenerateEnum(TableMetaData table, ColumnMetaData column);
 
         public abstract string RenderEnumFor(TableMetaData table, ColumnMetaData column);
+
+        public virtual string AppendEnumUsing()
+        {
+            return string.Empty;
+        }
     }
 }

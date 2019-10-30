@@ -68,19 +68,8 @@ namespace Generator.Core.Config
             this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace};");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Metadata;");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Base;");
-            if (this.JoinedTables != null && this.JoinedTables.Count > 0 && !string.IsNullOrEmpty(this.JoinedTables[0].Table_Main.Name))
+            if (this.JoinedTables != null && this.JoinedTables.Count > 0 && !string.IsNullOrEmpty(this.JoinedTables[0].MainTable.Name))
                 this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace}.JoinedViewModel;");
-            switch (this.DBType.ToLower())
-            {
-                case "mssql":
-                    this.DALConfig.Using.Add($"using System.Data.SqlClient;");
-                    break;
-                case "mysql":
-                    this.DALConfig.Using.Add($"using MySql.Data.MySqlClient;");
-                    break;
-                case "oracle":
-                    break;
-            }
         }
 
         /// <summary>
@@ -153,6 +142,7 @@ namespace Generator.Core.Config
     public class TableInfo
     {
         public string Name { set; get; }
+        public string InnerClassName { set; get; }
     }
 
     public class ColumnInfo
@@ -162,9 +152,8 @@ namespace Generator.Core.Config
 
     public class JoinMapping
     {
-        public TableInfo Table_Main { set; get; }
-        public TableInfo Table_Sub { set; get; }
-        public string Sub_InnerName { set; get; }
+        public TableInfo MainTable { set; get; }
+        public List<TableInfo> ForeignTables { set; get; }
     }
 
     public class ReCreateDBInfo

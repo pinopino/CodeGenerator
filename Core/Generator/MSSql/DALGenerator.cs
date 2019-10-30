@@ -101,5 +101,10 @@ namespace Generator.Core.MSSql
         {
             return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) { KeyWordsEscape = new KeyWordsEscape { Left = "[", Right = "]" } });
         }
+
+        public override string AppendDALUsing()
+        {
+            return "using System.Data.SqlClient;";
+        }
     }
 }

@@ -206,7 +206,7 @@ namespace Generator.Core
 
                 sb.Append(g.RenderDALFor(table));
                 // Joined
-                var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.Table_Main.Name == table.Name);
+                var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.MainTable.Name == table.Name);
                 if (join_info != null)
                 { }
 
