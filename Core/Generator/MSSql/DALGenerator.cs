@@ -1,5 +1,6 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
+using Generator.Template;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -93,12 +94,12 @@ namespace Generator.Core.MSSql
 
         public override string MakeBasePaging(TableMetaData tableMetaData)
         {
-            return Render("DAL/Base/BasePaging.cshtml",new Template.ViewInfoWapper(this) { TableInfo= tableMetaData });
+            return Render("DAL/Base/BasePaging.cshtml", new ViewInfoWapper(this) { TableInfo = tableMetaData });
         }
 
         public override string MakeBaseParseExpression()
         {
-            return Render("DAL/Base/BaseParseExpression.cshtml", new Template.ViewInfoWapper(this) { KeyWordsEscape = new Template.KeyWordsEscape { Left = "[", Right = "]" } });
+            return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) { KeyWordsEscape = new KeyWordsEscape { Left = "[", Right = "]" } });
         }
     }
 }

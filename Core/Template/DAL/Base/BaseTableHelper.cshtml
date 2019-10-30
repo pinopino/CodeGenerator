@@ -1,21 +1,14 @@
 ﻿@using RazorLight
 @using Generator.Template;
+@using Generator.Common;
 @inherits TemplatePage<ViewInfoWapper>
 @{
     DisableEncoding = true;
 }
-using Dapper;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-@(Model.Config.DALConfig.UsingSqlConnect)
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
+@foreach (var u in Model.Config.DALConfig.Using)
+{
+    @(u.NewLine())
+}
 
 namespace @(Model.Config.DALConfig.Namespace).Base
 {

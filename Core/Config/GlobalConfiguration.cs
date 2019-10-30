@@ -54,12 +54,16 @@ namespace Generator.Core.Config
                 this.DALConfig.HeaderNote = "本文件由生成工具自动生成，请勿随意修改内容除非你很清楚自己在做什么！";
             if (this.DALConfig.Using == null || this.DALConfig.Using.Count == 0)
                 this.DALConfig.Using = new List<string> {
-                    "using System;",
-                    "using System.Collections.Generic;",
-                    "using System.Linq;",
-                    "using System.Text;",
                     "using Dapper;",
+                    "using System;",
+                    "using System.Collections;",
+                    "using System.Collections.Generic;",
+                    "using System.Data",
+                    "using System.Linq;",
                     "using System.Linq.Expressions;",
+                    "using System.Reflection;",
+                    "using System.Runtime.CompilerServices;",
+                    "using System.Text;"
                 };
             this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace};");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Metadata;");
@@ -69,19 +73,14 @@ namespace Generator.Core.Config
             switch (this.DBType.ToLower())
             {
                 case "mssql":
-                    this.DALConfig.UsingSqlConnect = "using System.Data.SqlClient;";
+                    this.DALConfig.Using.Add($"using System.Data.SqlClient;");
                     break;
                 case "mysql":
-                    this.DALConfig.UsingSqlConnect = "using MySql.Data.MySqlClient;";
+                    this.DALConfig.Using.Add($"using MySql.Data.MySqlClient;");
                     break;
-                case "oracl":
+                case "oracle":
                     break;
             }
-        }
-
-        public T GetValue<T>(string key)
-        {
-            return _root.GetValue<T>(key);
         }
 
         /// <summary>
@@ -199,7 +198,6 @@ namespace Generator.Core.Config
         public string ClassPrefix { set; get; }
         public string ClassSuffix { set; get; }
         public List<MethodInfo> Methods { set; get; }
-        public string UsingSqlConnect { set; get; }
     }
 
     public class MethodInfo

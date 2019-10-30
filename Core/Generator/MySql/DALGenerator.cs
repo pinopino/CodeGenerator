@@ -1,10 +1,8 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
 using Generator.Template;
-using RazorLight;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Generator.Core.MySql
@@ -110,7 +108,7 @@ namespace Generator.Core.MySql
 
         public override string MakeBaseParseExpression()
         {
-            return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) {KeyWordsEscape= new Template.KeyWordsEscape { Left = "`", Right = "`" } });
+            return Render("DAL/Base/BaseParseExpression.cshtml", new ViewInfoWapper(this) { KeyWordsEscape = new KeyWordsEscape { Left = "`", Right = "`" } });
         }
     }
 }
