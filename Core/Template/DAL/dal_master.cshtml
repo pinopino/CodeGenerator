@@ -51,7 +51,7 @@ namespace @Model.Config.DALConfig.Namespace
 
 			public string Name { private set; get; }
 	    }
-    @*///TODO:JoinModel 后面生成放这儿*@
+    }
 
 @* 输出类信息 *@
 @("public partial class ".Indent(8) + Model.Config.DALConfig.ClassPrefix +
@@ -67,7 +67,7 @@ namespace @Model.Config.DALConfig.Namespace
                 {
                     @("public static readonly ".Indent(16) + Model.TableInfo.Name + "Column " + column.Name + " = new " + Model.TableInfo.Name + "Column(\"" + Model.TableInfo.Name + "\", \"" + column.Name + "\");".NewLine());
                 }
-			    public static readonly List<@(Model.TableInfo.Name)Column> All = new List<@(Model.TableInfo.Name)Column> { @string.Join(",", @Model.TableInfo.Columns.Select(p=>p.Name).ToArray()) };
+			    public static readonly List<@(Model.TableInfo.Name)Column> All = new List<@(Model.TableInfo.Name)Column> { @string.Join(", ", @Model.TableInfo.Columns.Select(p=>p.Name).ToArray()) };
 		    }
 
             @* 输出类的方法 *@

@@ -20,10 +20,10 @@ namespace @(Model.Config.ModelConfig.Namespace)
     /// @(Model.TableInfo.Name)实体
     /// @(Model.TableInfo.Comment)
     /// </summary>
-	@("public class " + Model.Config.ModelConfig.ClassPrefix +
-                        Model.TableInfo.Name +
-                        Model.Config.ModelConfig.ClassSuffix +
-                        (string.IsNullOrWhiteSpace(Model.Config.ModelConfig.BaseClass) ? string.Empty : (" : " + Model.Config.ModelConfig.BaseClass)))
+@("public class ".Indent() + Model.Config.ModelConfig.ClassPrefix +
+                            Model.TableInfo.Name +
+                            Model.Config.ModelConfig.ClassSuffix +
+                            (string.IsNullOrWhiteSpace(Model.Config.ModelConfig.BaseClass) ? string.Empty : (" : " + Model.Config.ModelConfig.BaseClass)))
 	{
         public @(Model.TableInfo.Name)()
         { }
@@ -61,7 +61,7 @@ namespace @(Model.Config.ModelConfig.Namespace)
             @("}".Indent(8).NewLine())
             if (i != Model.TableInfo.Columns.Count - 1)
             {
-                string.Empty.NewLine();
+                @(string.Empty.NewLine())
             }
         }
     }
