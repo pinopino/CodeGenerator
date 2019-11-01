@@ -165,15 +165,13 @@ namespace Generator.Core
         {
             ResetProgress(progress);
             if (Directory.Exists(config.OutputBasePath))
-            {
                 Directory.Delete(config.OutputBasePath, true);
-            }
-            else
-            {
-                Directory.CreateDirectory(config.OutputBasePath);
-            }
 
-            File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), content, Encoding.UTF8);
+            var dir = Directory.CreateDirectory(config.OutputBasePath);
+            dir.Attributes &= ~FileAttributes.ReadOnly;
+
+            File.WriteAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), content, Encoding.UTF8);
+
             PrintProgress(progress, 100, 100);
         }
 

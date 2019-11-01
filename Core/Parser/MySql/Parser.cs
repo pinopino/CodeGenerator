@@ -36,7 +36,7 @@ namespace Generator.Core.MySql
                 var CommandText = "SHOW TABLES;";
                 connection.Open();
                 var TableNames = connection.Query<string>(CommandText).ToList();
-               
+                var count = 0;
                 foreach (var name in TableNames)
                 {
                     var table = new TableMetaData
@@ -86,6 +86,9 @@ namespace Generator.Core.MySql
                         }
                     }
                     result.Add(table.Name, table);
+
+                    // 打印进度
+                    ProgressPrint(++count, TableNames.Count);
                 }
             }
 

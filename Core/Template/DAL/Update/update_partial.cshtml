@@ -5,128 +5,128 @@
     DisableEncoding = true;
 }
         
-        /// <summary>
-        /// 更新@(Model.TableInfo.Name)数据记录
-        /// </summary>
-        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
-        /// <returns>是否成功，true为成功</returns>
-        public static bool Update(@(Model.TableInfo.Name) model, params @(Model.TableInfo.Name)Column[] fields)
-        {
-            return Update(
-				model: model, 
-				predicate: null, 
-				reverse: false, 
-				conn: null, 
-				transaction: null, 
-				fields: fields);
-        }
+            /// <summary>
+            /// 更新@(Model.TableInfo.Name)数据记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		    /// <param name="fields">需要更新的字段名字</param>
+		    /// <param name="reverse">反转给定的更新字段</param>
+            /// <returns>是否成功，true为成功</returns>
+            public static bool Update(@(Model.TableInfo.Name) model, params @(Model.TableInfo.Name)Column[] fields)
+            {
+                return Update(
+				    model: model, 
+				    predicate: null, 
+				    reverse: false, 
+				    conn: null, 
+				    transaction: null, 
+				    fields: fields);
+            }
 
-		/// <summary>
-        /// 更新@(Model.TableInfo.Name)数据记录
-        /// </summary>
-        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
-        /// <returns>是否成功，true为成功</returns>
-        public static bool Update(@(Model.TableInfo.Name) model, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
-        {
-            return Update(
-				model: model, 
-				predicate: null, 
-				reverse: reverse, 
-				conn: null, 
-				transaction: null, 
-				fields: fields);
-        }
+		    /// <summary>
+            /// 更新@(Model.TableInfo.Name)数据记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		    /// <param name="fields">需要更新的字段名字</param>
+		    /// <param name="reverse">反转给定的更新字段</param>
+            /// <returns>是否成功，true为成功</returns>
+            public static bool Update(@(Model.TableInfo.Name) model, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
+            {
+                return Update(
+				    model: model, 
+				    predicate: null, 
+				    reverse: reverse, 
+				    conn: null, 
+				    transaction: null, 
+				    fields: fields);
+            }
 
-		/// <summary>
-        /// 更新@(Model.TableInfo.Name)数据记录
-        /// </summary>
-        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
-        /// <returns>是否成功，true为成功</returns>
-        public static bool Update(@(Model.TableInfo.Name) model, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
-        {
-            return Update(
-				model: model, 
-				predicate: null, 
-				reverse: false, 
-				conn: conn, 
-				transaction: transaction, 
-				fields: fields);
-        }
+		    /// <summary>
+            /// 更新@(Model.TableInfo.Name)数据记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		    /// <param name="fields">需要更新的字段名字</param>
+		    /// <param name="reverse">反转给定的更新字段</param>
+            /// <returns>是否成功，true为成功</returns>
+            public static bool Update(@(Model.TableInfo.Name) model, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+            {
+                return Update(
+				    model: model, 
+				    predicate: null, 
+				    reverse: false, 
+				    conn: conn, 
+				    transaction: transaction, 
+				    fields: fields);
+            }
 
-		/// <summary>
-        /// 更新@(Model.TableInfo.Name)数据记录
-        /// </summary>
-        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
-        /// <returns>是否成功，true为成功</returns>
-        public static bool Update(@(Model.TableInfo.Name) model, bool reverse, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
-        {
-            return Update(
-				model: model, 
-				predicate: null, 
-				reverse: reverse, 
-				conn: conn, 
-				transaction: transaction, 
-				fields: fields);
-        }
+		    /// <summary>
+            /// 更新@(Model.TableInfo.Name)数据记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		    /// <param name="fields">需要更新的字段名字</param>
+		    /// <param name="reverse">反转给定的更新字段</param>
+            /// <returns>是否成功，true为成功</returns>
+            public static bool Update(@(Model.TableInfo.Name) model, bool reverse, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+            {
+                return Update(
+				    model: model, 
+				    predicate: null, 
+				    reverse: reverse, 
+				    conn: conn, 
+				    transaction: transaction, 
+				    fields: fields);
+            }
 
-		/// <summary>
-        /// 更新@(Model.TableInfo.Name)数据记录
-        /// </summary>
-        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
-        /// <returns>是否成功，true为成功</returns>
-        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, params @(Model.TableInfo.Name)Column[] fields)
-        {
-            return Update(
-				model: model, 
-				predicate: predicate, 
-				reverse: false, 
-				conn: null, 
-				transaction: null, 
-				fields: fields);
-        }
+		    /// <summary>
+            /// 更新@(Model.TableInfo.Name)数据记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		    /// <param name="fields">需要更新的字段名字</param>
+		    /// <param name="reverse">反转给定的更新字段</param>
+            /// <returns>是否成功，true为成功</returns>
+            public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, params @(Model.TableInfo.Name)Column[] fields)
+            {
+                return Update(
+				    model: model, 
+				    predicate: predicate, 
+				    reverse: false, 
+				    conn: null, 
+				    transaction: null, 
+				    fields: fields);
+            }
 
-		/// <summary>
-        /// 更新@(Model.TableInfo.Name)数据记录
-        /// </summary>
-        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
-        /// <returns>是否成功，true为成功</returns>
-        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
-        {
-            return Update(
-				model: model, 
-				predicate: predicate, 
-				reverse: reverse, 
-				conn: null, 
-				transaction: null, 
-				fields: fields);
-        }
+		    /// <summary>
+            /// 更新@(Model.TableInfo.Name)数据记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		    /// <param name="fields">需要更新的字段名字</param>
+		    /// <param name="reverse">反转给定的更新字段</param>
+            /// <returns>是否成功，true为成功</returns>
+            public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
+            {
+                return Update(
+				    model: model, 
+				    predicate: predicate, 
+				    reverse: reverse, 
+				    conn: null, 
+				    transaction: null, 
+				    fields: fields);
+            }
 
-		/// <summary>
-        /// 更新@(Model.TableInfo.Name)数据记录
-        /// </summary>
-        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-		/// <param name="fields">需要更新的字段名字</param>
-		/// <param name="reverse">反转给定的更新字段</param>
-        /// <returns>是否成功，true为成功</returns>
-        public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
-        {
-            return Update(
-				model: model, 
-				predicate: predicate, 
-				reverse: false, 
-				conn: conn, 
-				transaction: transaction, 
-				fields: fields);
-        }
+		    /// <summary>
+            /// 更新@(Model.TableInfo.Name)数据记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+		    /// <param name="fields">需要更新的字段名字</param>
+		    /// <param name="reverse">反转给定的更新字段</param>
+            /// <returns>是否成功，true为成功</returns>
+            public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+            {
+                return Update(
+				    model: model, 
+				    predicate: predicate, 
+				    reverse: false, 
+				    conn: conn, 
+				    transaction: transaction, 
+				    fields: fields);
+            }

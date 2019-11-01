@@ -1,6 +1,5 @@
 ﻿@using RazorLight
 @using Generator.Template;
-@using Generator.Common;
 @inherits TemplatePage<ViewInfoWapper>
 @{
     DisableEncoding = true;
@@ -8,7 +7,7 @@
 		/// <summary>
         /// 此分页用于有数值型主键的table,如果表数据庞大最好手写一个高效的分页方式
         ///</summary>
-		public static PageDataView<@(Model.TableInfo.Name)> GetPage(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null,int pageSize = 20,int currentPage = 1,@(Model.TableInfo.Name)Column orderBy = null,params @(Model.TableInfo.Name)Column[] columns)
+		public static PageDataView<@(Model.TableInfo.Name)> GetPage(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, int pageSize = 20, int currentPage = 1, @(Model.TableInfo.Name)Column orderBy = null, params @(Model.TableInfo.Name)Column[] columns)
         {
 			var where_str = string.Empty;
 			if (predicate != null)
@@ -29,13 +28,13 @@
                 column_str = string.Join(", ", columns.Select(p => $"`{p.Name}`"));
             }
 
-			return Paged<@(Model.TableInfo.Name)>("`@(Model.TableInfo.Name)`",where_str,orderby_str,column_str,pageSize,currentPage,"`@(Model.TableInfo.PrimaryKey)`");
+			return Paged<@(Model.TableInfo.Name)>("`@(Model.TableInfo.Name)`", where_str, orderby_str, column_str, pageSize, currentPage, "`@(Model.TableInfo.PrimaryKey)`");
         }
 
 		/// <summary>
 		/// 分页获取数据列表
 		/// </summary>
-		public static PageDataView<@(Model.TableInfo.Name)> GetPage(Expression<Func<@(Model.TableInfo.Name), bool>> predicate,int pageSize,int currentPage,IList<@(Model.TableInfo.Name)Column> orderBy,params @(Model.TableInfo.Name)Column[] columns)
+		public static PageDataView<@(Model.TableInfo.Name)> GetPage(Expression<Func<@(Model.TableInfo.Name), bool>> predicate, int pageSize, int currentPage, IList<@(Model.TableInfo.Name)Column> orderBy, params @(Model.TableInfo.Name)Column[] columns)
         {
 			var where_str = string.Empty;
 			if (predicate != null)
@@ -56,5 +55,5 @@
                 column_str = string.Join(", ", columns.Select(p => $"`{p.Name}`"));
             }
 
-			return Paged<@(Model.TableInfo.Name)>("`@(Model.TableInfo.Name)`",where_str,orderby_str,column_str,pageSize,currentPage,"`@(Model.TableInfo.PrimaryKey)`");
+			return Paged<@(Model.TableInfo.Name)>("`@(Model.TableInfo.Name)`", where_str, orderby_str, column_str, pageSize, currentPage, "`@(Model.TableInfo.PrimaryKey)`");
         }

@@ -7,125 +7,125 @@
 
 
 @if (Model.TableInfo.PrimaryKey.Count == 0) { goto cc; }
-        /// <summary>
-        /// 获取指定的@(Model.TableInfo.Name)实体对象
-        /// </summary>
-        @Model.MakeParamComment(Model.TableInfo.PrimaryKey)
-        /// <returns>@(Model.TableInfo.Name)实体对象</returns>
-        public static @(Model.TableInfo.Name) GetModel(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
-        {
-            var sql = new StringBuilder();
-            sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.PrimaryKey)");
-            @(Model.TableInfo.Name) ret = null;
-            using (var conn = GetOpenConnection())
+            /// <summary>
+            /// 获取指定的@(Model.TableInfo.Name)实体对象
+            /// </summary>
+            @Model.MakeParamComment(Model.TableInfo.PrimaryKey)
+            /// <returns>@(Model.TableInfo.Name)实体对象</returns>
+            public static @(Model.TableInfo.Name) GetModel(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
             {
-                ret = conn.QueryFirstOrDefault<@(Model.TableInfo.Name)>(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) });
+                var sql = new StringBuilder();
+                sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
+                sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.PrimaryKey)");
+                @(Model.TableInfo.Name) ret = null;
+                using (var conn = GetOpenConnection())
+                {
+                    ret = conn.QueryFirstOrDefault<@(Model.TableInfo.Name)>(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) });
+                }
+
+                return ret;
             }
 
-            return ret;
-        }
-
-        @{ cc: }
-        /// <summary>
-        /// 获取指定的@(Model.TableInfo.Name)实体对象
-        /// </summary>
-        public static @(Model.TableInfo.Name) GetModel(Expression<Func<@(Model.TableInfo.Name), bool>> predicate)
-        {
-		    var parser = new PredicateParser();
-            var where_str = parser.Parse(predicate);
-			
-            var sql = new StringBuilder();
-            sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            if (!string.IsNullOrEmpty(where_str))
-			    sql.Append(" WHERE " + where_str);
-            @(Model.TableInfo.Name) ret = null;
-            using (var conn = GetOpenConnection())
+            @{ cc: }
+            /// <summary>
+            /// 获取指定的@(Model.TableInfo.Name)实体对象
+            /// </summary>
+            public static @(Model.TableInfo.Name) GetModel(Expression<Func<@(Model.TableInfo.Name), bool>> predicate)
             {
-                ret = conn.QueryFirstOrDefault<@(Model.TableInfo.Name)>(sql.ToString());
-            }
+		        var parser = new PredicateParser();
+                var where_str = parser.Parse(predicate);
 			
-            return ret;
-        }
+                var sql = new StringBuilder();
+                sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
+                if (!string.IsNullOrEmpty(where_str))
+			        sql.Append(" WHERE " + where_str);
+                @(Model.TableInfo.Name) ret = null;
+                using (var conn = GetOpenConnection())
+                {
+                    ret = conn.QueryFirstOrDefault<@(Model.TableInfo.Name)>(sql.ToString());
+                }
+			
+                return ret;
+            }
 
-        /// <summary>
-        /// 批量获取@(Model.TableInfo.Name)实体对象
-        /// </summary>
-        public static List<@(Model.TableInfo.Name)> GetList(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, params @(Model.TableInfo.Name)Column[] orderBy)
-        {
-		    var where_str = string.Empty;
-		    if (predicate != null)
-		    {
-			    var parser = new PredicateParser();
-			    where_str = parser.Parse(predicate);
-		    }
-
-            var sql = new StringBuilder();
-            sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            if (where_str != string.Empty)
-			    sql.Append(" WHERE " + where_str);
-		    if (orderBy != null && orderBy.Length > 0)
-                sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{p.Name} {p.Asc}")));
-
-		    List<@(Model.TableInfo.Name)> ret = null;
-            using (var conn = GetOpenConnection())
+            /// <summary>
+            /// 批量获取@(Model.TableInfo.Name)实体对象
+            /// </summary>
+            public static List<@(Model.TableInfo.Name)> GetList(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, params @(Model.TableInfo.Name)Column[] orderBy)
             {
-                ret = conn.Query<@(Model.TableInfo.Name)>(sql.ToString()).ToList();
-            }
+		        var where_str = string.Empty;
+		        if (predicate != null)
+		        {
+			        var parser = new PredicateParser();
+			        where_str = parser.Parse(predicate);
+		        }
+
+                var sql = new StringBuilder();
+                sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
+                if (where_str != string.Empty)
+			        sql.Append(" WHERE " + where_str);
+		        if (orderBy != null && orderBy.Length > 0)
+                    sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{p.Name} {p.Asc}")));
+
+		        List<@(Model.TableInfo.Name)> ret = null;
+                using (var conn = GetOpenConnection())
+                {
+                    ret = conn.Query<@(Model.TableInfo.Name)>(sql.ToString()).ToList();
+                }
 			
-            return ret;
-        }
+                return ret;
+            }
 
-	    /// <summary>
-        /// 批量获取@(Model.TableInfo.Name)实体对象
-        /// </summary>
-        public static List<@(Model.TableInfo.Name)> GetList(int num,Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, params @(Model.TableInfo.Name)Column[] orderBy)
-        {
-		    var where_str = string.Empty;
-		    if (predicate != null)
-		    {
-			    var parser = new PredicateParser();
-			    where_str = parser.Parse(predicate);
-		    }
-
-            var sql = new StringBuilder();
-            sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
-            if (where_str != string.Empty)
-			    sql.Append(" WHERE " + where_str);
-		    if (orderBy != null && orderBy.Length > 0)
-                sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{p.Name} {p.Asc}")));
-            sql.Append(" LIMIT 0" + num);
-		    List<@(Model.TableInfo.Name)> ret = null;
-            using (var conn = GetOpenConnection())
+	        /// <summary>
+            /// 批量获取@(Model.TableInfo.Name)实体对象
+            /// </summary>
+            public static List<@(Model.TableInfo.Name)> GetList(int num,Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, params @(Model.TableInfo.Name)Column[] orderBy)
             {
-                ret = conn.Query<@(Model.TableInfo.Name)>(sql.ToString()).ToList();
-            }
+		        var where_str = string.Empty;
+		        if (predicate != null)
+		        {
+			        var parser = new PredicateParser();
+			        where_str = parser.Parse(predicate);
+		        }
+
+                var sql = new StringBuilder();
+                sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
+                if (where_str != string.Empty)
+			        sql.Append(" WHERE " + where_str);
+		        if (orderBy != null && orderBy.Length > 0)
+                    sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{p.Name} {p.Asc}")));
+                sql.Append(" LIMIT 0" + num);
+		        List<@(Model.TableInfo.Name)> ret = null;
+                using (var conn = GetOpenConnection())
+                {
+                    ret = conn.Query<@(Model.TableInfo.Name)>(sql.ToString()).ToList();
+                }
 			
-            return ret;
-        }
+                return ret;
+            }
         
-        /// <summary>
-		/// 获取记录总数
-		/// </summary>
-        public static int GetCount(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null)
-        {
-			var where_str = string.Empty;
-			if (predicate != null)
-			{
-				var parser = new PredicateParser();
-				where_str = parser.Parse(predicate);
-			}
-
-            var sql = new StringBuilder();
-            sql.Append("SELECT COUNT(1) FROM `@(Model.TableInfo.Name)`");
-			if (where_str != string.Empty)
-				sql.Append(" WHERE " + where_str);
-
-            var ret = -1;
-            using (var conn = GetOpenConnection())
+            /// <summary>
+		    /// 获取记录总数
+		    /// </summary>
+            public static int GetCount(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null)
             {
-                ret = conn.ExecuteScalar<int>(sql.ToString());
-            }
+			    var where_str = string.Empty;
+			    if (predicate != null)
+			    {
+				    var parser = new PredicateParser();
+				    where_str = parser.Parse(predicate);
+			    }
 
-            return ret;
-        }
+                var sql = new StringBuilder();
+                sql.Append("SELECT COUNT(1) FROM `@(Model.TableInfo.Name)`");
+			    if (where_str != string.Empty)
+				    sql.Append(" WHERE " + where_str);
+
+                var ret = -1;
+                using (var conn = GetOpenConnection())
+                {
+                    ret = conn.ExecuteScalar<int>(sql.ToString());
+                }
+
+                return ret;
+            }
