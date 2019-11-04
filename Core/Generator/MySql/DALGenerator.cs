@@ -15,6 +15,11 @@ namespace Generator.Core.MySql
             : base(config)
         { }
 
+        /// <summary>
+        /// 如果有方法不生成或者在同一模板的，第二个生成的方法请返回空字符串
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
         public override string GetPartialViewPath(string method)
         {
             switch (method.ToLower())
@@ -23,10 +28,8 @@ namespace Generator.Core.MySql
                     return "DAL/Insert/insert_mysql.cshtml";
                 case "update":
                     return "DAL/Update/update_mysql.cshtml";
-                case "getmodel":
-                case "getlist":
-                case "getcount":
-                    return "DAL/GetModel/get_mysql.cshtml";
+                case "get":
+                    return "DAL/Get/get_mysql.cshtml";
                 case "getpage":
                     return "DAL/Page/page_mysql.cshtml";
                 default:
