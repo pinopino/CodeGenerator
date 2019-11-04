@@ -73,7 +73,12 @@ namespace @Model.Config.DALConfig.Namespace
             @* 输出类的方法 *@
             @foreach (var item in Model.Config.DALConfig.Methods)
             {
-                await IncludeAsync(Model.GetPartialViewPath(item.Name), Model);
+                var templateLocal = Model.GetPartialViewPath(item.Name);
+                if (string.IsNullOrEmpty(templateLocal))
+                {
+                    continue;
+                }
+                await IncludeAsync(templateLocal, Model);
             }
 
     }

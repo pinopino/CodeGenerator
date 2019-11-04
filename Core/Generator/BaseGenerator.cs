@@ -63,12 +63,12 @@ namespace Generator.Core
                     return "DAL/Delete/delete.cshtml";
                 case "update":
                     return "DAL/Update/update.cshtml";
-                case "getmodel":
-                case "getlist":
-                case "getcount":
-                    return "DAL/GetModel/get.cshtml";
+                case "get":
+                    return "DAL/Get/get.cshtml";
                 case "getpage":
                     return "DAL/Page/page.cshtml";
+               default:
+                    return string.Empty;
             }
 
             throw new System.ArgumentException($"暂不支持生成{method}相关方法");
