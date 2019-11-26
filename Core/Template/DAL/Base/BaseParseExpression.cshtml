@@ -308,7 +308,17 @@ internal class PredicateParser : ExpressionVisitor
                 sb.Append("')");
                 return node;
             }
-
+            if(node.Method == typeof(string).GetMethod("Equals", new[] { typeof(string) }))
+            {
+                sb.Append("(");
+                this.Visit(node.Object);
+                sb.Append(invert ? " <> ": " = ");
+                quote = false;
+                this.Visit(node.Arguments[0]);
+                quote = true;
+                sb.Append("')");
+                return node;
+            }
             // 注意区分两种contains方法的方式，一个是在对象上list.contains，一个是在string上string.contains
             if (node.Method.Name == "Contains")
             {
