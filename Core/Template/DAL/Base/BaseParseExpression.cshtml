@@ -316,7 +316,7 @@ internal class PredicateParser : ExpressionVisitor
                 quote = false;
                 this.Visit(node.Arguments[0]);
                 quote = true;
-                sb.Append("')");
+                sb.Append(")");
                 return node;
             }
             // 注意区分两种contains方法的方式，一个是在对象上list.contains，一个是在string上string.contains
