@@ -163,8 +163,31 @@ internal class PredicateParser : ExpressionVisitor
                         break;
 
                     case TypeCode.Object:
-                        throw new NotSupportedException(string.Format("The constant for '{0}' is not supported", node.Value));
-
+                        if (type.Name.StartsWith("List"))
+                        {
+                            IList list = node.Value as IList;
+                            for(var i =0;i< list.Count; i++)
+                            {
+                                if (type.GenericTypeArguments[0].Name.ToString().StartsWith("Int"))
+                                {
+                                    sb.Append("");
+                                    sb.Append(list[i]);
+                                    sb.Append(",");
+                                }
+                                else
+                                {
+                                    sb.Append("'");
+                                    sb.Append(list[i]);
+                                    sb.Append("',");
+                                }
+                            }
+                            sb.Remove(sb.ToString().LastIndexOf(','), 1);
+                        }
+                        else
+                        {
+                            throw new NotSupportedException(string.Format("The constant for '{0}' is not supported", node.Value));
+                        }
+                        break;
                     default:
                         sb.Append(node.Value);
                         break;
