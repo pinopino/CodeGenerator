@@ -68,3 +68,62 @@
 
                 return ret;
             }
+            /// <summary>
+            /// 添加新@(Model.TableInfo.Name)记录
+            /// </summary>
+            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+            /// <returns>是否插入成功，true为成功</returns>
+            public static bool Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
+            {
+                var sql = new StringBuilder();
+                sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+                sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
+                var ret = false;
+                if (conn != null)
+                {
+                    if (transaction == null)
+                    {
+                        throw new ArgumentNullException("transaction");
+                    }
+                    ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+                }
+                else
+                {
+                    using (var conn1 = GetOpenConnection())
+                    {
+                        ret = conn1.Execute(sql.ToString(), model) > 0;
+                    }
+                }
+
+                return ret;
+            }
+
+            /// <summary>
+            /// 批量插入@(Model.TableInfo.Name)记录
+            /// </summary>
+            /// <param name="model">List<@(Model.TableInfo.Name)>实体对象</param>
+            /// <returns>是否插入成功，true为成功</returns>
+            public static bool InsertMany(List<@(Model.TableInfo.Name)> model, SqlConnection conn = null, SqlTransaction transaction = null)
+            {
+                var sql = new StringBuilder();
+                sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+                sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
+                var ret = false;
+                if (conn != null)
+                {
+                    if (transaction == null)
+                    {
+                        throw new ArgumentNullException("transaction");
+                    }
+                    ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+                }
+                else
+                {
+                    using (var conn1 = GetOpenConnection())
+                    {
+                        ret = conn1.Execute(sql.ToString(), model) > 0;
+                    }
+                }
+
+                return ret;
+            }
