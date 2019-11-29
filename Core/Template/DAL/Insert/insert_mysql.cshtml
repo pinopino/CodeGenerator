@@ -69,7 +69,7 @@
 		    /// <summary>
             /// 批量添加@(Model.TableInfo.Name)
             /// </summary>
-            /// <param name="List<model>">@(Model.TableInfo.Name)实体对象</param>
+            /// <param name="List<model>">List<@(Model.TableInfo.Name)>实体对象</param>
             /// <returns>是否插入成功，true为成功</returns>
             public static bool InsertMany(List<@(Model.TableInfo.Name)> model, MySqlConnection conn = null)
             {
