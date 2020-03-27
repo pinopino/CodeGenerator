@@ -3,7 +3,7 @@ using Generator.Template;
 
 namespace Generator.Core
 {
-    public class ModelGenerator : BaseGenerator_Model
+    public class ModelGenerator : BaseModelGenerator
     {
         private string _table_name;
         public override string FileName { get { return this._table_name; } }

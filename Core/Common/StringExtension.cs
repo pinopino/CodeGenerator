@@ -28,6 +28,11 @@ namespace Generator.Common
             return result;
         }
 
+        public static StringBuilder TrimEnd(this StringBuilder sb, string trimString)
+        {
+            return sb.Remove(sb.Length - trimString.Length, trimString.Length);
+        }
+
         public static string Indent(this string str, int count = 4)
         {
             return string.Join(string.Empty, Enumerable.Repeat(' ', count)) + str;
@@ -36,11 +41,6 @@ namespace Generator.Common
         public static string NewLine(this string str)
         {
             return str + Environment.NewLine;
-        }
-
-        public static StringBuilder TrimEnd(this StringBuilder sb, string trimStr)
-        {
-            return sb.Remove(sb.Length - trimStr.Length, trimStr.Length);
         }
     }
 }

@@ -1,0 +1,90 @@
+﻿@using RazorLight
+@using Generator.Template;
+@inherits TemplatePage<ViewInfoWapper>
+@{
+    DisableEncoding = true;
+}
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace @(Model.Config.DALConfig.Namespace).Base
+{
+    public interface IColumn
+    {
+        string Table { get; }
+        string Name { get; }
+        bool IsAddEqual { get; }
+        string Asc { get; }
+    }
+
+    public abstract class BaseTableHelper
+    {
+        private static string _connectionstring;
+        public static string ConnectionString { get { return _connectionstring; } }
+
+        private static IDbConnection _connection;
+
+        protected static IDbConnection connection => _connection ?? (_connection = GetOpenConnection());
+
+        static BaseTableHelper()
+        {
+            Init();
+        }
+
+        protected static void Init()
+        {
+            
+        }        
+
+        protected static IDbConnection GetOpenConnection()
+        {
+            
+        }
+
+        protected static PageDataView<T> Paged<T>(
+            string tableName,
+            string where,
+            string orderBy,
+            string columns,
+            int pageSize,
+            int currentPage)
+        {
+            
+        }
+    }
+
+    public class PageDataView<T>
+    {
+        private int _totalRecords;
+        private IList<T> _Items;
+
+        public PageDataView()
+        {
+        }
+
+        public int TotalRecords
+        {
+            get { return _totalRecords; }
+            set { _totalRecords = value; }
+        }
+        
+        public IList<T> Items
+        {
+            get { return _Items; }
+            set { _Items = value; }
+        }
+
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
+    }
+}

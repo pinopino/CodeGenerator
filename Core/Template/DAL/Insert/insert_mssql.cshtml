@@ -17,7 +17,7 @@
                 var sql = new StringBuilder();
                 sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
                 sql.Append(" OUTPUT INSERTED.[@(Model.TableInfo.PrimaryKey[0].Name)] ");
-                sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
+                sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
                 var ret = 0;
                 if (conn != null)
                 {
@@ -48,7 +48,7 @@
             {
                 var sql = new StringBuilder();
                 sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
-                sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
+                sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
                 var ret = false;
                 if (conn != null)
                 {

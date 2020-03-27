@@ -10,17 +10,17 @@
             /// <summary>
             /// 获取指定的@(Model.TableInfo.Name)实体对象
             /// </summary>
-            @Model.MakeParamComment(Model.TableInfo.PrimaryKey)
+            @Model.MakeMethodParamComment(Model.TableInfo.PrimaryKey)
             /// <returns>@(Model.TableInfo.Name)实体对象</returns>
             public static @(Model.TableInfo.Name) GetModel(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
             {
                 var sql = new StringBuilder();
                 sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
-                sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.PrimaryKey)");
+                sql.Append(" WHERE @Model.MakeSQLWhere(Model.TableInfo.PrimaryKey)");
                 @(Model.TableInfo.Name) ret = null;
                 using (var conn = GetOpenConnection())
                 {
-                    ret = conn.QueryFirstOrDefault<@(Model.TableInfo.Name)>(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) });
+                    ret = conn.QueryFirstOrDefault<@(Model.TableInfo.Name)>(sql.ToString(), new { @Model.MakeSQLParamValueList(Model.TableInfo.PrimaryKey) });
                 }
 
                 return ret;

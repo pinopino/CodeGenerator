@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Generator.Core
 {
-    public class OutputHelper
+    public sealed partial class OutputHelper
     {
         private static List<IInjector> _plugins = new List<IInjector>();
         private static Dictionary<Type, DbType> typeMap = new Dictionary<Type, DbType>
@@ -165,148 +165,16 @@ namespace Generator.Core
         {
             ResetProgress(progress);
             if (Directory.Exists(config.OutputBasePath))
+            {
                 Directory.Delete(config.OutputBasePath, true);
+            }
+            else
+            {
+                Directory.CreateDirectory(config.OutputBasePath);
+            }
 
-            var dir = Directory.CreateDirectory(config.OutputBasePath);
-            dir.Attributes &= ~FileAttributes.ReadOnly;
-
-            File.WriteAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), content, Encoding.UTF8);
-
+            File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), content, Encoding.UTF8);
             PrintProgress(progress, 100, 100);
-        }
-
-        public static void OutputDAL(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
-        {
-            ResetProgress(progress);
-            var path = Path.Combine(config.OutputBasePath, "DAL");
-            Directory.CreateDirectory(path);
-
-            var sb = new StringBuilder();
-            BaseGenerator_DAL g = null;
-            // todo: 有点丑陋，可以考虑走ioc
-            switch (config.DBType)
-            {
-                case "mssql":
-                    g = new Generator.Core.MSSql.DALGenerator(config);
-                    break;
-                case "mysql":
-                    g = new Generator.Core.MySql.DALGenerator(config);
-                    break;
-            }
-
-            // 解析
-            var i = 0;
-            foreach (var key in tables.Keys)
-            {
-                var table = tables[key];
-                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
-                    continue;
-
-                sb.Append(g.RenderDALFor(table));
-                // Joined
-                var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.MainTable.Name == table.Name);
-                if (join_info != null)
-                { }
-
-                File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
-                sb.Clear();
-                PrintProgress(progress, ++i, tables.Count);
-            }
-
-            // 生成BaseTableHelper、PageDataView
-            File.AppendAllText(Path.Combine(path, "BaseTableHelper.cs"), g.RenderBaseTableHelper());
-
-            // 拷贝公用文件到指定目录
-            DirHelper.CopyDirectory(Path.Combine("CopyFiles", "DAL"), path);
-        }
-
-        public static void OutputModel(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
-        {
-            ResetProgress(progress);
-            var path = Path.Combine(config.OutputBasePath, "Model");
-            Directory.CreateDirectory(path);
-
-            BaseGenerator_Model g = new ModelGenerator(config);
-            // 解析
-            var i = 0;
-            var sb = new StringBuilder();
-            foreach (var key in tables.Keys)
-            {
-                var table = tables[key];
-                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
-                    continue;
-
-                sb.AppendLine(g.RenderModelFor(table));
-
-                var new_str = sb.ToString();
-                // 插件的执行顺序
-                foreach (var plug in _plugins)
-                {
-                    //if (!typeof(IModelInjector).IsAssignableFrom(plug.GetType()))
-                    //    continue;
-                    //if (!plug.Check(table.Name))
-                    //    continue;
-                    //new_str = plug.Inject(sb.ToString(), table.Name);
-                    //File.AppendAllText(Path.Combine(config.OutputBasePath, plug.Name, string.Format("{0}.cs", g.FileName)), new_str);
-                    //new_str = string.Empty;
-                }
-
-                File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), new_str);
-                sb.Clear();
-                PrintProgress(progress, ++i, tables.Count);
-            }
-
-            // 如果配置文件指定了JoinedTables，那么这里需要为这些关联表生成额外的包装model，
-            // 路径：Model\JoinedViewModel
-            if (config.JoinedTables != null && config.JoinedTables.Count > 0)
-            {
-                //Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
-                //var sb2 = new StringBuilder();
-                //foreach (var map in config.JoinedTables)
-                //{
-                //    sb2.AppendLine(g.Get_Join_Head(map));
-                //    sb2.AppendLine(g.Get_Joined_Class(map));
-                //    sb2.AppendLine(g.Get_Join_Tail(map));
-
-                //    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + g.FileName)), sb2.ToString());
-                //    sb2.Clear();
-                //}
-            }
-
-            // 拷贝公用文件到指定目录
-            DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Model"), path);
-        }
-
-        public static void OutputEnum(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
-        {
-            ResetProgress(progress);
-            var path = Path.Combine(config.OutputBasePath, "Enum");
-            Directory.CreateDirectory(path);
-
-            BaseGenerator_Enum g = new EnumGenerator(config);
-            // 解析
-            var i = 0;
-            var sb = new StringBuilder();
-            foreach (var key in tables.Keys)
-            {
-                var table = tables[key];
-                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
-                    continue;
-
-                foreach (var column in table.Columns)
-                {
-                    if (g.CanGenerateEnum(table, column))
-                    {
-                        sb.AppendLine(g.RenderEnumFor(table, column));
-                        File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), sb.ToString());
-                        sb.Clear();
-                    }
-                }
-                PrintProgress(progress, ++i, tables.Count);
-            }
-
-            // 拷贝公用文件到指定目录
-            DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Enum"), path);
         }
 
         // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net

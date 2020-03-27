@@ -7,21 +7,21 @@
 
 
 @if (Model.TableInfo.PrimaryKey.Count == 0) { goto cc; }
-	        /// <summary>
-            /// 删除指定的@(Model.TableInfo.Name)数据记录
-            /// </summary>
-            @Model.MakeParamComment(Model.TableInfo.PrimaryKey)
-            /// <returns>是否成功，true为成功</returns>
-            public static bool Delete(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
+	    /// <summary>
+        /// 删除指定的@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        @Model.MakeMethodParamComment(Model.TableInfo.PrimaryKey)
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Delete(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
+        {
+            var sql = new StringBuilder();
+            sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
+            sql.Append(" WHERE @Model.MakeSQLWhere(Model.TableInfo.PrimaryKey)");
+            var ret = false;
+            using (var conn = GetOpenConnection())
             {
-                var sql = new StringBuilder();
-                sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
-                sql.Append(" WHERE @Model.MakeWhere(Model.TableInfo.PrimaryKey)");
-                var ret = false;
-                using (var conn = GetOpenConnection())
-                {
-                    ret = conn.Execute(sql.ToString(), new { @Model.MakeParamValList(Model.TableInfo.PrimaryKey) }) > 0;
-                }
+                ret = conn.Execute(sql.ToString(), new { @Model.MakeSQLParamValueList(Model.TableInfo.PrimaryKey) }) > 0;
+            }
 
                 return ret;
             }
@@ -58,15 +58,15 @@
 			        where_str = parser.Parse(predicate);
 		        }
 			
-                var sql = new StringBuilder();
-                sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
-		        if (!string.IsNullOrEmpty(where_str))
-			        sql.Append(" WHERE " + where_str);
-                var ret = false;
-                using (var conn = GetOpenConnection())
-                {
-                    ret = conn.Execute(sql.ToString()) > 0;
-                }
+            var sql = new StringBuilder();
+            sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
+		    if (!string.IsNullOrEmpty(where_str)))
+			    sql.Append(" WHERE " + where_str);
+            var ret = false;
+            using (var conn = GetOpenConnection())
+            {
+                ret = conn.Execute(sql.ToString()) > 0;
+            }
 
                 return ret;
             }

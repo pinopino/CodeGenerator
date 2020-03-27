@@ -17,18 +17,10 @@ namespace Console
             config.Init();
 
             if (string.IsNullOrWhiteSpace(config.DBType))
-            {
-                System.Console.WriteLine("未设置要连接的数据库类型（目前支持mssql，mysql）！");
-                System.Console.Read();
-                Environment.Exit(0);
-            }
+                Exit("未设置要连接的数据库类型（目前支持mssql，mysql）！");
 
             if (string.IsNullOrWhiteSpace(config.DBConn))
-            {
-                System.Console.WriteLine("未设置数据库连接字符串！");
-                System.Console.Read();
-                Environment.Exit(0);
-            }
+                Exit("未设置数据库连接字符串！");
 
             Print("解析数据库元数据...");
             IProgressBar progress = GetProgressBar();
@@ -45,9 +37,10 @@ namespace Console
                 default:
                     throw new NotSupportedException("不支持的数据库类型");
             }
+
+            // 生成中间配置文件
             var meta_data = parser.ParseMetadata();
             Print("解析完毕，生成中间配置文件...");
-            // 生成中间配置文件
             var meta_json = JsonConvert.SerializeObject(meta_data, Formatting.Indented);
             OutputHelper.OutputConfig(meta_json, config, progress);
 
@@ -85,8 +78,7 @@ namespace Console
             } while (key != "quit");
 
             Print("结束！");
-            System.Console.Read();
-            Environment.Exit(0);
+            Exit();
         }
 
         static void Print(string message)
@@ -94,6 +86,14 @@ namespace Console
             System.Console.WriteLine();
             System.Console.WriteLine();
             System.Console.WriteLine(message);
+        }
+
+        static void Exit(string message = "")
+        {
+            if(!string.IsNullOrEmpty(message))
+                System.Console.WriteLine(message);
+            System.Console.Read();
+            Environment.Exit(0);
         }
 
         static ConsoleProgressBar GetProgressBar()

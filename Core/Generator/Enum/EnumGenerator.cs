@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Generator.Core
 {
-    public class EnumGenerator : BaseGenerator_Enum
+    public class EnumGenerator : BaseEnumGenerator
     {
         private string _enum_name;
         private Regex _regex;
@@ -24,7 +24,7 @@ namespace Generator.Core
         public override string RenderEnumFor(TableMetaData table, ColumnMetaData column)
         {
             var match = _regex.Match(column.Comment);
-            var comment = match.Value.Replace("：", " ").Replace("、", " ").Replace("。", " ").Replace("；", " ").Replace(".", " ").Replace(";", " ").Replace(":", " ");
+            var comment = Replace(match.Value);
             var temp = Regex.Replace(table.Name, @"\d", string.Empty).Replace("_", string.Empty);
             _enum_name = $"{temp}_{column.Name}_Enum";
 
@@ -48,6 +48,18 @@ namespace Generator.Core
             if (string.IsNullOrWhiteSpace(column.Comment))
                 return false;
             return _regex.Match(column.Comment).Success;
+        }
+
+        private string Replace(string origin)
+        {
+            return origin
+                .Replace("：", " ")
+                .Replace("、", " ")
+                .Replace("。", " ")
+                .Replace("；", " ")
+                .Replace(".", " ")
+                .Replace(";", " ")
+                .Replace(":", " ");
         }
     }
 }
