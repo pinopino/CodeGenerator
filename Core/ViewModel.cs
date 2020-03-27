@@ -1,8 +1,8 @@
-﻿using Generator.Core;
+﻿using Generator.Common;
+using Generator.Core;
 using Generator.Core.Config;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 
 namespace Generator.Template
 {
@@ -44,7 +44,12 @@ namespace Generator.Template
 
         public string MakeTableName(string rawName)
         {
-            return ((BaseDALGenerator)_generator).MakeTableName(rawName);
+            return ((BaseDALGenerator)_generator).NormalizeTableName(rawName);
+        }
+
+        public string MakeFieldName(string rawName)
+        {
+            return ((BaseDALGenerator)_generator).NormalizeFieldName(rawName);
         }
 
         public string MakeMethodParam(IEnumerable<ColumnMetaData> columns)
@@ -59,37 +64,47 @@ namespace Generator.Template
 
         public string MakeSQLParamList(IEnumerable<ColumnMetaData> columns)
         {
-            return ((BaseDALGenerator)_generator).MakeSQLParamList(columns);
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+            {
+                if (!item.IsIdentity)
+                    sb.Append($"@{item.Name}, ");
+            }
+            return sb.TrimEnd(", ").ToString();
         }
 
         public string MakeSQLParamValueList(IEnumerable<ColumnMetaData> columns)
         {
-            return ((BaseDALGenerator)_generator).MakeSQLParamValueList(columns);
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+                sb.Append($"@{item.Name}={item.Name}, ");
+            return sb.TrimEnd(", ").ToString();
+        }
+
+        public string MakeSQLColumnList(IEnumerable<ColumnMetaData> columns)
+        {
+            var gen = ((BaseDALGenerator)_generator);
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+            {
+                if (!item.IsIdentity)
+                    sb.Append(gen.NormalizeFieldName(item.Name));
+            }
+            return sb.TrimEnd(", ").ToString();
         }
 
         public string MakeSQLWhere(IEnumerable<ColumnMetaData> columns)
         {
-            return ((BaseDALGenerator)_generator).MakeSQLWhere(columns);
+            var gen = ((BaseDALGenerator)_generator);
+            var sb = new StringBuilder();
+            foreach (var item in columns)
+                sb.Append($"{gen.NormalizeFieldName(item.Name)}={item.Name}, ");
+            return sb.TrimEnd(", ").ToString();
         }
 
-        public bool IsUpdateExceptColumn(ColumnMetaData column)
+        public bool IsUpdateExcludeColumn(ColumnMetaData column)
         {
             return ((BaseDALGenerator)_generator).IsUpdateExcludeColumn(TableInfo.Name, column.Name);
-        }
-		
-        public string AppendDALUsing()
-        {
-            return ((BaseDALGenerator)_generator).AppendDALUsing();
-        }
-
-        public string AppendModelUsing()
-        {
-            return ((BaseModelGenerator)_generator).AppendModelUsing();
-        }
-
-        public string AppendEnumUsing()
-        {
-            return ((BaseEnumGenerator)_generator).AppendEnumUsing();
         }
     }
 }

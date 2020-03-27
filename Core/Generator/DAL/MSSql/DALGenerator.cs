@@ -33,52 +33,14 @@ namespace Generator.Core.MSSql
             return Render("DAL/BaseTable/basetablehelper_mssql.cshtml", model);
         }
 
-        public override string MakeTableName(string rawName)
+        public override string NormalizeTableName(string tableName)
         {
-            return $"[{rawName}]";
+            return $"[{tableName}]";
         }
 
-        public override string MakeMethodParam(IEnumerable<ColumnMetaData> columns)
+        public override string NormalizeFieldName(string fieldName)
         {
-            var sb = new StringBuilder();
-            foreach (var item in columns)
-                sb.Append($"{item.DbType} {item.Name}, ");
-            return sb.TrimEnd(", ").ToString();
-        }
-
-        public override string MakeMethodParamComment(IEnumerable<ColumnMetaData> columns)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in columns)
-                sb.Append($"/// <param name=\"{item.Name}\">{item.Comment}</param>");
-            return sb.ToString();
-        }
-
-        public override string MakeSQLParamList(IEnumerable<ColumnMetaData> columns)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in columns)
-            {
-                if (!item.IsIdentity)
-                    sb.Append($"@{item.Name}, ");
-            }
-            return sb.TrimEnd(", ").ToString();
-        }
-
-        public override string MakeSQLParamValueList(IEnumerable<ColumnMetaData> columns)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in columns)
-                sb.Append($"@{item.Name}={item.Name}, ");
-            return sb.TrimEnd(", ").ToString();
-        }
-
-        public override string MakeSQLWhere(IEnumerable<ColumnMetaData> columns)
-        {
-            var sb = new StringBuilder();
-            foreach (var item in columns)
-                sb.Append($"[{item.Name}]=@{item.Name} and ");
-            return sb.TrimEnd("and ").ToString();
+            return $"[{fieldName}]";
         }
     }
 }

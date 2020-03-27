@@ -1,7 +1,9 @@
-﻿using Generator.Core.Config;
+﻿using Generator.Common;
+using Generator.Core.Config;
 using Generator.Template;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Generator.Core.MySql
 {
@@ -32,37 +34,20 @@ namespace Generator.Core.MySql
 
         public override string RenderBaseTableHelper()
         {
-            throw new NotImplementedException();
+            var model = new ViewInfoWapper(this);
+            model.Config = _config;
+
+            return Render("DAL/BaseTable/basetablehelper_mysql.cshtml", model);
         }
 
-        public override string MakeTableName(string rawName)
+        public override string NormalizeTableName(string tableName)
         {
-            throw new NotImplementedException();
+            return $"`{tableName}`";
         }
 
-        public override string MakeMethodParam(IEnumerable<ColumnMetaData> predicate)
+        public override string NormalizeFieldName(string fieldName)
         {
-            throw new NotImplementedException();
-        }
-
-        public override string MakeMethodParamComment(IEnumerable<ColumnMetaData> predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string MakeSQLParamList(IEnumerable<ColumnMetaData> columns)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string MakeSQLParamValueList(IEnumerable<ColumnMetaData> predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string MakeSQLWhere(IEnumerable<ColumnMetaData> predicate)
-        {
-            throw new NotImplementedException();
+            return $"`{fieldName}`";
         }
     }
 }

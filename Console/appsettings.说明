@@ -3,10 +3,10 @@
   "OutputBasePath": "输出的文件位置",
   "Project": "项目名称",
   "PartialCheck_DAL_Path": "需要检查的DAL Partial文件的路径",
-  "ExceptTables": [
+  "ExcludeTables": [
     { "Name": "生成时想要排除的表的名字" }
   ],
-  "UpdateExceptColumns": {
+  "UpdateExcludeColumns": {
     "*": [ // 表的名字可以填*，表示所有表都需要排除下面指定的列
       { "ColumnName": "" }
     ],
@@ -54,10 +54,7 @@
       { "Name": "Insert" },
       { "Name": "Delete" },
       { "Name": "Update" },
-      { "Name": "GetModel" },
-      { "Name": "GetList" },
-      { "Name": "GetCount" },
-      { "Name": "GetPage" }
+      { "Name": "Get" }
     ]
   }
 }

@@ -25,7 +25,7 @@ namespace Console
             Print("解析数据库元数据...");
             IProgressBar progress = GetProgressBar();
             BaseParser parser = null;
-            // todo: 有点丑陋，可以考虑走ioc
+            // TODO：有点丑陋，可以考虑走ioc
             switch (config.DBType)
             {
                 case "mssql":
@@ -77,7 +77,7 @@ namespace Console
                 System.Console.WriteLine("输入‘quit’退出");
             } while (key != "quit");
 
-            Print("结束！");
+            Print("程序结束！");
             Exit();
         }
 

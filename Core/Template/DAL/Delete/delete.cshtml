@@ -12,16 +12,14 @@
         /// </summary>
         @Model.MakeMethodParamComment(Model.TableInfo.PrimaryKey)
         /// <returns>是否成功，true为成功</returns>
-        public static bool Delete(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
+        public static bool Delete(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey), IDbTransaction transaction = null)
         {
             var sql = new StringBuilder();
             sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
             sql.Append(" WHERE @Model.MakeSQLWhere(Model.TableInfo.PrimaryKey)");
             var ret = false;
             using (var conn = GetOpenConnection())
-            {
-                ret = conn.Execute(sql.ToString(), new { @Model.MakeSQLParamValueList(Model.TableInfo.PrimaryKey) }) > 0;
-            }
+                ret = conn.Execute(sql.ToString(), new { @Model.MakeSQLParamValueList(Model.TableInfo.PrimaryKey) }, transaction) > 0;
 
                 return ret;
             }
@@ -31,16 +29,14 @@
             /// </summary>
             /// <param name="Ids">@(Model.TableInfo.Name + "实体对象的")id列表</param>
             /// <returns>是否成功，true为成功</returns>
-            public static bool Delete(List<@Model.TableInfo.PrimaryKey[0].DbType> Ids)
+            public static bool Delete(List<@Model.TableInfo.PrimaryKey[0].DbType> Ids, IDbTransaction transaction = null)
             {
                 var sql = new StringBuilder();
                 sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
                 sql.Append(" WHERE @Model.TableInfo.PrimaryKey[0].Name IN @@ids");
                 var ret = false;
                 using (var conn = GetOpenConnection())
-                {
-                    ret = conn.Execute(sql.ToString(), new { @@ids=Ids }) > 0;
-                }
+                    ret = conn.Execute(sql.ToString(), new { @@ids=Ids }, transaction) > 0;
 
                 return ret;
             }
@@ -49,14 +45,10 @@
             /// <summary>
             /// 删除指定的@(Model.TableInfo.Name)数据记录
             /// </summary>
-            public static bool Delete(Expression<Func<@Model.TableInfo.Name, bool>> predicate = null)
+            public static bool Delete(Expression<Func<@Model.TableInfo.Name, bool>> predicate, IDbTransaction transaction = null)
             {
-		        var where_str = string.Empty;
-		        if (predicate != null)
-		        {
-			        var parser = new PredicateParser();
-			        where_str = parser.Parse(predicate);
-		        }
+                var parser = new PredicateParser();
+		        var where_str = parser.Parse(predicate);
 			
             var sql = new StringBuilder();
             sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
@@ -65,7 +57,7 @@
             var ret = false;
             using (var conn = GetOpenConnection())
             {
-                ret = conn.Execute(sql.ToString()) > 0;
+                ret = conn.Execute(sql.ToString(), transaction) > 0;
             }
 
                 return ret;

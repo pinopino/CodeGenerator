@@ -188,7 +188,7 @@ namespace Generator.Core
             }
 
             IReCreateDB c = null;
-            // todo: 有点丑陋，可以考虑走ioc
+            // TODO：有点丑陋，可以考虑走ioc
             switch (config.DBType)
             {
                 case "mssql":

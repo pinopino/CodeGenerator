@@ -50,7 +50,7 @@ namespace Generator.Core.MySql
 
                     CommandText = $"SHOW FULL FIELDS FROM {name};"; // 得到表结构
                     var fields = connection.Query<FieldViewModel>(CommandText).ToList();
-                    bool _fail = false;
+                    var _fail = false;
                     foreach (var item in fields)
                     {
                         item.Type = item.Type.Substring(0, item.Type.IndexOf("("));

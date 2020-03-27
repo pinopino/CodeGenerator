@@ -22,7 +22,7 @@ namespace Generator.Core
             foreach (var key in tables.Keys)
             {
                 var table = tables[key];
-                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
+                if (config.ExcludeTables != null && config.ExcludeTables.Any(p => p.Name == table.Name))
                     continue;
 
                 sb.AppendLine(g.RenderModelFor(table));

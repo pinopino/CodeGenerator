@@ -9,10 +9,5 @@ namespace Generator.Core
         { }
 
         public abstract string RenderModelFor(TableMetaData table);
-		
-		public virtual string AppendModelUsing()
-        {
-            return string.Empty;
-        }
     }
 }

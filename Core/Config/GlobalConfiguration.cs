@@ -97,11 +97,11 @@ namespace Generator.Core.Config
         /// <summary>
         /// 生成时想要排除的表
         /// </summary>
-        public List<TableInfo> ExceptTables { set; get; }
+        public List<TableInfo> ExcludeTables { set; get; }
         /// <summary>
         /// 生成更新代码时想要排除掉的字段。例如：Table1:Name,Age;*:CreatedTime
         /// </summary>
-        public Dictionary<string, List<ExceptColumnInfo>> UpdateExceptColumns { set; get; }
+        public Dictionary<string, List<ExceptColumnInfo>> UpdateExcludeColumns { set; get; }
         /// <summary>
         /// 需要生成join方法的表
         /// </summary>

@@ -17,7 +17,7 @@ namespace Generator.Core
 
             var sb = new StringBuilder();
             BaseDALGenerator g = null;
-            // todo: 有点丑陋，可以考虑走ioc
+            // TODO：有点丑陋，可以考虑走ioc
             switch (config.DBType)
             {
                 case "mssql":
@@ -33,7 +33,7 @@ namespace Generator.Core
             foreach (var key in tables.Keys)
             {
                 var table = tables[key];
-                if (config.ExceptTables != null && config.ExceptTables.Any(p => p.Name == table.Name))
+                if (config.ExcludeTables != null && config.ExcludeTables.Any(p => p.Name == table.Name))
                     continue;
 
                 sb.Append(g.RenderDALFor(table));

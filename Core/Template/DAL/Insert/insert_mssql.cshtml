@@ -12,28 +12,15 @@
             /// </summary>
             /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
             /// <returns>新插入数据的id</returns>
-            public static @(Model.TableInfo.PrimaryKey[0].DbType) Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
+            public static @(Model.TableInfo.PrimaryKey[0].DbType) Insert(@(Model.TableInfo.Name) model, IDbTransaction transaction = null)
             {
                 var sql = new StringBuilder();
-                sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+                sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
                 sql.Append(" OUTPUT INSERTED.[@(Model.TableInfo.PrimaryKey[0].Name)] ");
                 sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
                 var ret = 0;
-                if (conn != null)
-                {
-                    if (transaction == null)
-                    {
-                        throw new ArgumentNullException("transaction");
-                    }
+                using (var conn = GetOpenConnection())
                     ret = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey[0].DbType)>(sql.ToString(), model, transaction);
-                }
-                else
-                {
-                    using (var conn1 = GetOpenConnection())
-                    {
-                        ret = conn1.ExecuteScalar<@(Model.TableInfo.PrimaryKey[0].DbType)>(sql.ToString(), model);
-                    }
-                }
 
                 return ret;
             }
@@ -44,56 +31,14 @@
             /// </summary>
             /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
             /// <returns>是否插入成功，true为成功</returns>
-            public static bool Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
+            public static bool Insert(@(Model.TableInfo.Name) model, IDbTransaction transaction = null)
             {
                 var sql = new StringBuilder();
-                sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
+                sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
                 sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
                 var ret = false;
-                if (conn != null)
-                {
-                    if (transaction == null)
-                    {
-                        throw new ArgumentNullException("transaction");
-                    }
+                using (var conn = GetOpenConnection())
                     ret = conn.Execute(sql.ToString(), model, transaction) > 0;
-                }
-                else
-                {
-                    using (var conn1 = GetOpenConnection())
-                    {
-                        ret = conn1.Execute(sql.ToString(), model) > 0;
-                    }
-                }
-
-                return ret;
-            }
-            /// <summary>
-            /// 添加新@(Model.TableInfo.Name)记录
-            /// </summary>
-            /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-            /// <returns>是否插入成功，true为成功</returns>
-            public static bool Insert(@(Model.TableInfo.Name) model, SqlConnection conn = null, SqlTransaction transaction = null)
-            {
-                var sql = new StringBuilder();
-                sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
-                sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
-                var ret = false;
-                if (conn != null)
-                {
-                    if (transaction == null)
-                    {
-                        throw new ArgumentNullException("transaction");
-                    }
-                    ret = conn.Execute(sql.ToString(), model, transaction) > 0;
-                }
-                else
-                {
-                    using (var conn1 = GetOpenConnection())
-                    {
-                        ret = conn1.Execute(sql.ToString(), model) > 0;
-                    }
-                }
 
                 return ret;
             }
@@ -103,27 +48,14 @@
             /// </summary>
             /// <param name="model">List<@(Model.TableInfo.Name)>实体对象</param>
             /// <returns>是否插入成功，true为成功</returns>
-            public static bool InsertMany(List<@(Model.TableInfo.Name)> model, SqlConnection conn = null, SqlTransaction transaction = null)
+            public static bool InsertMany(List<@(Model.TableInfo.Name)> model, IDbTransaction transaction = null)
             {
                 var sql = new StringBuilder();
-                sql.Append("INSERT INTO [@Model.TableInfo.Name] (@(string.Join(", ", Model.TableInfo.Columns.Where(p => !p.IsIdentity).Select(p => $"[{p.Name}]"))))");
-                sql.Append("VALUES(@(Model.MakeParamList(Model.TableInfo.Columns)))");
+                sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
+                sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
                 var ret = false;
-                if (conn != null)
-                {
-                    if (transaction == null)
-                    {
-                        throw new ArgumentNullException("transaction");
-                    }
+                using (var conn = GetOpenConnection())
                     ret = conn.Execute(sql.ToString(), model, transaction) > 0;
-                }
-                else
-                {
-                    using (var conn1 = GetOpenConnection())
-                    {
-                        ret = conn1.Execute(sql.ToString(), model) > 0;
-                    }
-                }
 
                 return ret;
             }
