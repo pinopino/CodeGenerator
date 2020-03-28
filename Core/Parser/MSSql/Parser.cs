@@ -1,6 +1,7 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
 using Microsoft.SqlServer.Management.Smo;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 
@@ -42,11 +43,10 @@ namespace Generator.Core.MSSql
 
         private TableMetaData ParseTable(Table table)
         {
-            var meta_table = new TableMetaData();
-            meta_table.Name = table.Name;
-            meta_table.Comment = table.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();
+            var name = table.Name;
+            var comment = table.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();
 
-            return meta_table;
+            return new TableMetaData(name, comment);
         }
 
         private void ParseColumn(TableMetaData metaTable, Column column)
@@ -64,7 +64,20 @@ namespace Generator.Core.MSSql
 
             // 主键
             if (column.InPrimaryKey)
-                metaTable.PrimaryKey.Add(meta_col);
+            {
+                if (metaTable.PrimaryKeyPair.HasValue)
+                    throw new InvalidOperationException("最多支持两个列的复合主键!");
+
+                if (metaTable.PrimaryKey == null)
+                {
+                    metaTable.PrimaryKey = meta_col;
+                }
+                else
+                {
+                    metaTable.PrimaryKeyPair = new PrimaryPair { Item1 = metaTable.PrimaryKey, Item2 = meta_col };
+                    metaTable.PrimaryKey = null;
+                }
+            }
 
             // 标识
             if (column.Identity)

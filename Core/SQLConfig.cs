@@ -7,19 +7,19 @@ namespace Generator.Core
         private string _name;
         private string _comment;
         private bool _isRefed;
-        private List<ColumnMetaData> _primaryKey;
+        private PrimaryPair? _primaryKeyPair;
+        private ColumnMetaData _primaryKey;
         private ColumnMetaData _ideneity;
         private List<ColumnMetaData> _columns;
 
         /// <summary>
         /// 
         /// </summary>
-        public TableMetaData()
+        public TableMetaData(string name, string comment = "")
         {
-            _name = string.Empty;
-            _comment = string.Empty;
+            _name = name;
+            _comment = comment;
             _isRefed = false;
-            _primaryKey = new List<ColumnMetaData>();
             _columns = new List<ColumnMetaData>();
         }
 
@@ -53,10 +53,19 @@ namespace Generator.Core
         /// <summary>
         /// 
         /// </summary>
-        public List<ColumnMetaData> PrimaryKey
+        public ColumnMetaData PrimaryKey
         {
             set { this._primaryKey = value; }
             get { return this._primaryKey; }
+        }
+
+        /// <summary>
+        /// 意思就是我们最多支持两个列的复合主键(差不多了,其实这种情况都不是太常见的)
+        /// </summary>
+        public PrimaryPair? PrimaryKeyPair
+        {
+            set { this._primaryKeyPair = value; }
+            get { return this._primaryKeyPair; }
         }
 
         /// <summary>
@@ -165,5 +174,11 @@ namespace Generator.Core
             set { this._hasDefaultValue = value; }
             get { return this._hasDefaultValue; }
         }
+    }
+
+    public struct PrimaryPair
+    {
+        public ColumnMetaData Item1;
+        public ColumnMetaData Item2;
     }
 }

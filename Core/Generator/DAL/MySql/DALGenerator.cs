@@ -20,13 +20,9 @@ namespace Generator.Core.MySql
             switch (method.ToLower())
             {
                 case "insert":
-                    return "DAL/Insert/inser_mysql.cshtml";
-                case "getmodel":
-                case "getlist":
-                case "getcount":
-                    return "DAL/GetModel/get_mysql.cshtml";
-                case "getpage":
-                    return "DAL/Page/page.cshtml";
+                    return "DAL/Insert/insert_mysql.cshtml";
+                case "page":
+                    return "DAL/Page/page_mysql.cshtml";
                 default:
                     return base.GetPartialViewPath(method);
             }

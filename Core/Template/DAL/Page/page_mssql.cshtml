@@ -19,15 +19,13 @@
                 }
 
                 var sql = new StringBuilder();
-                sql.Append("SELECT COUNT(1) FROM {1}");
+                sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
                 if (where_str != string.Empty)
-                sql.Append(" WHERE " + where_str);
+                    sql.Append(" WHERE " + where_str);
 
                 var ret = -1;
                 using (var conn = GetOpenConnection())
-                {
                     ret = conn.ExecuteScalar<int>(sql.ToString());
-                }
 
                 return ret;
             }
@@ -89,8 +87,7 @@
                     column_str = string.Join(", ", columns.Select(p => $"[{p.Name}]"));
                 }
 
-	            return Paged<@Model.TableInfo.Name>
-                            (
+	            return Paged<@Model.TableInfo.Name>(
                             "[@(Model.TableInfo.Name)]",
                             where_str,
                             orderby_str,

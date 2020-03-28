@@ -38,6 +38,8 @@ namespace Generator.Core
                     return "DAL/Update/update.cshtml";
                 case "get":
                     return "DAL/Get/get.cshtml";
+                case "page":
+                    return "DAL/Page/page.cshtml";
             }
 
             throw new System.ArgumentException($"暂不支持生成{method}相关方法");

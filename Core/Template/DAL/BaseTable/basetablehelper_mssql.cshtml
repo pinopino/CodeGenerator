@@ -23,8 +23,8 @@ namespace @(Model.Config.DALConfig.Namespace).Base
     {
         string Table { get; }
         string Name { get; }
-        bool IsAddEqual { get; }
-        string Asc { get; }
+        bool OrderBy { get; }
+        string Direction { get; }
     }
 
     public abstract class BaseTableHelper
@@ -38,28 +38,57 @@ namespace @(Model.Config.DALConfig.Namespace).Base
 
         static BaseTableHelper()
         {
-            Init();
+            // 添加json配置文件路径
+#if DEBUG
+            var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.Development.json");
+#else
+            var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json");
+#endif
+            // 创建配置根对象
+            var configurationRoot = builder.Build();
+            ConnectionString = configurationRoot.GetSection("ConnectionString").Value;
         }
-
-        protected static void Init()
-        {
-            
-        }        
 
         protected static IDbConnection GetOpenConnection()
         {
-            
+            var connection = new SqlConnection(_connectionstring);
+            connection.Open();
+            return connection;
         }
 
         protected static PageDataView<T> Paged<T>(
             string tableName,
             string where,
-            string orderBy,
-            string columns,
+            int currentPage,
             int pageSize,
-            int currentPage)
+            params IColumn[] columns)
         {
-            
+            var result = new PageDataView<T>();
+            var count_sql = $"SELECT COUNT(1) FROM {tableName}";
+            if (!string.IsNullOrWhiteSpace(where))
+            {
+                if (where.ToLower().Contains("where"))
+                {
+                    throw new ArgumentException("where子句不需要带where关键字");
+                }
+                where = " WHERE " + where;
+            }
+
+            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged ", columns, orderBy, tableName, where);
+            var pageStart = (currentPage - 1) * pageSize;
+            sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
+            count_sql += where;
+            using (var conn = GetOpenConnection())
+            {
+                result.TotalRecords = conn.ExecuteScalar<int>(count_sql);
+                result.TotalPages = result.TotalRecords / pageSize;
+                if (result.TotalRecords % pageSize > 0)
+                    result.TotalPages += 1;
+                var list = conn.Query<T>(sql);
+                result.Items = list.Count() == 0 ? (new List<T>()) : list.ToList();
+            }
+
+            return result;
         }
     }
 

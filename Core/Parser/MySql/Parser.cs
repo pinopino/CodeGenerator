@@ -39,15 +39,7 @@ namespace Generator.Core.MySql
                 var count = 0;
                 foreach (var name in TableNames)
                 {
-                    var table = new TableMetaData
-                    {
-                        Name = name,
-                        Columns = new List<ColumnMetaData>(),
-                        Comment = "",
-                        Identity = new ColumnMetaData(),
-                        PrimaryKey = new List<ColumnMetaData>()
-                    };
-
+                    var table = new TableMetaData(name, string.Empty);
                     CommandText = $"SHOW FULL FIELDS FROM {name};"; // 得到表结构
                     var fields = connection.Query<FieldViewModel>(CommandText).ToList();
                     var _fail = false;
@@ -74,7 +66,18 @@ namespace Generator.Core.MySql
 
                         if (item.Key == "PRI")
                         {
-                            table.PrimaryKey.Add(ColumData);
+                            if (table.PrimaryKeyPair.HasValue)
+                                throw new InvalidOperationException("最多支持两个列的复合主键!");
+
+                            if (table.PrimaryKey == null)
+                            {
+                                table.PrimaryKey = ColumData;
+                            }
+                            else
+                            {
+                                table.PrimaryKeyPair = new PrimaryPair { Item1 = table.PrimaryKey, Item2 = ColumData };
+                                table.PrimaryKey = null;
+                            }
                         }
                         if (item.Extra == "auto_increment")
                         {

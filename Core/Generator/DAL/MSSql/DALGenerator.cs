@@ -17,12 +17,15 @@ namespace Generator.Core.MSSql
 
         public override string GetPartialViewPath(string method)
         {
-            if (method.ToLower() == "insert")
-                return "DAL/Insert/insert_mssql.cshtml";
-            else if (method.ToLower() == "update")
-                return "DAL/Update/update_mssql.cshtml";
-            else
-                return base.GetPartialViewPath(method);
+            switch (method.ToLower())
+            {
+                case "insert":
+                    return "DAL/Insert/insert_mssql.cshtml";
+                case "page":
+                    return "DAL/Page/page_mssql.cshtml";
+                default:
+                    return base.GetPartialViewPath(method);
+            }
         }
 
         public override string RenderBaseTableHelper()

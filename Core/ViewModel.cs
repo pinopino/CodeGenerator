@@ -6,11 +6,6 @@ using System.Text;
 
 namespace Generator.Template
 {
-    public class KeyWordsEscape
-    {
-        public string Left;
-        public string Right;
-    }
     public class EnumInfo
     {
         public string EnumName;
@@ -25,7 +20,6 @@ namespace Generator.Template
         public GlobalConfiguration Config;
         public TableMetaData TableInfo;
         public EnumInfo EnumInfo;
-        public KeyWordsEscape KeyWordsEscape;
 
         public ViewInfoWapper(BaseGenerator generator)
         {
@@ -52,14 +46,29 @@ namespace Generator.Template
             return ((BaseDALGenerator)_generator).NormalizeFieldName(rawName);
         }
 
+        public string MakeMethodParam(params ColumnMetaData[] columns)
+        {
+            return ((BaseDALGenerator)_generator).MakeMethodParam(columns);
+        }
+
         public string MakeMethodParam(IEnumerable<ColumnMetaData> columns)
         {
             return ((BaseDALGenerator)_generator).MakeMethodParam(columns);
         }
 
+        public string MakeMethodParamComment(params ColumnMetaData[] columns)
+        {
+            return ((BaseDALGenerator)_generator).MakeMethodParamComment(columns);
+        }
+
         public string MakeMethodParamComment(IEnumerable<ColumnMetaData> columns)
         {
             return ((BaseDALGenerator)_generator).MakeMethodParamComment(columns);
+        }
+
+        public string MakeSQLParamList(params ColumnMetaData[] columns)
+        {
+            return MakeSQLParamList((IEnumerable<ColumnMetaData>)columns);
         }
 
         public string MakeSQLParamList(IEnumerable<ColumnMetaData> columns)
@@ -73,12 +82,22 @@ namespace Generator.Template
             return sb.TrimEnd(", ").ToString();
         }
 
+        public string MakeSQLParamValueList(params ColumnMetaData[] columns)
+        {
+            return MakeSQLParamValueList((IEnumerable<ColumnMetaData>)columns);
+        }
+
         public string MakeSQLParamValueList(IEnumerable<ColumnMetaData> columns)
         {
             var sb = new StringBuilder();
             foreach (var item in columns)
                 sb.Append($"@{item.Name}={item.Name}, ");
             return sb.TrimEnd(", ").ToString();
+        }
+
+        public string MakeSQLColumnList(params ColumnMetaData[] columns)
+        {
+            return MakeSQLColumnList((IEnumerable<ColumnMetaData>)columns);
         }
 
         public string MakeSQLColumnList(IEnumerable<ColumnMetaData> columns)
@@ -91,6 +110,11 @@ namespace Generator.Template
                     sb.Append(gen.NormalizeFieldName(item.Name));
             }
             return sb.TrimEnd(", ").ToString();
+        }
+
+        public string MakeSQLWhere(params ColumnMetaData[] columns)
+        {
+            return MakeSQLWhere((IEnumerable<ColumnMetaData>)columns);
         }
 
         public string MakeSQLWhere(IEnumerable<ColumnMetaData> columns)

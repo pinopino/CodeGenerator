@@ -16,10 +16,9 @@
             {
                 return Update(
 				    model: model, 
+					transaction: null, 
 				    predicate: null, 
 				    reverse: false, 
-				    conn: null, 
-				    transaction: null, 
 				    fields: fields);
             }
 
@@ -34,10 +33,9 @@
             {
                 return Update(
 				    model: model, 
+					transaction: null, 
 				    predicate: null, 
 				    reverse: reverse, 
-				    conn: null, 
-				    transaction: null, 
 				    fields: fields);
             }
 
@@ -48,14 +46,13 @@
 		    /// <param name="fields">需要更新的字段名字</param>
 		    /// <param name="reverse">反转给定的更新字段</param>
             /// <returns>是否成功，true为成功</returns>
-            public static bool Update(@(Model.TableInfo.Name) model, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+            public static bool Update(@(Model.TableInfo.Name) model, IDbTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
             {
                 return Update(
 				    model: model, 
+					transaction: transaction, 
 				    predicate: null, 
 				    reverse: false, 
-				    conn: conn, 
-				    transaction: transaction, 
 				    fields: fields);
             }
 
@@ -66,14 +63,13 @@
 		    /// <param name="fields">需要更新的字段名字</param>
 		    /// <param name="reverse">反转给定的更新字段</param>
             /// <returns>是否成功，true为成功</returns>
-            public static bool Update(@(Model.TableInfo.Name) model, bool reverse, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+            public static bool Update(@(Model.TableInfo.Name) model, IDbTransaction transaction, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
             {
                 return Update(
 				    model: model, 
+                    transaction: transaction, 
 				    predicate: null, 
 				    reverse: reverse, 
-				    conn: conn, 
-				    transaction: transaction, 
 				    fields: fields);
             }
 
@@ -88,10 +84,9 @@
             {
                 return Update(
 				    model: model, 
+                    transaction: null, 
 				    predicate: predicate, 
 				    reverse: false, 
-				    conn: null, 
-				    transaction: null, 
 				    fields: fields);
             }
 
@@ -106,10 +101,9 @@
             {
                 return Update(
 				    model: model, 
+                    transaction: null, 
 				    predicate: predicate, 
 				    reverse: reverse, 
-				    conn: null, 
-				    transaction: null, 
 				    fields: fields);
             }
 
@@ -120,13 +114,12 @@
 		    /// <param name="fields">需要更新的字段名字</param>
 		    /// <param name="reverse">反转给定的更新字段</param>
             /// <returns>是否成功，true为成功</returns>
-            public static bool Update(@(Model.TableInfo.Name) model, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, SqlConnection conn, SqlTransaction transaction, params @(Model.TableInfo.Name)Column[] fields)
+            public static bool Update(@(Model.TableInfo.Name) model, IDbTransaction transaction, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, params @(Model.TableInfo.Name)Column[] fields)
             {
                 return Update(
 				    model: model, 
+                    transaction: transaction, 
 				    predicate: predicate, 
 				    reverse: false, 
-				    conn: conn, 
-				    transaction: transaction, 
 				    fields: fields);
             }

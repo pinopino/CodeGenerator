@@ -30,16 +30,15 @@ namespace @Model.Config.DALConfig.Namespace
 
 			public string Table { private set; get; }
 
-			public bool IsAddEqual { private set; get; }
+			private bool _orderby;
+			public bool OrderBy { get { return this._orderby; } }
 
-			private bool _asc;
-			public string Asc { get { return this._asc ? "ASC" : "DESC"; } }
+			private string _direction;
+			public string Direction { get { return this._direction ?? "ASC"; } }
 
-			public @(Model.TableInfo.Name)Column SetAddEqual() { IsAddEqual ^= true; return this; }
+			public @(Model.TableInfo.Name)Column SetOrderByAsc() { this._orderby = true; this._direction = "ASC"; return this; }
 
-			public @(Model.TableInfo.Name)Column SetOrderByAsc() { this._asc = true; return this; }
-
-			public @(Model.TableInfo.Name)Column SetOrderByDesc() { this._asc = false; return this; }
+			public @(Model.TableInfo.Name)Column SetOrderByDesc() { this._orderby = true; this._direction = "DESC"; return this; }
 		}
 
 		public sealed class @(Model.TableInfo.Name)Table
