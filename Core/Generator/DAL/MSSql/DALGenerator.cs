@@ -11,6 +11,10 @@ namespace Generator.Core.MSSql
     {
         public override string FileName => throw new NotImplementedException();
 
+        public override string EscapeLeft => "[";
+
+        public override string EscapeRight => "]";
+
         public DALGenerator(GlobalConfiguration config)
             : base(config)
         { }

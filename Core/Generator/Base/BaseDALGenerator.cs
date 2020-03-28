@@ -11,6 +11,9 @@ namespace Generator.Core
     {
         private List<string> _keywords = new List<string> { "Type" };
 
+        public abstract string EscapeLeft { get; }
+        public abstract string EscapeRight { get; }
+
         public BaseDALGenerator(GlobalConfiguration config)
             : base(config)
         { }

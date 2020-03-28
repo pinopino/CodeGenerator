@@ -60,13 +60,14 @@ namespace Generator.Core.Config
                     "using System.Collections.Generic;",
                     "using System.Data;",
                     "using System.Linq;",
+                    "using System.Linq.Expressions;",
                     "using System.Text;"
                 };
             this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace};");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Metadata;");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Base;");
-            if (this.JoinedTables != null && this.JoinedTables.Count > 0)
-                this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace}.JoinedViewModel;");
+            //if (this.JoinedTables != null && this.JoinedTables.Count > 0)
+            //    this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace}.JoinedViewModel;");
         }
 
         /// <summary>

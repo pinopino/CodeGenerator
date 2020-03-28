@@ -47,7 +47,7 @@ public static bool Delete(Expression<Func<@Model.TableInfo.Name, bool>> predicat
 			
     var sql = new StringBuilder();
     sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");
-    if (!string.IsNullOrEmpty(where_str)))
+    if (!string.IsNullOrEmpty(where_str))
 	    sql.Append(" WHERE " + where_str);
     var ret = false;
     using (var conn = GetOpenConnection())

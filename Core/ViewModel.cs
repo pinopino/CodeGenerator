@@ -21,6 +21,9 @@ namespace Generator.Template
         public TableMetaData TableInfo;
         public EnumInfo EnumInfo;
 
+        public string EscapeLeft { get { return ((BaseDALGenerator)_generator).EscapeLeft; } }
+        public string EscapeRight { get { return ((BaseDALGenerator)_generator).EscapeRight; } }
+
         public ViewInfoWapper(BaseGenerator generator)
         {
             _generator = generator;
@@ -107,7 +110,7 @@ namespace Generator.Template
             foreach (var item in columns)
             {
                 if (!item.IsIdentity)
-                    sb.Append(gen.NormalizeFieldName(item.Name));
+                    sb.Append($"{gen.NormalizeFieldName(item.Name)}, ");
             }
             return sb.TrimEnd(", ").ToString();
         }

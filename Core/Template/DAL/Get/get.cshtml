@@ -13,7 +13,7 @@
 /// <returns>@(Model.TableInfo.Name)实体对象</returns>
 public static @(Model.TableInfo.Name) GetModel(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
 {
-    var sql = "SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name) WHERE @Model.MakeSQLWhere(Model.TableInfo.PrimaryKey)");
+    var sql = "SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name) WHERE @Model.MakeSQLWhere(Model.TableInfo.PrimaryKey)";
     @(Model.TableInfo.Name) ret = null;
     using (var conn = GetOpenConnection())
         ret = conn.QueryFirstOrDefault<@(Model.TableInfo.Name)>(sql, new { @Model.MakeSQLParamValueList(Model.TableInfo.PrimaryKey) });
@@ -58,7 +58,7 @@ public static List<@(Model.TableInfo.Name)> GetList(Expression<Func<@(Model.Tabl
     if (where_str != string.Empty)
 		sql.Append(" WHERE " + where_str);
 	if (orderBy != null && orderBy.Length > 0)
-        sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{p.Name} {p.Asc}")));
+        sql.Append(" ORDER BY " + string.Join(", ", orderBy.Select(p => $"{p.Name} {p.Direction}")));
 
 	List<@(Model.TableInfo.Name)> ret = null;
     using (var conn = GetOpenConnection())

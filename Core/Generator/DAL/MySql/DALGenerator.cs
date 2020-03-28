@@ -11,6 +11,10 @@ namespace Generator.Core.MySql
     {
         public override string FileName => throw new NotImplementedException();
 
+        public override string EscapeLeft => "`";
+
+        public override string EscapeRight => "`";
+
         public DALGenerator(GlobalConfiguration config)
             : base(config)
         { }

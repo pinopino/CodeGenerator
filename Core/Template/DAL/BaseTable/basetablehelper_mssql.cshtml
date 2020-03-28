@@ -1,5 +1,6 @@
 ﻿@using RazorLight
 @using Generator.Template;
+@using Generator.Common;
 @inherits TemplatePage<ViewInfoWapper>
 @{
     DisableEncoding = true;
@@ -46,7 +47,7 @@ namespace @(Model.Config.DALConfig.Namespace).Base
 #endif
             // 创建配置根对象
             var configurationRoot = builder.Build();
-            ConnectionString = configurationRoot.GetSection("ConnectionString").Value;
+            _connectionstring = configurationRoot.GetSection("ConnectionString").Value;
         }
 
         protected static IDbConnection GetOpenConnection()
@@ -58,23 +59,42 @@ namespace @(Model.Config.DALConfig.Namespace).Base
 
         protected static PageDataView<T> Paged<T>(
             string tableName,
-            string where,
             int currentPage,
             int pageSize,
+            string where,
             params IColumn[] columns)
         {
             var result = new PageDataView<T>();
             var count_sql = $"SELECT COUNT(1) FROM {tableName}";
-            if (!string.IsNullOrWhiteSpace(where))
+
+            var orderby_str = new StringBuilder();
+            var column_str = new StringBuilder();
+            for (var i = 0; i < columns.Length; i++)
             {
-                if (where.ToLower().Contains("where"))
+                var col = columns[i];
+                if (col.OrderBy)
                 {
-                    throw new ArgumentException("where子句不需要带where关键字");
+@{ }
+                    orderby_str.Append("@(Model.EscapeLeft)");
+                    orderby_str.Append(col.Name);
+                    orderby_str.Append("@(Model.EscapeRight) ");
+                    orderby_str.Append(col.Direction);
+                    orderby_str.Append(", ");
                 }
-                where = " WHERE " + where;
+                
+                column_str.Append("@(Model.EscapeLeft)");
+                column_str.Append(col.Name);
+                column_str.Append("@(Model.EscapeRight), ");
+
+                if (i == columns.Length - 1)
+                {
+                    column_str.Remove(column_str.Length - @(Model.EscapeRight.Length), @(Model.EscapeRight.Length));
+                    orderby_str.Remove(orderby_str.Length - @(Model.EscapeRight.Length), @(Model.EscapeRight.Length));
+                }
             }
 
-            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged ", columns, orderBy, tableName, where);
+            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged ", 
+                column_str.ToString(), orderby_str.ToString(), tableName, where);
             var pageStart = (currentPage - 1) * pageSize;
             sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
             count_sql += where;
@@ -98,8 +118,7 @@ namespace @(Model.Config.DALConfig.Namespace).Base
         private IList<T> _Items;
 
         public PageDataView()
-        {
-        }
+        { }
 
         public int TotalRecords
         {

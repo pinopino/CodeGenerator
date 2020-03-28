@@ -11,17 +11,17 @@
 /// </summary>
 /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
 /// <returns>新插入数据的id</returns>
-public static @(Model.TableInfo.PrimaryKey.DbType) Insert(@(Model.TableInfo.Name) model, IDbTransaction transaction = null)
+public static bool Insert(@(Model.TableInfo.Name) model, out @(Model.TableInfo.PrimaryKey.DbType) id, IDbTransaction transaction = null)
 {
     var sql = new StringBuilder();
     sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
     sql.Append(" OUTPUT INSERTED.[@(Model.TableInfo.PrimaryKey.Name)] ");
-    sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
-    var ret = 0;
+    sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+    
     using (var conn = GetOpenConnection())
-        ret = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey.DbType)>(sql.ToString(), model, transaction);
+        id = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey.DbType)>(sql.ToString(), model, transaction);
 
-    return ret;
+    return true;
 }
 
 @{ 无主键: }
@@ -34,7 +34,7 @@ public static bool Insert(@(Model.TableInfo.Name) model, IDbTransaction transact
 {
     var sql = new StringBuilder();
     sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
-    sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+    sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
     var ret = false;
     using (var conn = GetOpenConnection())
         ret = conn.Execute(sql.ToString(), model, transaction) > 0;
@@ -51,7 +51,7 @@ public static bool InsertMany(List<@(Model.TableInfo.Name)> models, IDbTransacti
 {
     var sql = new StringBuilder();
     sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
-    sql.Append("VALUES(@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+    sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
     var ret = false;
     using (var conn = GetOpenConnection())
         ret = conn.Execute(sql.ToString(), models, transaction) > 0;
