@@ -27,6 +27,14 @@ namespace Generator.Core
             return Render("DAL/dal_master.cshtml", model);
         }
 
+        public string RenderBaseTableHelper()
+        {
+            var model = new ViewInfoWapper(this);
+            model.Config = _config;
+
+            return Render("DAL/BaseTable/basetablehelper.cshtml", model);
+        }
+
         public virtual string GetPartialViewPath(string method)
         {
             switch (method.ToLower())
@@ -48,8 +56,6 @@ namespace Generator.Core
             throw new System.ArgumentException($"暂不支持生成{method}相关方法");
         }
 
-        public abstract string RenderBaseTableHelper();
-
         /// <summary>
         /// 生成的dapper查询时使用的表名
         /// </summary>
@@ -59,6 +65,8 @@ namespace Generator.Core
         /// 生成的dapper查询时使用的列名
         /// </summary>
         public abstract string NormalizeFieldName(string fieldName);
+
+        public abstract string MakeConnection();
 
         /// <summary>
         /// 生成的方法的参数列表

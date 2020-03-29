@@ -1,0 +1,659 @@
+﻿@using RazorLight
+@using Generator.Template;
+@using Generator.Common;
+@inherits TemplatePage<ViewInfoWapper>
+@{
+    DisableEncoding = true;
+}
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace @(Model.Config.DALConfig.Namespace).Base
+{
+    public interface IColumn
+    {
+        string Table { get; }
+        string Name { get; }
+        bool OrderBy { get; }
+        string Direction { get; }
+    }
+
+    public abstract class BaseTableHelper
+    {
+        private static string _connectionstring;
+        public static string ConnectionString { get { return _connectionstring; } }
+
+        private static IDbConnection _connection;
+
+        protected static IDbConnection connection => _connection ?? (_connection = GetOpenConnection());
+
+        static BaseTableHelper()
+        {
+            // 添加json配置文件路径
+#if DEBUG
+            var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.Development.json");
+#else
+            var builder = new ConfigurationBuilder().SetBasePath(System.AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json");
+#endif
+            // 创建配置根对象
+            var configurationRoot = builder.Build();
+            _connectionstring = configurationRoot.GetSection("ConnectionString").Value;
+        }
+
+        protected static IDbConnection GetOpenConnection()
+        {
+            var conn = @Model.MakeConnection();
+            conn.ConnectionString = _connectionstring;
+            conn.Open();
+            return conn;
+        }
+    }
+
+    public class PageDataView<T>
+    {
+        private int _totalRecords;
+        private IList<T> _Items;
+
+        public PageDataView()
+        { }
+
+        public int TotalRecords
+        {
+            get { return _totalRecords; }
+            set { _totalRecords = value; }
+        }
+        
+        public IList<T> Items
+        {
+            get { return _Items; }
+            set { _Items = value; }
+        }
+
+        public int CurrentPage { get; set; }
+        public int TotalPages { get; set; }
+    }
+
+    public class PredicateParser<TEntity>
+        where TEntity : class
+    {
+        public string Parse(Expression<Func<TEntity, bool>> predicate)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            var qLevel = 0;
+            var queryProperties = GetQueryProperties(predicate.Body);
+            var sqlBuilder = new StringBuilder("WHERE ");
+            BuildQuerySql(queryProperties, ref sqlBuilder, ref qLevel);
+
+            return sqlBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Build the final `query statement and parameters`
+        /// </summary>
+        /// <param name="queryProperties"></param>
+        /// <param name="sqlBuilder"></param>
+        /// <param name="conditions"></param>
+        /// <param name="qLevel">Parameters of the ranking</param>
+        /// <remarks>
+        /// Support `group conditions` syntax
+        /// </remarks>
+        private void BuildQuerySql(IList<QueryExpression> queryProperties, ref StringBuilder sqlBuilder, ref int qLevel)
+        {
+            foreach (var expr in queryProperties)
+            {
+                if (!string.IsNullOrEmpty(expr.LinkingOperator))
+                {
+                    if (sqlBuilder.Length > 0)
+                        sqlBuilder.Append(" ");
+
+                    sqlBuilder
+                        .Append(expr.LinkingOperator)
+                        .Append(" ");
+                }
+
+                switch (expr)
+                {
+                    case QueryParameterExpression qpExpr:
+                        if (qpExpr.PropertyValue == null)
+                        {
+                            sqlBuilder.AppendFormat("{0} {1} NULL", qpExpr.PropertyName, qpExpr.QueryOperator == "=" ? "IS" : "IS NOT");
+                        }
+                        else
+                        {
+                            sqlBuilder.AppendFormat("{0} {1}  {2}", qpExpr.PropertyName, qpExpr.QueryOperator, qpExpr.PropertyValue);
+                        }
+
+                        qLevel++;
+                        break;
+
+                    case QueryBinaryExpression qbExpr:
+                        var nSqlBuilder = new StringBuilder();
+                        var nConditions = new List<KeyValuePair<string, object>>();
+                        BuildQuerySql(qbExpr.Nodes, ref nSqlBuilder, ref qLevel);
+
+                        if (qbExpr.Nodes.Count == 1) //Handle `grouping brackets`
+                            sqlBuilder.Append(nSqlBuilder);
+                        else
+                            sqlBuilder.AppendFormat("({0})", nSqlBuilder);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get query properties
+        /// </summary>
+        /// <param name="expr">The expression.</param>
+        private List<QueryExpression> GetQueryProperties(Expression expr)
+        {
+            var queryNode = GetQueryProperties(expr, ExpressionType.Default);
+            switch (queryNode)
+            {
+                case QueryParameterExpression qpExpr:
+                    return new List<QueryExpression> { queryNode };
+
+                case QueryBinaryExpression qbExpr:
+                    return qbExpr.Nodes;
+
+                default:
+                    throw new NotSupportedException(queryNode.ToString());
+            }
+        }
+
+        /// <summary>
+        ///     Get query properties
+        /// </summary>
+        /// <param name="expr">The expression.</param>
+        /// <param name="linkingType">Type of the linking.</param>
+        private QueryExpression GetQueryProperties(Expression expr, ExpressionType linkingType)
+        {
+            var isNotUnary = false;
+            if (expr is UnaryExpression unaryExpression)
+            {
+                if (unaryExpression.NodeType == ExpressionType.Not && unaryExpression.Operand is MethodCallExpression)
+                {
+                    expr = unaryExpression.Operand;
+                    isNotUnary = true;
+                }
+            }
+
+            if (expr is MethodCallExpression methodCallExpression)
+            {
+                var methodName = methodCallExpression.Method.Name;
+                var exprObj = methodCallExpression.Object;
+            MethodLabel:
+                switch (methodName)
+                {
+                    case "Contains":
+                        {
+                            if (exprObj != null
+                                && exprObj.NodeType == ExpressionType.MemberAccess
+                                && exprObj.Type == typeof(string))
+                            {
+                                methodName = "StringContains";
+                                goto MethodLabel;
+                            }
+
+                            var propertyName = ExpressionHelper.GetPropertyNamePath(methodCallExpression, out var isNested);
+                            var propertyValue = ExpressionHelper.GetValuesFromCollection(methodCallExpression);
+                            var opr = ExpressionHelper.GetMethodCallSqlOperator(methodName, isNotUnary);
+                            var link = ExpressionHelper.GetSqlOperator(linkingType);
+                            return new QueryParameterExpression(link, propertyName, propertyValue, opr, isNested);
+                        }
+                    case "StringContains":
+                    case "StartsWith":
+                    case "EndsWith":
+                        {
+                            if (exprObj == null
+                                || exprObj.NodeType != ExpressionType.MemberAccess
+                                || exprObj.Type != typeof(string))
+                            {
+                                goto default;
+                            }
+
+                            var propertyName = ExpressionHelper.GetPropertyNamePath(exprObj, out bool isNested);
+                            var propertyValue = ExpressionHelper.GetValuesFromStringMethod(methodCallExpression);
+                            var likeValue = ExpressionHelper.GetSqlLikeValue(methodName, propertyValue);
+                            var opr = ExpressionHelper.GetMethodCallSqlOperator(methodName, isNotUnary);
+                            var link = ExpressionHelper.GetSqlOperator(linkingType);
+                            return new QueryParameterExpression(link, propertyName, likeValue, opr, isNested);
+                        }
+                    default:
+                        throw new NotSupportedException($"'{methodName}' method is not supported");
+                }
+            }
+
+            if (expr is BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType != ExpressionType.AndAlso && binaryExpression.NodeType != ExpressionType.OrElse)
+                {
+                    var propertyName = ExpressionHelper.GetPropertyNamePath(binaryExpression, out var isNested);
+                    var propertyValue = ExpressionHelper.GetValue(binaryExpression.Right);
+                    var opr = ExpressionHelper.GetSqlOperator(binaryExpression.NodeType);
+                    var link = ExpressionHelper.GetSqlOperator(linkingType);
+
+                    return new QueryParameterExpression(link, propertyName, propertyValue, opr, isNested);
+                }
+
+                var leftExpr = GetQueryProperties(binaryExpression.Left, ExpressionType.Default);
+                var rightExpr = GetQueryProperties(binaryExpression.Right, binaryExpression.NodeType);
+
+                switch (leftExpr)
+                {
+                    case QueryParameterExpression lQPExpr:
+                        if (!string.IsNullOrEmpty(lQPExpr.LinkingOperator) && !string.IsNullOrEmpty(rightExpr.LinkingOperator)) // AND a AND B
+                        {
+                            switch (rightExpr)
+                            {
+                                case QueryBinaryExpression rQBExpr:
+                                    if (lQPExpr.LinkingOperator == rQBExpr.Nodes.Last().LinkingOperator) // AND a AND (c AND d)
+                                    {
+                                        var nodes = new QueryBinaryExpression
+                                        {
+                                            LinkingOperator = leftExpr.LinkingOperator,
+                                            Nodes = new List<QueryExpression> { leftExpr }
+                                        };
+
+                                        rQBExpr.Nodes[0].LinkingOperator = rQBExpr.LinkingOperator;
+                                        nodes.Nodes.AddRange(rQBExpr.Nodes);
+
+                                        leftExpr = nodes;
+                                        rightExpr = null;
+                                        // AND a AND (c AND d) => (AND a AND c AND d)
+                                    }
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case QueryBinaryExpression lQBExpr:
+                        switch (rightExpr)
+                        {
+                            case QueryParameterExpression rQPExpr:
+                                if (rQPExpr.LinkingOperator == lQBExpr.Nodes.Last().LinkingOperator)    //(a AND b) AND c
+                                {
+                                    lQBExpr.Nodes.Add(rQPExpr);
+                                    rightExpr = null;
+                                    //(a AND b) AND c => (a AND b AND c)
+                                }
+                                break;
+
+                            case QueryBinaryExpression rQBExpr:
+                                if (lQBExpr.Nodes.Last().LinkingOperator == rQBExpr.LinkingOperator) // (a AND b) AND (c AND d)
+                                {
+                                    if (rQBExpr.LinkingOperator == rQBExpr.Nodes.Last().LinkingOperator)   // AND (c AND d)
+                                    {
+                                        rQBExpr.Nodes[0].LinkingOperator = rQBExpr.LinkingOperator;
+                                        lQBExpr.Nodes.AddRange(rQBExpr.Nodes);
+                                        // (a AND b) AND (c AND d) =>  (a AND b AND c AND d)
+                                    }
+                                    else
+                                    {
+                                        lQBExpr.Nodes.Add(rQBExpr);
+                                        // (a AND b) AND (c OR d) =>  (a AND b AND (c OR d))
+                                    }
+                                    rightExpr = null;
+                                }
+                                break;
+                        }
+                        break;
+                }
+
+                var nLinkingOperator = ExpressionHelper.GetSqlOperator(linkingType);
+                if (rightExpr == null)
+                {
+                    leftExpr.LinkingOperator = nLinkingOperator;
+                    return leftExpr;
+                }
+
+                return new QueryBinaryExpression
+                {
+                    NodeType = QueryExpressionType.Binary,
+                    LinkingOperator = nLinkingOperator,
+                    Nodes = new List<QueryExpression> { leftExpr, rightExpr },
+                };
+            }
+
+            return GetQueryProperties(ExpressionHelper.GetBinaryExpression(expr), linkingType);
+        }
+    }
+
+    /// <inheritdoc />
+    /// <summary>
+    /// `Binary` Query Expression
+    /// </summary>
+    internal class QueryBinaryExpression : QueryExpression
+    {
+        public QueryBinaryExpression()
+        {
+            NodeType = QueryExpressionType.Binary;
+        }
+
+        public List<QueryExpression> Nodes { get; set; }
+
+        public override string ToString()
+        {
+            return $"[{base.ToString()} ({string.Join(",", Nodes)})]";
+        }
+    }
+
+    /// <summary>
+    /// Abstract Query Expression
+    /// </summary>
+    internal abstract class QueryExpression
+    {
+        /// <summary>
+        /// Query Expression Node Type
+        /// </summary>
+        public QueryExpressionType NodeType { get; set; }
+
+        /// <summary>
+        /// Operator OR/AND
+        /// </summary>
+        public string LinkingOperator { get; set; }
+
+        public override string ToString()
+        {
+            return $"[NodeType:{this.NodeType}, LinkingOperator:{LinkingOperator}]";
+        }
+    }
+
+    /// <inheritdoc />
+    /// <summary>
+    /// Class that models the data structure in coverting the expression tree into SQL and Params.
+    /// `Parameter` Query Expression
+    /// </summary>
+    internal class QueryParameterExpression : QueryExpression
+    {
+        public QueryParameterExpression()
+        {
+            NodeType = QueryExpressionType.Parameter;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="QueryParameterExpression " /> class.
+        /// </summary>
+        /// <param name="linkingOperator">The linking operator.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="propertyValue">The property value.</param>
+        /// <param name="queryOperator">The query operator.</param>
+        /// <param name="nestedProperty">Signilize if it is nested property.</param>
+        internal QueryParameterExpression(string linkingOperator,
+            string propertyName, object propertyValue,
+            string queryOperator, bool nestedProperty) : this()
+        {
+            LinkingOperator = linkingOperator;
+            PropertyName = propertyName;
+            PropertyValue = propertyValue;
+            QueryOperator = queryOperator;
+            NestedProperty = nestedProperty;
+        }
+
+        public string PropertyName { get; set; }
+        public object PropertyValue { get; set; }
+        public string QueryOperator { get; set; }
+        public bool NestedProperty { get; set; }
+
+        public override string ToString()
+        {
+            return
+                $"[{base.ToString()}, PropertyName:{PropertyName}, PropertyValue:{PropertyValue}, QueryOperator:{QueryOperator}, NestedProperty:{NestedProperty}]";
+        }
+    }
+
+    internal static class ExpressionHelper
+    {
+        public static string GetPropertyName<TSource, TField>(Expression<Func<TSource, TField>> field)
+        {
+            if (Equals(field, null))
+                throw new ArgumentNullException(nameof(field), "field can't be null");
+
+            MemberExpression expr;
+
+            switch (field.Body)
+            {
+                case MemberExpression body:
+                    expr = body;
+                    break;
+
+                case UnaryExpression expression:
+                    expr = (MemberExpression)expression.Operand;
+                    break;
+
+                default:
+                    throw new ArgumentException("Expression field isn't supported", nameof(field));
+            }
+
+            return expr.Member.Name;
+        }
+
+        public static object GetValue(Expression member)
+        {
+            var objectMember = Expression.Convert(member, typeof(object));
+            var getterLambda = Expression.Lambda<Func<object>>(objectMember);
+            var getter = getterLambda.Compile();
+            return getter();
+        }
+
+        public static string GetSqlOperator(ExpressionType type)
+        {
+            switch (type)
+            {
+                case ExpressionType.Equal:
+                case ExpressionType.Not:
+                case ExpressionType.MemberAccess:
+                    return "=";
+
+                case ExpressionType.NotEqual:
+                    return "!=";
+
+                case ExpressionType.LessThan:
+                    return "<";
+
+                case ExpressionType.LessThanOrEqual:
+                    return "<=";
+
+                case ExpressionType.GreaterThan:
+                    return ">";
+
+                case ExpressionType.GreaterThanOrEqual:
+                    return ">=";
+
+                case ExpressionType.AndAlso:
+                case ExpressionType.And:
+                    return "AND";
+
+                case ExpressionType.Or:
+                case ExpressionType.OrElse:
+                    return "OR";
+
+                case ExpressionType.Default:
+                    return string.Empty;
+
+                default:
+                    throw new NotSupportedException(type + " isn't supported");
+            }
+        }
+
+        public static string GetSqlLikeValue(string methodName, object value)
+        {
+            if (value == null)
+                value = string.Empty;
+
+            switch (methodName)
+            {
+                case "StartsWith":
+                    return string.Format("{0}%", value);
+
+                case "EndsWith":
+                    return string.Format("%{0}", value);
+
+                case "StringContains":
+                    return string.Format("%{0}%", value);
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public static string GetMethodCallSqlOperator(string methodName, bool isNotUnary = false)
+        {
+            switch (methodName)
+            {
+                case "StartsWith":
+                case "EndsWith":
+                case "StringContains":
+                    return isNotUnary ? "NOT LIKE" : "LIKE";
+
+                case "Contains":
+                    return isNotUnary ? "NOT IN" : "IN";
+
+                case "Any":
+                case "All":
+                    return methodName.ToUpperInvariant();
+
+                default:
+                    throw new NotSupportedException(methodName + " isn't supported");
+            }
+        }
+
+        public static BinaryExpression GetBinaryExpression(Expression expression)
+        {
+            var binaryExpression = expression as BinaryExpression;
+            var body = binaryExpression ?? Expression.MakeBinary(ExpressionType.Equal, expression,
+                expression.NodeType == ExpressionType.Not ? Expression.Constant(false) : Expression.Constant(true));
+            return body;
+        }
+
+        public static object GetValuesFromStringMethod(MethodCallExpression callExpr)
+        {
+            var expr = callExpr.Method.IsStatic ? callExpr.Arguments[1] : callExpr.Arguments[0];
+
+            return GetValue(expr);
+        }
+
+        public static object GetValuesFromCollection(MethodCallExpression callExpr)
+        {
+            var expr = (callExpr.Method.IsStatic ? callExpr.Arguments.First() : callExpr.Object)
+                            as MemberExpression;
+
+            if (!(expr?.Expression is ConstantExpression))
+                throw new NotSupportedException(callExpr.Method.Name + " isn't supported");
+
+            var constExpr = (ConstantExpression)expr.Expression;
+
+            var constExprType = constExpr.Value.GetType();
+            return constExprType.GetField(expr.Member.Name).GetValue(constExpr.Value);
+        }
+
+        public static MemberExpression GetMemberExpression(Expression expression)
+        {
+            switch (expression)
+            {
+                case MethodCallExpression expr:
+                    if (expr.Method.IsStatic)
+                        return (MemberExpression)expr.Arguments.Last(x => x.NodeType == ExpressionType.MemberAccess);
+                    else
+                        return (MemberExpression)expr.Arguments[0];
+
+                case MemberExpression memberExpression:
+                    return memberExpression;
+
+                case UnaryExpression unaryExpression:
+                    return (MemberExpression)unaryExpression.Operand;
+
+                case BinaryExpression binaryExpression:
+                    var binaryExpr = binaryExpression;
+
+                    if (binaryExpr.Left is UnaryExpression left)
+                        return (MemberExpression)left.Operand;
+
+                    //should we take care if right operation is memberaccess, not left?
+                    return (MemberExpression)binaryExpr.Left;
+
+                case LambdaExpression lambdaExpression:
+
+                    switch (lambdaExpression.Body)
+                    {
+                        case MemberExpression body:
+                            return body;
+
+                        case UnaryExpression expressionBody:
+                            return (MemberExpression)expressionBody.Operand;
+                    }
+
+                    break;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the name of the property.
+        /// </summary>
+        /// <param name="expr">The Expression.</param>
+        /// <param name="nested">Out. Is nested property.</param>
+        /// <returns>The property name for the property expression.</returns>
+        public static string GetPropertyNamePath(Expression expr, out bool nested)
+        {
+            var path = new StringBuilder();
+            var memberExpression = GetMemberExpression(expr);
+            var count = 0;
+            do
+            {
+                count++;
+                if (path.Length > 0)
+                    path.Insert(0, "");
+                path.Insert(0, memberExpression.Member.Name);
+                memberExpression = GetMemberExpression(memberExpression.Expression);
+            } while (memberExpression != null);
+
+            if (count > 2)
+                throw new ArgumentException("Only one degree of nesting is supported");
+
+            nested = count == 2;
+
+            return path.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Query Expression Node Type
+    /// </summary>
+    internal enum QueryExpressionType
+    {
+        Parameter = 0,
+        Binary = 1,
+    }
+
+    internal static class CollectionExtensions
+    {
+        /// <summary>
+        ///     AddRange ICollection
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="addCollection"></param>
+        public static void AddRange<TInput>(this ICollection<TInput> collection, IEnumerable<TInput> addCollection)
+        {
+            if (collection == null || addCollection == null)
+                return;
+
+            foreach (var item in addCollection)
+            {
+                collection.Add(item);
+            }
+        }
+    }
+}

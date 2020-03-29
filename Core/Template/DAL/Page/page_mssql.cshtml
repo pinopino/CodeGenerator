@@ -57,3 +57,55 @@
 			            where_str,
 			            columns);
         }
+
+        private static PageDataView<@Model.TableInfo.Name> Paged<@Model.TableInfo.Name>(
+            string tableName,
+            int currentPage,
+            int pageSize,
+            string where,
+            params IColumn[] columns)
+        {
+            var result = new PageDataView<@Model.TableInfo.Name>();
+            var count_sql = $"SELECT COUNT(1) FROM @Model.TableInfo.Name";
+
+            var orderby_str = new StringBuilder();
+            var column_str = new StringBuilder();
+            for (var i = 0; i < columns.Length; i++)
+            {
+                var col = columns[i];
+                if (col.OrderBy)
+                {
+                    orderby_str.Append("[");
+                    orderby_str.Append(col.Name);
+                    orderby_str.Append("] ");
+                    orderby_str.Append(col.Direction);
+                    orderby_str.Append(", ");
+                }
+                column_str.Append("[");
+                column_str.Append(col.Name);
+                column_str.Append("], ");
+
+                if (i == columns.Length - 1)
+                {
+                    column_str.Remove(column_str.Length - 3, 3);
+                    orderby_str.Remove(orderby_str.Length - 3, 3);
+                }
+            }
+
+            var sql = string.Format("SELECT {0} FROM (SELECT ROW_NUMBER() OVER (ORDER BY {1}) AS Row, {0} FROM {2} {3}) AS Paged ", 
+                column_str.ToString(), orderby_str.ToString(), tableName, where);
+            var pageStart = (currentPage - 1) * pageSize;
+            sql += string.Format(" WHERE Row >{0} AND Row <={1}", pageStart, pageStart + pageSize);
+            count_sql += where;
+            using (var conn = GetOpenConnection())
+            {
+                result.TotalRecords = conn.ExecuteScalar<int>(count_sql);
+                result.TotalPages = result.TotalRecords / pageSize;
+                if (result.TotalRecords % pageSize > 0)
+                    result.TotalPages += 1;
+                var list = conn.Query<@Model.TableInfo.Name>(sql);
+                result.Items = list.Count() == 0 ? (new List<@Model.TableInfo.Name>()) : list.ToList();
+            }
+
+            return result;
+        }

@@ -49,6 +49,11 @@ namespace Generator.Template
             return ((BaseDALGenerator)_generator).NormalizeFieldName(rawName);
         }
 
+        public string MakeConnection()
+        {
+            return ((BaseDALGenerator)_generator).MakeConnection();
+        }
+
         public string MakeMethodParam(params ColumnMetaData[] columns)
         {
             return ((BaseDALGenerator)_generator).MakeMethodParam(columns);

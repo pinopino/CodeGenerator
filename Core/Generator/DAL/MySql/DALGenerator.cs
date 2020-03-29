@@ -32,14 +32,6 @@ namespace Generator.Core.MySql
             }
         }
 
-        public override string RenderBaseTableHelper()
-        {
-            var model = new ViewInfoWapper(this);
-            model.Config = _config;
-
-            return Render("DAL/BaseTable/basetablehelper_mysql.cshtml", model);
-        }
-
         public override string NormalizeTableName(string tableName)
         {
             return $"`{tableName}`";
@@ -48,6 +40,11 @@ namespace Generator.Core.MySql
         public override string NormalizeFieldName(string fieldName)
         {
             return $"`{fieldName}`";
+        }
+
+        public override string MakeConnection()
+        {
+            throw new NotImplementedException();
         }
     }
 }
