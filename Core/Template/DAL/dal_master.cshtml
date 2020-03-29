@@ -53,32 +53,31 @@ namespace @Model.Config.DALConfig.Namespace
     }
 
 @* 输出类信息 *@
-@("public partial class ".Indent(8) + Model.Config.DALConfig.ClassPrefix +
+@("public partial class ".Indent() + Model.Config.DALConfig.ClassPrefix +
                             Model.TableInfo.Name +
                             Model.Config.DALConfig.ClassSuffix +
                             (string.IsNullOrWhiteSpace(Model.Config.DALConfig.BaseClass) ? string.Empty : (" : " + Model.Config.DALConfig.BaseClass)))
-        {
-		    public static readonly @(Model.TableInfo.Name)Table Table = new @(Model.TableInfo.Name)Table("@(Model.TableInfo.Name)");
+    {
+		public static readonly @(Model.TableInfo.Name)Table Table = new @(Model.TableInfo.Name)Table("@(Model.TableInfo.Name)");
 
-		    public sealed class Columns
-		    {
-                @foreach(var column in @Model.TableInfo.Columns)
-                {
-                    @("public static readonly ".Indent(16) + Model.TableInfo.Name + "Column " + column.Name + " = new " + Model.TableInfo.Name + "Column(\"" + Model.TableInfo.Name + "\", \"" + column.Name + "\");".NewLine());
-                }
-			    public static readonly List<@(Model.TableInfo.Name)Column> All = new List<@(Model.TableInfo.Name)Column> { @string.Join(", ", @Model.TableInfo.Columns.Select(p=>p.Name).ToArray()) };
-		    }
-
-            @* 输出类的方法 *@
-            @foreach (var item in Model.Config.DALConfig.Methods)
+		public sealed class Columns
+		{
+            @foreach(var column in @Model.TableInfo.Columns)
             {
-                var templateLocal = Model.GetPartialViewPath(item.Name);
-                if (string.IsNullOrEmpty(templateLocal))
-                {
-                    continue;
-                }
-                await IncludeAsync(templateLocal, Model);
+                @("public static readonly ".Indent(12) + Model.TableInfo.Name + "Column " + column.Name + " = new " + Model.TableInfo.Name + "Column(\"" + Model.TableInfo.Name + "\", \"" + column.Name + "\");".NewLine());
             }
+			public static readonly List<@(Model.TableInfo.Name)Column> All = new List<@(Model.TableInfo.Name)Column> { @string.Join(", ", @Model.TableInfo.Columns.Select(p=>p.Name).ToArray()) };
+		}
+        @* 输出类的方法 *@
+        @foreach (var item in Model.Config.DALConfig.Methods)
+        {
+            var templateLocal = Model.GetPartialViewPath(item.Name);
+            if (string.IsNullOrEmpty(templateLocal))
+            {
+                continue;
+            }
+            await IncludeAsync(templateLocal, Model);
+        }
 
     }
 }

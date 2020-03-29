@@ -5,56 +5,55 @@
     DisableEncoding = true;
 }
 
-
-            /// <summary>
-            /// 获取记录总数
-            /// </summary>
-            public static int GetCount(Expression<Func<@Model.TableInfo.Name, bool>> predicate = null)
-            {
-	            var where_str = string.Empty;
-	            if (predicate != null)
-	            {
-		            var parser = new PredicateParser();
-		            where_str = parser.Parse(predicate);
-                }
-
-                var sql = new StringBuilder();
-                sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
-                if (where_str != string.Empty)
-                    sql.Append(" WHERE " + where_str);
-
-                var ret = -1;
-                using (var conn = GetOpenConnection())
-                    ret = conn.ExecuteScalar<int>(sql.ToString());
-
-                return ret;
+        /// <summary>
+        /// 获取记录总数
+        /// </summary>
+        public static int GetCount(Expression<Func<@Model.TableInfo.Name, bool>> predicate = null)
+        {
+	        var where_str = string.Empty;
+	        if (predicate != null)
+	        {
+		        var parser = new PredicateParser();
+		        where_str = parser.Parse(predicate);
             }
 
-            /// <summary>
-            /// 分页获取数据列表
-            /// </summary>
-            public static PageDataView<@Model.TableInfo.Name>GetPage(int currentPage, int pageSize, params @(Model.TableInfo.Name)Column[] columns)
-            {
-	            return Paged<@Model.TableInfo.Name>(
-			            "@Model.MakeTableName(Model.TableInfo.Name)",
+            var sql = new StringBuilder();
+            sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
+            if (where_str != string.Empty)
+                sql.Append(" WHERE " + where_str);
+
+            var ret = -1;
+            using (var conn = GetOpenConnection())
+                ret = conn.ExecuteScalar<int>(sql.ToString());
+
+            return ret;
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public static PageDataView<@Model.TableInfo.Name>GetPage(int currentPage, int pageSize, params @(Model.TableInfo.Name)Column[] columns)
+        {
+	        return Paged<@Model.TableInfo.Name>(
+			        "@Model.MakeTableName(Model.TableInfo.Name)",
+                    currentPage, 
+                    pageSize, 
+			        string.Empty,
+			        columns);
+        }
+
+        /// <summary>
+        /// 分页获取数据列表
+        /// </summary>
+        public static PageDataView<@Model.TableInfo.Name> GetPage(Expression<Func<@Model.TableInfo.Name, bool>> predicate, int currentPage, int pageSize, params @(Model.TableInfo.Name)Column[] columns)
+        {
+            var parser = new PredicateParser();
+	        var where_str = parser.Parse(predicate);
+
+	        return Paged<@Model.TableInfo.Name>(
+                        "@Model.MakeTableName(Model.TableInfo.Name)",
                         currentPage, 
                         pageSize, 
-			            string.Empty,
+			            where_str,
 			            columns);
-            }
-
-            /// <summary>
-            /// 分页获取数据列表
-            /// </summary>
-            public static PageDataView<@Model.TableInfo.Name> GetPage(Expression<Func<@Model.TableInfo.Name, bool>> predicate, int currentPage, int pageSize, params @(Model.TableInfo.Name)Column[] columns)
-            {
-                var parser = new PredicateParser();
-	            var where_str = parser.Parse(predicate);
-
-	            return Paged<@Model.TableInfo.Name>(
-                            "@Model.MakeTableName(Model.TableInfo.Name)",
-                            currentPage, 
-                            pageSize, 
-			                where_str,
-			                columns);
-            }
+        }

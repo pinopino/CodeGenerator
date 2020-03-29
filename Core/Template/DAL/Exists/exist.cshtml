@@ -5,38 +5,38 @@
     DisableEncoding = true;
 }
 
-@if (Model.TableInfo.PrimaryKey == null) { goto 无主键; }
-/// <summary>
-/// 是否存在指定的@(Model.TableInfo.Name)数据记录
-/// </summary>
-@Model.MakeMethodParamComment(Model.TableInfo.PrimaryKey)
-/// <returns>是否存在，true为存在</returns>
-public static bool Exists(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
-{
-    var sql = "SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name) WHERE @Model.MakeSQLWhere(Model.TableInfo.PrimaryKey)";
-    var ret = false;
-    using (var conn = GetOpenConnection())
-		ret = conn.ExecuteScalar<int>(sql, new { @Model.MakeSQLParamValueList(Model.TableInfo.PrimaryKey) }) > 0;
+        @if (Model.TableInfo.PrimaryKey == null) { goto 无主键; }
+        /// <summary>
+        /// 是否存在指定的@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        @Model.MakeMethodParamComment(Model.TableInfo.PrimaryKey)
+        /// <returns>是否存在，true为存在</returns>
+        public static bool Exists(@Model.MakeMethodParam(Model.TableInfo.PrimaryKey))
+        {
+            var sql = "SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name) WHERE @Model.MakeSQLWhere(Model.TableInfo.PrimaryKey)";
+            var ret = false;
+            using (var conn = GetOpenConnection())
+		        ret = conn.ExecuteScalar<int>(sql, new { @Model.MakeSQLParamValueList(Model.TableInfo.PrimaryKey) }) > 0;
 	
-    return ret;
-}
+            return ret;
+        }
 
-@{ 无主键: }
-/// <summary>
-/// 是否存在指定的@(Model.TableInfo.Name)实体对象
-/// </summary>
-public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
-{
-	var parser = new PredicateParser();
-    var where_str = parser.Parse(predicate);
+        @{ 无主键: }
+        /// <summary>
+        /// 是否存在指定的@(Model.TableInfo.Name)实体对象
+        /// </summary>
+        public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
+        {
+	        var parser = new PredicateParser();
+            var where_str = parser.Parse(predicate);
 
-    var sql = new StringBuilder();
-    sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
-    if (!string.IsNullOrEmpty(where_str))
-		sql.Append(" WHERE " + where_str);
-    var ret = false;
-    using (var conn = GetOpenConnection())
-        ret = conn.ExecuteScalar<int>(sql.ToString()) > 0;
+            var sql = new StringBuilder();
+            sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");
+            if (!string.IsNullOrEmpty(where_str))
+		        sql.Append(" WHERE " + where_str);
+            var ret = false;
+            using (var conn = GetOpenConnection())
+                ret = conn.ExecuteScalar<int>(sql.ToString()) > 0;
 
-    return ret;
-}
+            return ret;
+        }

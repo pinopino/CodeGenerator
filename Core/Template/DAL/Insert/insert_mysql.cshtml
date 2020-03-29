@@ -5,56 +5,56 @@
     DisableEncoding = true;
 }
 
-@if (Model.TableInfo.PrimaryKey == null) { goto 无主键; }
-/// <summary>
-/// 添加新@(Model.TableInfo.Name)记录
-/// </summary>
-/// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-/// <returns>新插入数据的id</returns>
-public static bool Insert(@(Model.TableInfo.Name) model, out @(Model.TableInfo.PrimaryKey.DbType) id, IDbTransaction transaction = null)
-{
-    var sql = new StringBuilder();
-    sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
-    sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
-    sql.Append("SELECT LAST_INSERT_ID();");
+        @if (Model.TableInfo.PrimaryKey == null) { goto 无主键; }
+        /// <summary>
+        /// 添加新@(Model.TableInfo.Name)记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <returns>新插入数据的id</returns>
+        public static bool Insert(@(Model.TableInfo.Name) model, out @(Model.TableInfo.PrimaryKey.DbType) id, IDbTransaction transaction = null)
+        {
+            var sql = new StringBuilder();
+            sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
+            sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+            sql.Append("SELECT LAST_INSERT_ID();");
 
-    using (var conn = GetOpenConnection())
-        id = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey.DbType)>(sql.ToString(), model, transaction);
+            using (var conn = GetOpenConnection())
+                id = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey.DbType)>(sql.ToString(), model, transaction);
 
-    return true;
-}
+            return true;
+        }
 
-@{ 无主键: }
-/// <summary>
-/// 添加新@(Model.TableInfo.Name)记录
-/// </summary>
-/// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-/// <returns>是否插入成功，true为成功</returns>
-public static bool Insert(@(Model.TableInfo.Name) model, IDbTransaction transaction = null)
-{
-    var sql = new StringBuilder();
-    sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
-    sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
-    var ret = false;
-    using (var conn = GetOpenConnection())
-        ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+        @{ 无主键: }
+        /// <summary>
+        /// 添加新@(Model.TableInfo.Name)记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <returns>是否插入成功，true为成功</returns>
+        public static bool Insert(@(Model.TableInfo.Name) model, IDbTransaction transaction = null)
+        {
+            var sql = new StringBuilder();
+            sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
+            sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+            var ret = false;
+            using (var conn = GetOpenConnection())
+                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
 
-    return ret;
-}
+            return ret;
+        }
 
-/// <summary>
-/// 批量插入@(Model.TableInfo.Name)记录
-/// </summary>
-/// <param name="model">List<@(Model.TableInfo.Name)>实体对象</param>
-/// <returns>是否插入成功，true为成功</returns>
-public static bool InsertMany(List<@(Model.TableInfo.Name)> models, IDbTransaction transaction = null)
-{
-    var sql = new StringBuilder();
-    sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
-    sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
-    var ret = false;
-    using (var conn = GetOpenConnection())
-        ret = conn.Execute(sql.ToString(), models, transaction) > 0;
+        /// <summary>
+        /// 批量插入@(Model.TableInfo.Name)记录
+        /// </summary>
+        /// <param name="model">List<@(Model.TableInfo.Name)>实体对象</param>
+        /// <returns>是否插入成功，true为成功</returns>
+        public static bool InsertMany(List<@(Model.TableInfo.Name)> models, IDbTransaction transaction = null)
+        {
+            var sql = new StringBuilder();
+            sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
+            sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+            var ret = false;
+            using (var conn = GetOpenConnection())
+                ret = conn.Execute(sql.ToString(), models, transaction) > 0;
 
-    return ret;
-}
+            return ret;
+        }

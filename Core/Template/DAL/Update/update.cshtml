@@ -6,43 +6,42 @@
     DisableEncoding = true;
 }
 
-/// <summary>
-/// 更新@(Model.TableInfo.Name)数据记录
-/// </summary>
-/// <param name="model">@(Model.TableInfo.Name)实体对象</param>
-/// <param name="fields">需要更新的字段名字</param>
-/// <param name="reverse">反转给定的更新字段</param>
-/// <returns>是否成功，true为成功</returns>
-public static bool Update(@(Model.TableInfo.Name) model, IDbTransaction transaction, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
-{
-    var parser = new PredicateParser();
-	var where_str = parser.Parse(predicate);
-
-    var sql = new StringBuilder();
-    sql.Append("UPDATE @(Model.MakeTableName(Model.TableInfo.Name))");
-    if (fields == null || fields.Length == 0)
-    {
-        sql.Append(" SET @(Model.MakeSQLParamValueList(Model.TableInfo.Columns.Where(p => !p.IsIdentity && !Model.IsUpdateExcludeColumn(p))))");
-    }
-    else
-    {
-        if (reverse == true)
-            fields = (@(Model.TableInfo.Name)Column[])Columns.All.Except(fields);
-        
-        sql.Append(" SET ");
-        for (int i = 0; i < fields.Length; i++)
+        /// <summary>
+        /// 更新@(Model.TableInfo.Name)数据记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <param name="fields">需要更新的字段名字</param>
+        /// <param name="reverse">反转给定的更新字段</param>
+        /// <returns>是否成功，true为成功</returns>
+        public static bool Update(@(Model.TableInfo.Name) model, IDbTransaction transaction, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
         {
-            sql.Append(fields[i].Name + "= @@" + fields[i].Name);
-            if (i != fields.Length - 1)
-                sql.Append(",");
+            var parser = new PredicateParser();
+	        var where_str = parser.Parse(predicate);
+
+            var sql = new StringBuilder();
+            sql.Append("UPDATE @(Model.MakeTableName(Model.TableInfo.Name))");
+            if (fields == null || fields.Length == 0)
+            {
+                sql.Append(" SET @(Model.MakeSQLParamValueList(Model.TableInfo.Columns.Where(p => !p.IsIdentity && !Model.IsUpdateExcludeColumn(p))))");
+            }
+            else
+            {
+                if (reverse == true)
+                    fields = (@(Model.TableInfo.Name)Column[])Columns.All.Except(fields);
+        
+                sql.Append(" SET ");
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    sql.Append(fields[i].Name + "= @@" + fields[i].Name);
+                    if (i != fields.Length - 1)
+                        sql.Append(",");
+                }
+            }
+            sql.Append(" WHERE " + where_str);
+            var ret = false;
+            using (var conn = GetOpenConnection())
+                ret = conn.Execute(sql.ToString(), model, transaction) > 0;
+
+            return ret;
         }
-    }
-    sql.Append(" WHERE " + where_str);
-    var ret = false;
-    using (var conn = GetOpenConnection())
-        ret = conn.Execute(sql.ToString(), model, transaction) > 0;
-
-    return ret;
-}
-
-@(Model.Render("DAL/Update/update_partial.cshtml", Model))
+        @(Model.Render("DAL/Update/update_partial.cshtml", Model))
