@@ -83,16 +83,15 @@ namespace @(Model.Config.DALConfig.Namespace).Base
         public int TotalPages { get; set; }
     }
 
-    public class PredicateParser<TEntity>
-        where TEntity : class
+    public class PredicateParser
     {
-        public string Parse(Expression<Func<TEntity, bool>> predicate)
+        public string Parse(Expression predicate)
         {
             if (predicate == null)
                 throw new ArgumentNullException(nameof(predicate));
 
             var qLevel = 0;
-            var queryProperties = GetQueryProperties(predicate.Body);
+            var queryProperties = GetQueryProperties(predicate);
             var sqlBuilder = new StringBuilder("WHERE ");
             BuildQuerySql(queryProperties, ref sqlBuilder, ref qLevel);
 

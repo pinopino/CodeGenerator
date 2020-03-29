@@ -28,7 +28,7 @@
         public static @(Model.TableInfo.Name) GetModel(Expression<Func<@(Model.TableInfo.Name), bool>> predicate)
         {
 	        var parser = new PredicateParser();
-            var where_str = parser.Parse(predicate);
+            var where_str = parser.Parse(predicate.Body);
 			
             var sql = new StringBuilder();
             sql.Append("SELECT * FROM @Model.MakeTableName(Model.TableInfo.Name)");
@@ -50,7 +50,7 @@
 	        if (predicate != null)
 	        {
 		        var parser = new PredicateParser();
-		        where_str = parser.Parse(predicate);
+		        where_str = parser.Parse(predicate.Body);
 	        }
 
             var sql = new StringBuilder();

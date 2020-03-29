@@ -28,7 +28,7 @@
         public static bool Exists(Expression<Func<@Model.TableInfo.Name, bool>> predicate)
         {
 	        var parser = new PredicateParser();
-            var where_str = parser.Parse(predicate);
+            var where_str = parser.Parse(predicate.Body);
 
             var sql = new StringBuilder();
             sql.Append("SELECT COUNT(1) FROM @Model.MakeTableName(Model.TableInfo.Name)");

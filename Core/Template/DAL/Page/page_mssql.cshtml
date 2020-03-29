@@ -14,7 +14,7 @@
 	        if (predicate != null)
 	        {
 		        var parser = new PredicateParser();
-		        where_str = parser.Parse(predicate);
+		        where_str = parser.Parse(predicate.Body);
             }
 
             var sql = new StringBuilder();
@@ -48,7 +48,7 @@
         public static PageDataView<@Model.TableInfo.Name> GetPage(Expression<Func<@Model.TableInfo.Name, bool>> predicate, int currentPage, int pageSize, params @(Model.TableInfo.Name)Column[] columns)
         {
             var parser = new PredicateParser();
-	        var where_str = parser.Parse(predicate);
+	        var where_str = parser.Parse(predicate.Body);
 
 	        return Paged<@Model.TableInfo.Name>(
                         "@Model.MakeTableName(Model.TableInfo.Name)",

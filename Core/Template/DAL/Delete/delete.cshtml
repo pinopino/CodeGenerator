@@ -43,7 +43,7 @@
         public static bool Delete(Expression<Func<@Model.TableInfo.Name, bool>> predicate, IDbTransaction transaction = null)
         {
             var parser = new PredicateParser();
-	        var where_str = parser.Parse(predicate);
+	        var where_str = parser.Parse(predicate.Body);
 			
             var sql = new StringBuilder();
             sql.Append("DELETE FROM @Model.MakeTableName(Model.TableInfo.Name)");

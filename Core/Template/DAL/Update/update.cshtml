@@ -16,7 +16,7 @@
         public static bool Update(@(Model.TableInfo.Name) model, IDbTransaction transaction, Expression<Func<@(Model.TableInfo.Name), bool>> predicate, bool reverse, params @(Model.TableInfo.Name)Column[] fields)
         {
             var parser = new PredicateParser();
-	        var where_str = parser.Parse(predicate);
+	        var where_str = parser.Parse(predicate.Body);
 
             var sql = new StringBuilder();
             sql.Append("UPDATE @(Model.MakeTableName(Model.TableInfo.Name))");

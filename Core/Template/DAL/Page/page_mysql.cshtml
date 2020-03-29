@@ -13,7 +13,7 @@
 			if (predicate != null)
 			{
 				var parser = new PredicateParser();
-				where_str = parser.Parse(predicate);
+				where_str = parser.Parse(predicate.Body);
 			}
 
 			var orderby_str = string.Empty;
@@ -40,7 +40,7 @@
 			if (predicate != null)
 			{
 				var parser = new PredicateParser();
-				where_str = parser.Parse(predicate);
+				where_str = parser.Parse(predicate.Body);
 			}
 
 			var orderby_str = string.Empty;
