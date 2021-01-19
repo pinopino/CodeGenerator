@@ -21,12 +21,6 @@
       "Sub_InnerName": "为sub生成的类型会嵌套在生成的main类型里面，这里可以指定该sub类型的名字"
     }
   ],
-  "ReCreateDB": { // 如果需要在数据库定义文档更新时重建sql server中的数据库，请指定该字段值
-    "SQLFilePath": "用于重建的数据库定义sql文件的路径",
-    "DBs": [
-      { "Name": " 需要重建的数据库名称" }
-    ]
-  },
   "TraceFieldTables": [ // 需要追踪字段修改的表
     { "Name": "表的名字" },
     { "Name": "" }

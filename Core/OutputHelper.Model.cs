@@ -26,21 +26,7 @@ namespace Generator.Core
                     continue;
 
                 sb.AppendLine(g.RenderModelFor(table));
-
-                var new_str = sb.ToString();
-                // 插件的执行顺序
-                foreach (var plug in _plugins)
-                {
-                    //if (!typeof(IModelInjector).IsAssignableFrom(plug.GetType()))
-                    //    continue;
-                    //if (!plug.Check(table.Name))
-                    //    continue;
-                    //new_str = plug.Inject(sb.ToString(), table.Name);
-                    //File.AppendAllText(Path.Combine(config.OutputBasePath, plug.Name, string.Format("{0}.cs", g.FileName)), new_str);
-                    //new_str = string.Empty;
-                }
-
-                File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), new_str);
+                File.AppendAllText(Path.Combine(path, string.Format("{0}.cs", g.FileName)), sb.ToString());
                 sb.Clear();
                 PrintProgress(progress, ++i, tables.Count);
             }

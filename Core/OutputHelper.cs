@@ -1,12 +1,10 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
-using Generator.Core.Inject;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -14,7 +12,6 @@ namespace Generator.Core
 {
     public sealed partial class OutputHelper
     {
-        private static List<IInjector> _plugins = new List<IInjector>();
         private static Dictionary<Type, DbType> typeMap = new Dictionary<Type, DbType>
         {
             [typeof(byte)] = DbType.Byte,
@@ -144,23 +141,6 @@ namespace Generator.Core
             return csharpType;
         }
 
-        public static void LoadPlugin(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
-        {
-            ResetProgress(progress);
-            // links: https://stackoverflow.com/questions/10732933/can-i-use-activator-createinstance-with-an-interface
-            var plugin_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CopyFiles");
-            foreach (var dll in Directory.GetFiles(plugin_path, "*.dll"))
-            {
-                Type[] load_types = (from t in Assembly.LoadFile(dll).GetExportedTypes()
-                                     where !t.IsInterface && !t.IsAbstract
-                                     where typeof(IInjector).IsAssignableFrom(t)
-                                     select t).ToArray();
-                IInjector[] objs = load_types.Select(t => (IInjector)Activator.CreateInstance(t, tables, config)).ToArray();
-                _plugins.AddRange(objs);
-            }
-            PrintProgress(progress, 100, 100);
-        }
-
         public static void OutputConfig(string content, GlobalConfiguration config, IProgressBar progress = null)
         {
             ResetProgress(progress);
@@ -174,31 +154,6 @@ namespace Generator.Core
             }
 
             File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), content, Encoding.UTF8);
-            PrintProgress(progress, 100, 100);
-        }
-
-        // link: https://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
-        public static void ReCreateDB(GlobalConfiguration config, IProgressBar progress = null)
-        {
-            ResetProgress(progress);
-            if (string.IsNullOrWhiteSpace(config.ReCreateDB.SQLFilePath) || config.ReCreateDB.DBs == null)
-            {
-                PrintProgress(progress, 100, 100);
-                return;
-            }
-
-            IReCreateDB c = null;
-            // TODO：有点丑陋，可以考虑走ioc
-            switch (config.DBType)
-            {
-                case "mssql":
-                    c = new Generator.Core.MSSql.ReCreator(config);
-                    break;
-                case "mysql":
-                    c = new Generator.Core.MySql.ReCreator(config);
-                    break;
-            }
-            c.ReCreate();
             PrintProgress(progress, 100, 100);
         }
 

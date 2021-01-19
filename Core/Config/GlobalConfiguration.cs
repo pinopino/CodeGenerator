@@ -108,13 +108,6 @@ namespace Generator.Core.Config
         /// </summary>
         public List<JoinMapping> JoinedTables { set; get; }
         /// <summary>
-        /// 如果需要在数据库定义文档更新时重建sql server中的数据库，请指定该字段值
-        /// 包含：
-        ///     1. 需要重建的数据库名称
-        ///     2. 用于重建的数据库定义sql文件的路径
-        /// </summary>
-        public ReCreateDBInfo ReCreateDB { set; get; }
-        /// <summary>
         /// 需要追踪字段修改的表
         /// </summary>
         public List<TableInfo> TraceFieldTables { set; get; }
@@ -152,13 +145,6 @@ namespace Generator.Core.Config
     {
         public TableInfo MainTable { set; get; }
         public List<TableInfo> ForeignTables { set; get; }
-    }
-
-    public class ReCreateDBInfo
-    {
-        public string SQLFilePath { set; get; }
-        public string Encoding { set; get; }
-        public List<DBInfo> DBs { set; get; }
     }
 
     public class ExceptColumnInfo

@@ -49,9 +49,6 @@ namespace Console
                 key = System.Console.ReadLine();
                 if (key == "Y" || key == "y")
                 {
-                    // 手动加载插件
-                    OutputHelper.LoadPlugin(meta_data, config);
-
                     // 生成DAL最终文件
                     Print("生成DAL...");
                     OutputHelper.OutputDAL(meta_data, config, progress);
@@ -63,7 +60,7 @@ namespace Console
                     // 生成Enum最终文件
                     Print("生成Enum...");
                     OutputHelper.OutputEnum(meta_data, config, progress);
-                    
+
                     // 检测partial字段有效性
                     Print("检测partial字段有效性...");
                     //OutputHelper.DoPartialCheck(meta_data, config, progress);
@@ -87,7 +84,7 @@ namespace Console
 
         static void Exit(string message = "")
         {
-            if(!string.IsNullOrEmpty(message))
+            if (!string.IsNullOrEmpty(message))
                 System.Console.WriteLine(message);
             System.Console.Read();
             Environment.Exit(0);
