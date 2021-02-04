@@ -45,7 +45,7 @@ namespace Generator.Core.MySql
                     var _fail = false;
                     foreach (var item in fields)
                     {
-                        item.Type = item.Type.Substring(0, item.Type.IndexOf("("));
+                        item.Type = item.Type.IndexOf("(") < 0 ? item.Type : item.Type.Substring(0, item.Type.IndexOf("("));
                         if (item.Type.Any(p => p.Equals("enum") || p.Equals("set")))
                         {
                             _fail = true;

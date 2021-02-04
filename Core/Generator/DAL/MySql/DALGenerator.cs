@@ -44,7 +44,7 @@ namespace Generator.Core.MySql
 
         public override string MakeConnection()
         {
-            throw new NotImplementedException();
+            return "new MySqlConnection()";
         }
     }
 }
