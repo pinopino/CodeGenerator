@@ -1,10 +1,10 @@
 # CodeGenerator
 关于数据访问层的代码主要有几种思路：
-- **原生**
+- **原生**\
   代表有`dapper`。可能有些分类中会把dapper归为orm，但个人实在不是太认可，dapper它太轻量了，设计决策也非常清晰明确就指着`DbConnection`凶猛扩展就完事儿了
-- **orm**
+- **orm**\
   代表有`ef/ef core`。社区新近的有[freesql](https://github.com/dotnetcore/FreeSql)、[linq2db](https://github.com/linq2db/linq2db)等优秀的rom
-- **代码生成**
+- **代码生成**\
   最早比较出名的是一款名叫`动软代码生成`的软件（暴露年龄了）；当然基本上这条线上思路都是非常简单清晰的
 
 `CodeGenerator`采用的即是第三种方式，走的就是生成流；底层套用了dapper，dapper虽然方便但是如果在项目中从头开始撸代码也会被很多重复的代码搞得受不了，所以dapper+代码生成便成了一个不错的选择。
