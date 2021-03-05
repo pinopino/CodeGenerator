@@ -55,7 +55,7 @@ namespace Generator.Core.MySql
                         var ColumData = new ColumnMetaData
                         {
                             Comment = item.Comment,
-                            DbType = OutputHelper.MapCsharpType(item.Type),
+                            DbType = MapCsharpType(item.Type),
                             HasDefaultValue = item.Default != null ? true : false,
                             IsIdentity = item.Key == "PRI" ? true : false,
                             IsPrimaryKey = item.Key == "PRI" ? true : false,
@@ -110,6 +110,42 @@ namespace Generator.Core.MySql
             }
 
             return db_name;
+        }
+        protected override string MapCsharpType(string dbtype)
+        {
+            if (string.IsNullOrEmpty(dbtype)) return dbtype;
+            dbtype = dbtype.ToLower();
+            string csharpType = "object";
+            switch (dbtype)
+            {
+                case "bigint": csharpType = "long"; break;
+                case "binary": csharpType = "byte[]"; break;
+                case "bool": csharpType = "bool"; break;
+                case "boolen": csharpType = "bool"; break;
+                case "char": csharpType = "string"; break;
+                case "date": csharpType = "DateTime"; break;
+                case "datetime": csharpType = "DateTime"; break;
+                case "datetimeoffset": csharpType = "DateTimeOffset"; break;
+                case "decimal": csharpType = "decimal"; break;
+                case "float": csharpType = "float"; break;
+                case "double": csharpType = "double"; break;
+                case "image": csharpType = "byte[]"; break;
+                case "int": csharpType = "int"; break;
+                case "nchar": csharpType = "string"; break;
+                case "ntext": csharpType = "string"; break;
+                case "numeric": csharpType = "decimal"; break;
+                case "nvarchar": csharpType = "string"; break;
+                case "smallint": csharpType = "short"; break;
+                case "sysname": csharpType = "object"; break;
+                case "text": csharpType = "string"; break;
+                case "time": csharpType = "TimeSpan"; break;
+                case "timestamp": csharpType = "byte[]"; break;
+                case "tinyint": csharpType = "byte"; break;
+                case "varbinary": csharpType = "byte[]"; break;
+                case "varchar": csharpType = "string"; break;
+                default: csharpType = "object"; break;
+            }
+            return csharpType;
         }
     }
 }

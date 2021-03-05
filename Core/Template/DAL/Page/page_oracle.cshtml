@@ -6,8 +6,7 @@
 }
 		/// <summary>
         /// 此分页用于有数值型主键的table,如果表数据庞大最好手写一个高效的分页方式
-        ///
-        </summary>
+        ///</summary>
 		public static PageDataView<@(Model.TableInfo.Name)> GetPage(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, int pageSize = 20, int currentPage = 1, @(Model.TableInfo.Name)Column orderBy = null, params @(Model.TableInfo.Name)Column[] columns)
         {
 			var where_str = string.Empty;
@@ -37,50 +36,54 @@
 		/// </summary>
 		public static PageDataView<@(Model.TableInfo.Name)> GetPage(Expression<Func<@(Model.TableInfo.Name), bool>> predicate, int pageSize, int currentPage, IList<@(Model.TableInfo.Name)Column> orderBy, params @(Model.TableInfo.Name)Column[] columns)
         {
-            var where_str = string.Empty;
-            if (predicate != null)
-            {
-            var parser = new PredicateParser();
-            where_str = parser.Parse(predicate.Body);
-            }
+			var where_str = string.Empty;
+			if (predicate != null)
+			{
+				var parser = new PredicateParser();
+				where_str = parser.Parse(predicate.Body);
+			}
 
-            var orderby_str = string.Empty;
+			var orderby_str = string.Empty;
             if (orderBy != null && orderBy.Count > 0)
             {
-            orderby_str = string.Join(", ", orderBy.Select(p => $"@(Model.EscapeLeft){p.Name}@(Model.EscapeRight) {p.Asc}"));
+                orderby_str = string.Join(", ", orderBy.Select(p => $"@(Model.EscapeLeft){p.Name}@(Model.EscapeRight) {p.Asc}"));
             }
 
             var column_str = "*";
             if (columns != null && columns.Length > 0)
             {
-            column_str = string.Join(", ", columns.Select(p => $"@(Model.EscapeLeft){p.Name}@(Model.EscapeRight)"));
+                column_str = string.Join(", ", columns.Select(p => $"@(Model.EscapeLeft){p.Name}@(Model.EscapeRight)"));
             }
 
-            return Paged<@(Model.TableInfo.Name)>
-            ("@(Model.EscapeLeft)@(Model.TableInfo.Name)@(Model.EscapeRight)", where_str, orderby_str, column_str, pageSize, currentPage, "@(Model.EscapeLeft)@(Model.TableInfo.PrimaryKey)@(Model.EscapeRight)");
+			return Paged<@(Model.TableInfo.Name)>("@(Model.EscapeLeft)@(Model.TableInfo.Name)@(Model.EscapeRight)", where_str, orderby_str, column_str, pageSize, currentPage, "@(Model.EscapeLeft)@(Model.TableInfo.PrimaryKey)@(Model.EscapeRight)");
         }
-
-        protected static PageDataView<@(Model.TableInfo.Name)> Paged<@(Model.TableInfo.Name)>(string tableName, string where, string orderBy, string columns, int pageSize, int currentPage, string primaryKey)
+        protected static PageDataView<@(Model.TableInfo.Name)> Paged<@(Model.TableInfo.Name)>(
+            string tableName,
+            string where,
+            int pageSize,
+            int currentPage,
+            string orderBy="")
         {
             var result = new PageDataView<@(Model.TableInfo.Name)>();
             var count_sql = string.Format("SELECT COUNT(1) FROM {0}", tableName);
 
+            var whereIn = "WHERE 1=1 ";
             if (!string.IsNullOrWhiteSpace(where))
             {
                 if (where.ToLower().Contains("where"))
                 {
                     throw new ArgumentException("where子句不需要带where关键字");
                 }
-                where = " WHERE " + where;
+                whereIn = string.Format("{0} and {1}", whereIn, where);
             }
-            var pageStart = (currentPage - 1) * pageSize;
-            var sql = string.Format("SELECT {0} FROM {2} where {6} >=(select {6} from {2} {3}  limit {4},1) limit {5}; ", columns, "", tableName, where, pageStart, pageSize, primaryKey);
-            if (!string.IsNullOrWhiteSpace(orderBy))
+            var startNum = (currentPage - 1) * pageSize;
+            var endNum = currentPage * pageSize;
+            var sql = string.Format("SELECT * FROM (SELECT tt.*, ROWNUM AS rowno FROM(SELECT t.* FROM {1} WHERE {2} ORDER BY {0})tt WHERE ROWNUM <= {4}) " + "table_alias WHERE table_alias.rowno > {4} ", orderBy, tableName, where, startNum, endNum);
+            if (string.IsNullOrWhiteSpace(orderBy))
             {
-                sql = string.Format("SELECT {0} FROM {2} where {6} >=(select {6} from {2} {3}  ORDER BY {1} limit {4},1) limit {5}; ", columns, orderBy, tableName, where, pageStart, pageSize, primaryKey);
+                sql = string.Format("SELECT * FROM (SELECT t.*,ROWNUM AS rowno FROM {1} t {2} and ROWNUM <= {4}) table_alias WHERE table_alias.rowno > {3} ", orderBy, tableName, whereIn, startNum, endNum);
             }
-
-            count_sql += where;
+            count_sql += whereIn;
             using (var conn = GetOpenConnection())
             {
                 result.TotalRecords = conn.ExecuteScalar<int>(count_sql);

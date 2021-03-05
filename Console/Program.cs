@@ -31,6 +31,9 @@ namespace Console
                 case "mysql":
                     parser = new Generator.Core.MySql.Parser(config, progress);
                     break;
+                case "oracle":
+                    parser = new Generator.Core.Oracle.Parser(config, progress);
+                    break;
                 default:
                     throw new NotSupportedException("不支持的数据库类型");
             }

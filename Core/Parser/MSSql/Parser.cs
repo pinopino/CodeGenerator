@@ -54,7 +54,7 @@ namespace Generator.Core.MSSql
             var meta_col = new ColumnMetaData();
             meta_col.TableName = metaTable.Name;
             meta_col.Name = column.Name;
-            meta_col.DbType = OutputHelper.MapCsharpType(column.DataType.ToString());
+            meta_col.DbType = base.MapCsharpType(column.DataType.ToString());
             meta_col.Comment = column.ExtendedProperties["MS_Description"]?.Value.ToString().Trim();
             meta_col.IsPrimaryKey = column.InPrimaryKey;
             meta_col.IsIdentity = column.Identity;
