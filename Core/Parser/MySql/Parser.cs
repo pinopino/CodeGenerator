@@ -111,6 +111,7 @@ namespace Generator.Core.MySql
 
             return db_name;
         }
+
         protected override string MapCsharpType(string dbtype)
         {
             if (string.IsNullOrEmpty(dbtype)) return dbtype;

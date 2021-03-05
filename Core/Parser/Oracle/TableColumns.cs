@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Generator.Core.Oracle
 {
@@ -18,6 +15,7 @@ namespace Generator.Core.Oracle
         [Column("NULLABLE")]
         public string nullable { get; set; }
     }
+
     public class TableFileds
     {
         [Column("COMMENTS")]
@@ -25,6 +23,7 @@ namespace Generator.Core.Oracle
         [Column("TABLE_NAME")]
         public string table_name { get; set; }
     }
+
     public class TablePKColumn
     {
         [Column("COLUMN_NAME")]

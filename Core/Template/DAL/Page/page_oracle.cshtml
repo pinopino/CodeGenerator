@@ -57,6 +57,7 @@
 
 			return Paged<@(Model.TableInfo.Name)>("@(Model.EscapeLeft)@(Model.TableInfo.Name)@(Model.EscapeRight)", where_str, orderby_str, column_str, pageSize, currentPage, "@(Model.EscapeLeft)@(Model.TableInfo.PrimaryKey)@(Model.EscapeRight)");
         }
+
         protected static PageDataView<@(Model.TableInfo.Name)> Paged<@(Model.TableInfo.Name)>(
             string tableName,
             string where,

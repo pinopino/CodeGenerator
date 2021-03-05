@@ -1,9 +1,9 @@
 ﻿using Dapper;
 using Generator.Common;
 using Generator.Core.Config;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
-using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -38,7 +38,7 @@ namespace Generator.Core.Oracle
             var count = 0;
             foreach (var info in TableNames)
             {///这里会循环去查数据库，生成代码也不用管什么性能了。
-                var table = new TableMetaData(info.table_name,info.comments);
+                var table = new TableMetaData(info.table_name, info.comments);
                 List<TableColumns> columns = GetTableColumns(info.table_name, base.ConnStr);
                 var pk = PKs.Where(p => p.table_name == info.table_name).FirstOrDefault();
                 if (pk == null)
@@ -83,7 +83,7 @@ namespace Generator.Core.Oracle
                         }
                     }
                     table.Columns.Add(ColumData);
-                   
+
                 }
                 result.Add(table.Name, table);
 
@@ -107,6 +107,7 @@ namespace Generator.Core.Oracle
 
             return db_name;
         }
+
         protected override string MapCsharpType(string dbtype)
         {
             if (string.IsNullOrEmpty(dbtype)) return dbtype;
@@ -139,10 +140,10 @@ namespace Generator.Core.Oracle
             }
             return csharpType;
         }
+
         /// <summary>
         /// 获取数据表名和备注
         /// </summary>
-        /// <returns></returns>
         private static List<TableFileds> GetUserAllTables(string conn_str)
         {
             var sql = new StringBuilder();
@@ -160,8 +161,6 @@ namespace Generator.Core.Oracle
         /// <summary>
         /// 获取到表的字段名，类型，长度和介绍
         /// </summary>
-        /// <param name="tableName"></param>
-        /// <returns></returns>
         private static List<TableColumns> GetTableColumns(string tableName, string conn_str)
         {
             var sql = new StringBuilder();
@@ -189,12 +188,12 @@ namespace Generator.Core.Oracle
 
             return ret;
         }
+
         private static OracleConnection GetOpenConnection(string conn_str)
         {
             var connection = new OracleConnection(conn_str);
             connection.Open();
             return connection;
         }
-
     }
 }

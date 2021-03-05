@@ -1,9 +1,5 @@
-﻿using Generator.Common;
-using Generator.Core.Config;
-using Generator.Template;
+﻿using Generator.Core.Config;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Generator.Core.MSSql
 {

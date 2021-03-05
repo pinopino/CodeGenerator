@@ -6,8 +6,7 @@
 }
 		/// <summary>
         /// 此分页用于有数值型主键的table,如果表数据庞大最好手写一个高效的分页方式
-        ///
-        </summary>
+        /// </summary>
 		public static PageDataView<@(Model.TableInfo.Name)> GetPage(Expression<Func<@(Model.TableInfo.Name), bool>> predicate = null, int pageSize = 20, int currentPage = 1, @(Model.TableInfo.Name)Column orderBy = null, params @(Model.TableInfo.Name)Column[] columns)
         {
 			var where_str = string.Empty;
@@ -56,8 +55,7 @@
             column_str = string.Join(", ", columns.Select(p => $"@(Model.EscapeLeft){p.Name}@(Model.EscapeRight)"));
             }
 
-            return Paged<@(Model.TableInfo.Name)>
-            ("@(Model.EscapeLeft)@(Model.TableInfo.Name)@(Model.EscapeRight)", where_str, orderby_str, column_str, pageSize, currentPage, "@(Model.EscapeLeft)@(Model.TableInfo.PrimaryKey)@(Model.EscapeRight)");
+            return Paged<@(Model.TableInfo.Name)>("@(Model.EscapeLeft)@(Model.TableInfo.Name)@(Model.EscapeRight)", where_str, orderby_str, column_str, pageSize, currentPage, "@(Model.EscapeLeft)@(Model.TableInfo.PrimaryKey)@(Model.EscapeRight)");
         }
 
         protected static PageDataView<@(Model.TableInfo.Name)> Paged<@(Model.TableInfo.Name)>(string tableName, string where, string orderBy, string columns, int pageSize, int currentPage, string primaryKey)
