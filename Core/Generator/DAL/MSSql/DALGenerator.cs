@@ -34,12 +34,12 @@ namespace Generator.Core.MSSql
 
         public override string NormalizeTableName(string tableName)
         {
-            return $"[{tableName}]";
+            return $"{EscapeLeft}{tableName}{EscapeRight}";
         }
 
         public override string NormalizeFieldName(string fieldName)
         {
-            return $"[{fieldName}]";
+            return $"{EscapeLeft}{fieldName}{EscapeRight}";
         }
 
         public override string MakeConnection()

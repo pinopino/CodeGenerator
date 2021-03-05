@@ -1,0 +1,38 @@
+﻿@using RazorLight
+@using Generator.Template;
+@inherits TemplatePage<ViewInfoWapper>
+@{
+    DisableEncoding = true;
+}
+
+        /// <summary>
+        /// 添加新@(Model.TableInfo.Name)记录
+        /// </summary>
+        /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
+        /// <returns>是否成功</returns>
+        public static bool Insert(@(Model.TableInfo.Name) model, IDbTransaction transaction = null)
+        {
+            var sql = new StringBuilder();
+            sql.Append("INSERT @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
+            sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+
+            using (var conn = GetOpenConnection())
+              return conn.Execute<@(Model.TableInfo.PrimaryKey.DbType)>(sql.ToString(), model, transaction) > 0 ? true : false;
+        }
+
+        /// <summary>
+        /// 批量插入@(Model.TableInfo.Name)记录
+        /// </summary>
+        /// <param name="model">List<@(Model.TableInfo.Name)>实体对象</param>
+        /// <returns>是否插入成功，true为成功</returns>
+        public static bool InsertMany(List<@(Model.TableInfo.Name)> models, IDbTransaction transaction = null)
+        {
+            var sql = new StringBuilder();
+            sql.Append("INSERT @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
+            sql.Append("VALUES (@(Model.MakeSQLParamList(Model.TableInfo.Columns)))");
+            var ret = false;
+            using (var conn = GetOpenConnection())
+                ret = conn.Execute(sql.ToString(), models, transaction) > 0;
+
+            return ret;
+        }

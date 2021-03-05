@@ -1,5 +1,6 @@
 ﻿using Generator.Common;
 using Generator.Core.Config;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,6 +27,11 @@ namespace Generator.Core
                 case "mysql":
                     g = new Generator.Core.MySql.DALGenerator(config);
                     break;
+                case "oracle":
+                    g = new Generator.Core.Oracle.DALGenerator(config);
+                    break;
+                default:
+                    throw new NotSupportedException("不支持的数据库类型");
             }
 
             // 解析
