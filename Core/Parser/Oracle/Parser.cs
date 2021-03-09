@@ -96,16 +96,7 @@ namespace Generator.Core.Oracle
 
         protected override string FindDBName(string connStr)
         {
-            var db_name = string.Empty;
-            var cb = new DbConnectionStringBuilder(false);
-            cb.ConnectionString = connStr;
-            object database;
-            if (cb.TryGetValue("Database", out database))
-            {
-                db_name = database.ToString();
-            }
-
-            return db_name;
+            return "";
         }
 
         protected override string MapCsharpType(string dbtype)
