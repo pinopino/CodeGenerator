@@ -66,15 +66,17 @@ namespace Generator.Core.Config
             this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace};");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Metadata;");
             this.DALConfig.Using.Add($"using {this.DALConfig.Namespace}.Base;");
-            //if (this.JoinedTables != null && this.JoinedTables.Count > 0)
-            //    this.DALConfig.Using.Add($"using {this.ModelConfig.Namespace}.JoinedViewModel;");
+
+            // exclude table
+            this.ExcludeTables = new List<TableInfo>();
+            foreach (var item in _root.GetSection("ExcludeTables").GetChildren())
+                this.ExcludeTables.Add(new TableInfo { Name = item.Value });
         }
 
         /// <summary>
         /// 数据库类型: mssql, mysql
         /// </summary>
         public string DBType { set; get; }
-
         /// <summary>
         /// 连接数据库
         /// </summary>
@@ -92,29 +94,9 @@ namespace Generator.Core.Config
         /// </summary>
         public string Project { set; get; }
         /// <summary>
-        /// 需要检查的DAL Partial文件的路径
-        /// </summary>
-        public string PartialCheck_DAL_Path { set; get; }
-        /// <summary>
         /// 生成时想要排除的表
         /// </summary>
         public List<TableInfo> ExcludeTables { set; get; }
-        /// <summary>
-        /// 生成更新代码时想要排除掉的字段。例如：Table1:Name,Age;*:CreatedTime
-        /// </summary>
-        public Dictionary<string, List<ExceptColumnInfo>> UpdateExcludeColumns { set; get; }
-        /// <summary>
-        /// 需要生成join方法的表
-        /// </summary>
-        public List<JoinMapping> JoinedTables { set; get; }
-        /// <summary>
-        /// 需要追踪字段修改的表
-        /// </summary>
-        public List<TableInfo> TraceFieldTables { set; get; }
-        /// <summary>
-        /// 需要实现接口IEntity接口的表
-        /// </summary>
-        public List<TableInfo> EntityTables { set; get; }
         /// <summary>
         /// 生成Model对象时指定的配置信息
         /// </summary>
@@ -133,23 +115,11 @@ namespace Generator.Core.Config
     public class TableInfo
     {
         public string Name { set; get; }
-        public string InnerClassName { set; get; }
     }
 
     public class ColumnInfo
     {
         public string Name { set; get; }
-    }
-
-    public class JoinMapping
-    {
-        public TableInfo MainTable { set; get; }
-        public List<TableInfo> ForeignTables { set; get; }
-    }
-
-    public class ExceptColumnInfo
-    {
-        public string ColumnName { set; get; }
     }
 
     public class ModelConfig
@@ -170,11 +140,6 @@ namespace Generator.Core.Config
         public string BaseClass { set; get; }
         public string ClassPrefix { set; get; }
         public string ClassSuffix { set; get; }
-        public List<MethodInfo> Methods { set; get; }
-    }
-
-    public class MethodInfo
-    {
-        public string Name { set; get; }
+        public List<string> Methods { set; get; }
     }
 }

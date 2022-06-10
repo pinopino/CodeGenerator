@@ -11,7 +11,7 @@
         /// </summary>
         /// <param name="model">@(Model.TableInfo.Name)实体对象</param>
         /// <returns>新插入数据的id</returns>
-        public static bool Insert(@(Model.TableInfo.Name) model, out @(Model.TableInfo.PrimaryKey.DbType) id, IDbTransaction transaction = null)
+        public static @(Model.TableInfo.PrimaryKey.DbType) Insert(@(Model.TableInfo.Name) model, out @(Model.TableInfo.PrimaryKey.DbType) id, IDbTransaction transaction = null)
         {
             var sql = new StringBuilder();
             sql.Append("INSERT INTO @Model.MakeTableName(Model.TableInfo.Name) (@Model.MakeSQLColumnList(Model.TableInfo.Columns)");
@@ -21,7 +21,7 @@
             using (var conn = GetOpenConnection())
                 id = conn.ExecuteScalar<@(Model.TableInfo.PrimaryKey.DbType)>(sql.ToString(), model, transaction);
 
-            return true;
+            return id;
         }
 
         @{ 无主键: }

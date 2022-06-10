@@ -68,6 +68,8 @@ namespace Generator.Core
 
         public abstract string MakeConnection();
 
+        public abstract string MakeSqlUsing();
+
         /// <summary>
         /// 生成的方法的参数列表
         /// </summary>
@@ -88,15 +90,6 @@ namespace Generator.Core
             foreach (var item in columns)
                 sb.Append($"/// <param name=\"{item.Name}\">{item.Comment}</param>");
             return sb.ToString();
-        }
-
-        public bool IsUpdateExcludeColumn(string table, string colunm)
-        {
-            if (_config.UpdateExcludeColumns == null)
-                return false;
-
-            return _config.UpdateExcludeColumns.ContainsKey("*") && _config.UpdateExcludeColumns["*"].Any(p => p.ColumnName == colunm) ||
-                _config.UpdateExcludeColumns.ContainsKey(table) && _config.UpdateExcludeColumns[table].Any(p => p.ColumnName == colunm);
         }
     }
 }

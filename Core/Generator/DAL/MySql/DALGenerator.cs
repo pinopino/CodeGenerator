@@ -42,5 +42,10 @@ namespace Generator.Core.MySql
         {
             return "new MySqlConnection()";
         }
+
+        public override string MakeSqlUsing()
+        {
+            return $"{Environment.NewLine}using MySql.Data.MySqlClient;";
+        }
     }
 }

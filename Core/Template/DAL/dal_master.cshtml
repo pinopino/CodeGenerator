@@ -71,7 +71,7 @@ namespace @Model.Config.DALConfig.Namespace
         @* 输出类的方法 *@
         @foreach (var item in Model.Config.DALConfig.Methods)
         {
-            var templateLocal = Model.GetPartialViewPath(item.Name);
+            var templateLocal = Model.GetPartialViewPath(item);
             if (string.IsNullOrEmpty(templateLocal))
             {
                 continue;

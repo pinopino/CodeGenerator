@@ -54,6 +54,11 @@ namespace Generator.Template
             return ((BaseDALGenerator)_generator).MakeConnection();
         }
 
+        public string MakeSqlUsing()
+        {
+            return ((BaseDALGenerator)_generator).MakeSqlUsing();
+        }
+
         public string MakeMethodParam(params ColumnMetaData[] columns)
         {
             return ((BaseDALGenerator)_generator).MakeMethodParam(columns);
@@ -132,11 +137,6 @@ namespace Generator.Template
             foreach (var item in columns)
                 sb.Append($"{gen.NormalizeFieldName(item.Name)}={item.Name}, ");
             return sb.TrimEnd(", ").ToString();
-        }
-
-        public bool IsUpdateExcludeColumn(ColumnMetaData column)
-        {
-            return ((BaseDALGenerator)_generator).IsUpdateExcludeColumn(TableInfo.Name, column.Name);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Console
             config.Init();
 
             if (string.IsNullOrWhiteSpace(config.DBType))
-                Exit("未设置要连接的数据库类型（目前支持mssql，mysql）！");
+                Exit("未设置要连接的数据库类型（目前支持mssql，mysql，oracle）！");
 
             if (string.IsNullOrWhiteSpace(config.DBConn))
                 Exit("未设置数据库连接字符串！");
@@ -63,10 +63,6 @@ namespace Console
                     // 生成Enum最终文件
                     Print("生成Enum...");
                     OutputHelper.OutputEnum(meta_data, config, progress);
-
-                    // 检测partial字段有效性
-                    Print("检测partial字段有效性...");
-                    //OutputHelper.DoPartialCheck(meta_data, config, progress);
 
                     Print("生成完毕！");
                     break;

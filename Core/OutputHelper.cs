@@ -4,9 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Generator.Core
 {
@@ -111,89 +109,6 @@ namespace Generator.Core
 
             File.AppendAllText(Path.Combine(config.OutputBasePath, "sql_config.config"), content, Encoding.UTF8);
             PrintProgress(progress, 100, 100);
-        }
-
-        public static void DoPartialCheck(Dictionary<string, TableMetaData> tables, GlobalConfiguration config, IProgressBar progress = null)
-        {
-            if (string.IsNullOrWhiteSpace(config.PartialCheck_DAL_Path))
-            {
-                return;
-            }
-            var partial_path = Path.Combine(config.PartialCheck_DAL_Path, "partial");
-            var partial_files = Directory.GetFiles(partial_path);
-            var list = InnerCheckPartial(tables, partial_files, config);
-            if (list.Count > 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("以下字段可能有问题：");
-                list.ForEach(p => Console.WriteLine(p));
-                Console.ResetColor();
-            }
-            else
-            {
-                Console.WriteLine("检测完毕");
-            }
-        }
-
-        private static List<string> InnerCheckPartial(Dictionary<string, TableMetaData> tables, string[] partial_file_names, GlobalConfiguration config)
-        {
-            var ret = new List<string>();
-            var regex = new Regex(@"(?<=\[)[^\]]+(?=\])", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-            // 先检测一波表是否能对应
-            for (int i = 0; i < partial_file_names.Length; i++)
-            {
-                var file1 = partial_file_names[i];
-                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs", "");
-                var exist = tables.ContainsKey(tmp_file_name);
-                if (!exist)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("partial文件对应的表 [" + tmp_file_name + "] 不存在于当前数据库中，这极有可能是因为连接到错误的数据库引起的!");
-                    Console.ResetColor();
-                    return ret;
-                }
-            }
-
-            for (int i = 0; i < partial_file_names.Length; i++)
-            {
-                var file1 = partial_file_names[i];
-                var content1 = File.ReadAllText(file1);
-                var matches1 = regex.Matches(content1);
-                var key_words1 = new List<string>();
-                foreach (Match item in matches1)
-                {
-                    if (item.Success)
-                    {
-                        if (key_words1.Find(p => p.ToLower() == item.Value.ToLower()) == null)
-                        {
-                            key_words1.Add(item.Value);
-                        }
-                    }
-                }
-
-                var tmp_file_name = file1.Substring(file1.LastIndexOf('\\') + 1).Replace("Helper.cs", "");
-                var table = tables[tmp_file_name];
-                var key_words2 = table.Columns.Select(p => p.Name.ToLower()).ToList();
-                key_words2.Add(table.Name.ToLower());
-
-                var sb = new StringBuilder();
-                foreach (var item in key_words1)
-                {
-                    if (key_words2.Find(p => p == item.ToLower()) == null)
-                    {
-                        sb.Append(string.Format("{0}, ", item));
-                    }
-                }
-
-                var str = sb.ToString().TrimEnd(", ");
-                if (!string.IsNullOrWhiteSpace(str))
-                {
-                    ret.Add("[" + table.Name + "]: \r\n" + str);
-                }
-            }
-
-            return ret;
         }
 
         private static void PrintProgress(IProgressBar progress, long index, long total)

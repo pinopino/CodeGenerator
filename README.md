@@ -51,3 +51,10 @@ public static class ChannelAgentInfo_Type_Enum
 }
 ```
 比如你不满意这样的生成结果，那么对应修改`Template\Enum\`路径下enum生成模板`enum.cshtml`即可，是不是很简单：）
+
+## 感谢
+感谢以下小伙伴的辛勤付出：
+
+[@CuriousPeng](https://github.com/curiousPeng)
+
+[@smilesxsy](https://github.com/smilesxsy)

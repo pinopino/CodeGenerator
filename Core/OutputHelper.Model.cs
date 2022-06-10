@@ -31,23 +31,6 @@ namespace Generator.Core
                 PrintProgress(progress, ++i, tables.Count);
             }
 
-            // 如果配置文件指定了JoinedTables，那么这里需要为这些关联表生成额外的包装model，
-            // 路径：Model\JoinedViewModel
-            if (config.JoinedTables != null && config.JoinedTables.Count > 0)
-            {
-                //Directory.CreateDirectory(Path.Combine(path, "JoinedViewModel"));
-                //var sb2 = new StringBuilder();
-                //foreach (var map in config.JoinedTables)
-                //{
-                //    sb2.AppendLine(g.Get_Join_Head(map));
-                //    sb2.AppendLine(g.Get_Joined_Class(map));
-                //    sb2.AppendLine(g.Get_Join_Tail(map));
-
-                //    File.AppendAllText(Path.Combine(path, "JoinedViewModel", string.Format("{0}.cs", "Joined" + g.FileName)), sb2.ToString());
-                //    sb2.Clear();
-                //}
-            }
-
             // 拷贝公用文件到指定目录
             DirHelper.CopyDirectory(Path.Combine("CopyFiles", "Model"), path);
         }

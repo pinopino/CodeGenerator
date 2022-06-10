@@ -42,5 +42,10 @@ namespace Generator.Core.MSSql
         {
             return "new SqlConnection()";
         }
+
+        public override string MakeSqlUsing()
+        {
+            return string.Empty;
+        }
     }
 }

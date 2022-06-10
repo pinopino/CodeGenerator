@@ -43,10 +43,6 @@ namespace Generator.Core
                     continue;
 
                 sb.Append(g.RenderDALFor(table));
-                // Joined
-                var join_info = config.JoinedTables == null ? null : config.JoinedTables.FirstOrDefault(p => p.MainTable.Name == table.Name);
-                if (join_info != null)
-                { }
 
                 File.AppendAllText(Path.Combine(path, string.Format("{0}Helper.cs", table.Name)), sb.ToString());
                 sb.Clear();

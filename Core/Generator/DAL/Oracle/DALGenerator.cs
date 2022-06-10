@@ -42,5 +42,10 @@ namespace Generator.Core.Oracle
         {
             return "new OracleConnection()";
         }
+
+        public override string MakeSqlUsing()
+        {
+            return string.Empty;
+        }
     }
 }
